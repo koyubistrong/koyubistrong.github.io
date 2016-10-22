@@ -18,6 +18,16 @@
 
 「RCOpenFUTK/src」に移動して以下コマンドを実行する．
 
+### main関数の変更
+
+「RCOpenFUTK/src/Main/main.cpp」を以下の様に書き換える．
+
+	Agent* agent;
+	srand((unsigned int)time(NULL));
+	//agent = new AgentSample(argc, argv);
+	agent = new AgentTest(argc, argv);
+	agent->Run();
+
 $./AutoMakeFileAM
 
 これは自動的に「src」の配下にあるファイルソースコードを自動的に「Makefile.am」に追加する．<br>
