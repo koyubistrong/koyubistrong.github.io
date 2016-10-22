@@ -17,3 +17,7 @@
 
 [AgentTest.cpp](https://github.com/koyubistrong/koyubistrong.github.io/blob/master/AgentTest.cpp)
 
+「RCOpenFUTK/src」に移動いて以下コマンドを実行する．
+$./AutoMakeFileAM
+
+
