@@ -119,6 +119,15 @@ Think関数の中に「MoveHeadByCode」関数をコメント化して，<br>
     </sequence>
     
  timeは「50」で「1秒」である．<br>
- よって，「2秒間」頭を左に向かせたあと，「2秒間」頭を右に向かせるという命令である．<br>
+ よって，「2秒間」頭を左に120度に向かせたあと，「2秒間」頭を右に120度向かせるという命令である．<br>
 「motion」や「degree」などは「StandUpFromBack.xml」や「StandUpFromProne.xml」を参考にすること．
 
+また「AgentTest.cpp」に戻り「MoveHeadByXML」関数に以下のコードを追加する．
+
+    motion_->Run();
+    if(motion_->IsEnd())
+    {
+         motion_->Reset();
+    }
+    
+これは，先程の想定解と一緒である．
