@@ -106,4 +106,4 @@ Think関数の中に「MoveHeadByCode」関数をコメント化して，<br>
 
     motion_ = new MotionSequenceXML("xml/MotionXML/ShakingHead.xml");
     
-と書いてあるので「RCOpenFUTK/src/xml/MotionXML」に「ShakingHead.xml」を作成する．
+と書いてあるので「RCOpenFUTK/src/xml/MotionXML」に「ShakingHead.xml」をファイル作成する．
