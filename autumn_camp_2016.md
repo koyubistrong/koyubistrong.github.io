@@ -36,8 +36,8 @@ Agent/AgentTest/AgentTest.cpp
 
 Think()の中に「MoveHeadByCode」関数を呼び出すようにする．<br>
 「MoveHeadByCode」関数を以下のコードを追加する．
-...
-  JointController& jc = SJointController::GetInstance();
-  jc.SettingRelativeSpeed(HJ_HJ1, 120.0, 0.05);
-...
+
+    JointController& jc = SJointController::GetInstance();
+    jc.SettingRelativeSpeed(HJ_HJ1, 120.0, 0.05);
+
 
