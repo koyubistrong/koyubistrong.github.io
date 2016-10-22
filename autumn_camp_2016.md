@@ -13,7 +13,7 @@
 
 「AgentTest.hpp」の中に以下を追加する
 
-#ifndef _FUTK_AGENT_TEST_HPP_
+&hash mark;ifndef _FUTK_AGENT_TEST_HPP_
 #define _FUTK_AGENT_TEST_HPP_
 
 #include "Agent.hpp"
