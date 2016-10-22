@@ -39,6 +39,12 @@ Agent/AgentTest/AgentTest.cpp
 	agent = new AgentTest(argc, argv);
 	agent->Run();
 
+上のほうに
+
+        #include "AgentTest.hpp"
+	
+も追加する．
+
 ## 関節を動かす
 
 ### コードで直接間接を動かす
@@ -49,7 +55,9 @@ Think関数の中に「MoveHeadByCode」関数を呼び出すようにする．<
     JointController& jc = SJointController::GetInstance();
     jc.SettingRelativeSpeed(HJ_HJ1, 120.0, 0.05);
 
-SettingRelativeSpeed関数の引数を説明する．
+SettingRelativeSpeed関数は目標角度と現在の角度大きければ早くなる．<br>
+逆に小さければ遅くなる．<br>
+引数を説明する．
 
 　第一引数は回転させる関節を指定する．<br>
 　第二引数はどこまで回転させるか指定する．<br>
@@ -65,4 +73,4 @@ SettingRelativeSpeed関数の引数を説明する．
 
 ### 課題1
 
-「cycle\_」変数を使って左右にロボットの頭を動かせるようにせよ．
+「cycle\_」変数を使って左右になんかいロボットの頭を動かせるようにせよ．
