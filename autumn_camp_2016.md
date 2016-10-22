@@ -107,3 +107,16 @@ Think関数の中に「MoveHeadByCode」関数をコメント化して，<br>
     motion_ = new MotionSequenceXML("xml/MotionXML/ShakingHead.xml");
     
 と書いてあるので「RCOpenFUTK/src/xml/MotionXML」に「ShakingHead.xml」をファイル作成する．
+「ShakingHead.xml」に以下を追加する
+
+    <sequence name="head_shake" refresh="true">
+      <motion name="left" time="120">
+        <move id="hj1" degree="120.0" speed="0.05"/>
+      </motion>
+      <motion name="right" time="240">
+        <move id="hj1" degree="-120.0" speed="0.05"/>
+      </motion>
+    </sequence>
+    
+このコードは想定解とほぼ同じである．<br>
+「motion」や「degree」などは「StandUpFromBack.xml」や「StandUpFromProne.xml」を参考にすること．
