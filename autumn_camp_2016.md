@@ -82,17 +82,17 @@ cycleが0-120の時は右に，cycleが121-240の左に240を超えた時はcycl
 
 -想定解-
 
-        JointController& jc = SJointController::GetInstance();
-	cycle++;
-	if(cycle < 120)
-	{
-		jc.SettingRelativeSpeed(HJ_HJ1, 120.0, 0.05);
-	}
-	else if(cycle < 240)
-	{
-		jc.SettingRelativeSpeed(HJ_HJ1, -120.0, 0.05);
-	}
-	else
-	{
-		cycle = 0;
-	}
+    JointController& jc = SJointController::GetInstance();
+    cycle++;
+    if(cycle < 120)
+    {
+        jc.SettingRelativeSpeed(HJ_HJ1, 120.0, 0.05);
+    }
+    else if(cycle < 240)
+    {
+        jc.SettingRelativeSpeed(HJ_HJ1, -120.0, 0.05);
+    }
+    else
+    {
+        cycle = 0;
+    }
