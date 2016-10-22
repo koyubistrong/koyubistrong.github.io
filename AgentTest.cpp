@@ -9,7 +9,7 @@ using namespace std;
 
 AgentTest::AgentTest(int argc, char* argv[]) : Agent(argc, argv)
 {
-	motion_ = new MotionSequenceXML("xml/MotionXML/ShakingHead.xml");
+	//motion_ = new MotionSequenceXML("xml/MotionXML/ShakingHead.xml");
 	cycle = 0;
 }
 
