@@ -2,7 +2,7 @@
 
 ### https://koyubistrong.github.io/ にアクセス
 
-## 関節を動かす
+## 事前準備
 
 ### ファイルの作成
 
@@ -28,4 +28,7 @@ $./AutoMakeFileAM
 Agent/AgentTest/AgentTest.hpp<br>
 Agent/AgentTest/AgentTest.cpp
 
-があることを確認する．
+があることを確認する．<br>
+確認したら「make」を実行してコンパイルする．
+
+## 関節を動かす
