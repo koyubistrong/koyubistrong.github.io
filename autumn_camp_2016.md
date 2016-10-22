@@ -79,3 +79,20 @@ SettingRelativeSpeed関数は目標角度と現在の角度大きければ早く
 cycleは1ずつ進め．<br>
 cycleが0-120の時は右に，cycleが121-240の左に240を超えた時はcycleを0にリセットする．<br>
 というような感じで書く．
+
+-想定解-
+
+        JointController& jc = SJointController::GetInstance();
+	cycle++;
+	if(cycle < 120)
+	{
+		jc.SettingRelativeSpeed(HJ_HJ1, 120.0, 0.05);
+	}
+	else if(cycle < 240)
+	{
+		jc.SettingRelativeSpeed(HJ_HJ1, -120.0, 0.05);
+	}
+	else
+	{
+		cycle = 0;
+	}
