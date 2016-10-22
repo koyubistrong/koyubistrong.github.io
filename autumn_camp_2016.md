@@ -33,15 +33,15 @@ Agent/AgentTest/AgentTest.cpp
 
 「RCOpenFUTK/src/Main/main.cpp」を以下の様に書き換える．
 
-	Agent* agent;
-	srand((unsigned int)time(NULL));
-	//agent = new AgentSample(argc, argv);
-	agent = new AgentTest(argc, argv);
-	agent->Run();
+    Agent* agent;
+    srand((unsigned int)time(NULL));
+    //agent = new AgentSample(argc, argv);
+    agent = new AgentTest(argc, argv);
+    agent->Run();
 
 上のほうに
-
-        #include "AgentTest.hpp"
+    
+    #include "AgentTest.hpp"
 	
 も追加する．
 
@@ -77,18 +77,18 @@ SettingRelativeSpeed関数は目標角度と現在の角度大きければ早く
 
 [ヒント]<br>
 cycleは1ずつ進め．<br>
-cycleが0-120の時は右に，cycleが121-240の左に240を超えた時はcycleを0にリセットする．<br>
+cycleが0-99の時は右に，cycleが100-199時は左に，200になったらcycleを0にリセットする．<br>
 というような感じで書く．
 
 -想定解-
 
     JointController& jc = SJointController::GetInstance();
     cycle++;
-    if(cycle < 120)
+    if(cycle < 100)
     {
         jc.SettingRelativeSpeed(HJ_HJ1, 120.0, 0.05);
     }
-    else if(cycle < 240)
+    else if(cycle < 200)
     {
         jc.SettingRelativeSpeed(HJ_HJ1, -120.0, 0.05);
     }
