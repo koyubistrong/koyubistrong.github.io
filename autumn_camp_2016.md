@@ -110,13 +110,13 @@ Think関数の中に「MoveHeadByCode」関数をコメント化して，<br>
 「ShakingHead.xml」に以下を追加する
 
     <sequence name="head_shake" refresh="true">
-      <motion name="left" time="120">
+      <motion name="left" time="100">
         <move id="hj1" degree="120.0" speed="0.05"/>
       </motion>
-      <motion name="right" time="120">
+      <motion name="right" time="100">
         <move id="hj1" degree="-120.0" speed="0.05"/>
       </motion>
     </sequence>
     
 「motion」や「degree」などは「StandUpFromBack.xml」や「StandUpFromProne.xml」を参考にすること．
-また，
+
