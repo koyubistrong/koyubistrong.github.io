@@ -35,9 +35,12 @@ Agent/AgentTest/AgentTest.cpp
 ### コードで直接間接を動かす
 
 Think()の中に「MoveHeadByCode」関数を呼び出すようにする．<br>
-「MoveHeadByCode」関数を以下のコードを追加する．
+「MoveHeadByCode」関数を以下のコードを追加し，コンパイルして「ticktack」を実行してみよう．
 
     JointController& jc = SJointController::GetInstance();
     jc.SettingRelativeSpeed(HJ_HJ1, 120.0, 0.05);
 
-
+SettingRelativeSpeed関数の引数を説明する．<br>
+「HJ_HJ1」は頭の横方向の回転のID<br>
+「120.0」は120度まで回転させる<br>
+「0.05」は早さを指定している<br>
