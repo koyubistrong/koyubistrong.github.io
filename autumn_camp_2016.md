@@ -11,36 +11,11 @@
 
 ### クラスの作成
 
-「AgentTest.hpp」の中に以下を追加する
+「AgentTest.hpp」と「AgentTest.cpp」に以下のリンクからコピーして貼り付ける
 
-\#ifndef _FUTK_AGENT_TEST_HPP_
+AgentTest.hpp
+https://github.com/koyubistrong/koyubistrong.github.io/blob/master/AgentTest.hpp
 
-\#define _FUTK_AGENT_TEST_HPP_
+AgentTest.cpp
+https://github.com/koyubistrong/koyubistrong.github.io/blob/master/AgentTest.cpp
 
-\#include "Agent.hpp"
-
-\#include "MotionSequence.hpp"
-
-namespace futk
-
-{
-
-	class AgentTest : public Agent
-	
-	{
-	
-	public:
-	
-		AgentTest(int argc, char* argv[]);
-		virtual ~AgentTest();
-
-	protected:
-		virtual void Think() override;
-		void MoveHeadByCode();
-		void MoveHeadByXML();
-		MotionSequence* motion_;
-		int cycle;
-	};
-}
-
-\#endif
