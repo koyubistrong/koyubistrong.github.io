@@ -31,3 +31,13 @@ Agent/AgentTest/AgentTest.cpp
 確認したら「make」を実行してコンパイルする．
 
 ## 関節を動かす
+
+### コードで直接間接を動かす
+
+Think()の中に「MoveHeadByCode」関数を呼び出すようにする．<br>
+「MoveHeadByCode」関数を以下のコードを追加する．
+...
+  JointController& jc = SJointController::GetInstance();
+  jc.SettingRelativeSpeed(HJ_HJ1, 120.0, 0.05);
+...
+
