@@ -40,16 +40,16 @@ Think関数の中に「MoveHeadByCode」関数を呼び出すようにする．<
     JointController& jc = SJointController::GetInstance();
     jc.SettingRelativeSpeed(HJ_HJ1, 120.0, 0.05);
 
-SettingRelativeSpeed関数の引数を説明する．<br>
+SettingRelativeSpeed関数の引数を説明する．
 
-第一引数は関節の指定する．<br>
-第二引数はどこまで回転させるか指定する．<br>
-第三引数は早さを指定する．（負の数不可能）<br>
+　第一引数は回転させる関節を指定する．<br>
+　第二引数はどこまで回転させるか指定する．<br>
+　第三引数は早さを指定する．（負の数は不可能）<br>
 
-コードはこのように示している
+コードはこのように示している．
 
-「HJ_HJ1」は頭の横方向の回転のID<br>
-「120.0」は120度まで回転させる<br>
-「0.05」は早さを指定している<br>
+　「HJ_HJ1」は頭の横方向の回転のID<br>
+　「120.0」は120度まで回転させる<br>
+　「0.05」は早さを指定している<br>
 
 関節のIDに関しては「const.hpp」に書いてあるので参照すること．
