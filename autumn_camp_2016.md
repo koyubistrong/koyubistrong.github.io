@@ -118,5 +118,7 @@ Think関数の中に「MoveHeadByCode」関数をコメント化して，<br>
       </motion>
     </sequence>
     
+ timeは「50」で「1秒」である．
+ よって，「2秒間」頭を左に向かせたあと，「2秒間」頭を右に向かせるという命令である．
 「motion」や「degree」などは「StandUpFromBack.xml」や「StandUpFromProne.xml」を参考にすること．
 
