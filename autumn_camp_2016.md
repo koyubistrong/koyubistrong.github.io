@@ -96,3 +96,14 @@ cycleが0-120の時は右に，cycleが121-240の左に240を超えた時はcycl
     {
         cycle = 0;
     }
+
+## XMLで関節を動かす
+
+XMLというマークアップ言語を使って，モーションを作成する．
+Think関数の中に「MoveHeadByCode」関数をコメント化して，<br>
+「MoveHeadByXML」関数を呼び出すようにする．<br>
+ファイルを読み出す部分は
+
+    motion_ = new MotionSequenceXML("xml/MotionXML/ShakingHead.xml");
+    
+と書いてあるので「RCOpenFUTK/src/xml/MotionXML」に「ShakingHead.xml」を作成する．
