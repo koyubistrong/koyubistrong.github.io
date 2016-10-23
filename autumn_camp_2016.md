@@ -150,11 +150,11 @@ Reset関数は，動作を初期の状態に戻す．
 -想定解-
 
     <sequence name="test" refresh="true">
-      <motion name="left" time="75">
-        <move id="hj2" degree="-45.0" speed="0.05"/>
+      <motion name="down" time="75">
+        <move id="hj2" degree="-40.0" speed="0.05"/>
       </motion>
-      <motion name="right" time="75">
-	<move id="hj2" degree="45.0" speed="0.05"/>
+      <motion name="up" time="75">
+        <move id="hj2" degree="40.0" speed="0.05"/>
       </motion>
     </sequence>
 
