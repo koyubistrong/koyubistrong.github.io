@@ -239,7 +239,7 @@ rotation変数の絶対値が大きい時に前進の速度を減らすように
 
 ## 目標の場所に移動する
 
-目標座標に生かせるにはこのようにかく．
+目標座標に移動させるにはこのようにかく．
 
     StrategyInformation& si = SStrategyInformation::GetInstance();
     Vector2d target_pos(5.0, 10.0);
@@ -247,6 +247,10 @@ rotation変数の絶対値が大きい時に前進の速度を減らすように
     double rotation = target_dir / 45.0;
     rotation = Tool::LimitParam(rotation, -1.0, 1.0);
     walk_->SettingSpeed(1.0, 0.0, rotation);
+
+CalcDirectionDiff関数の引数に目標座標を入れれば目標の方向まで後どれくらいの回せばいいのかが出る．
+つまり，引数にボールの座標をいれればGetBallDirectionDiff関数と一緒になる．
+しかしこれも，行ったり来たりと繰り返してしまう．
 
 ## 練習試合
 
