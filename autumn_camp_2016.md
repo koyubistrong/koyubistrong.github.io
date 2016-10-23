@@ -151,10 +151,10 @@ Reset関数は，動作を初期の状態に戻す．
 
     <sequence name="test" refresh="true">
       <motion name="left" time="75">
-        <move id="hj2" degree="45.0" speed="0.05"/>
+        <move id="hj2" degree="-45.0" speed="0.05"/>
       </motion>
       <motion name="right" time="75">
-	<move id="hj2" degree="-45.0" speed="0.05"/>
+	<move id="hj2" degree="45.0" speed="0.05"/>
       </motion>
     </sequence>
 
