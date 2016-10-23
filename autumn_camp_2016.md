@@ -508,8 +508,8 @@ rotation変数の絶対値が大きい時に前進の速度を減らすように
     rotation = Tool::LimitParam(rotation, -1.0, 1.0);
     walk_->SettingSpeed(1.0, 0.0, rotation);
 
-CalcDirectionDiff関数の引数に目標座標を入れれば目標の方向まで後どれくらいの回せばいいのかが出る．
-つまり，引数にボールの座標をいれればGetBallDirectionDiff関数と一緒になる．
+CalcDirectionDiff関数の引数に目標座標を入れれば目標の方向まで後どれくらいの回せばいいのかが出る．<br>
+つまり，引数にボールの座標をいれればGetBallDirectionDiff関数と一緒になる．<br>
 しかしこれも，行ったり来たりと繰り返してしまう．
 
 ## 練習試合
