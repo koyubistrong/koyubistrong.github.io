@@ -511,12 +511,31 @@ CalcDirectionDiff関数の引数に目標座標を入れれば目標の方向ま
 つまり，引数にボールの座標をいれればGetBallDirectionDiff関数と一緒になる．<br>
 しかしこれも，行ったり来たりと繰り返してしまうのでこれを課題とする．
 
+自分の座標と目的の場所の距離が必要なので自分の座標が必要になる．<br>
+そして，距離を計算するにはToolクラスのCalcDistance関数が必要になる．<br>
+CalcDistance関数はこのように使う
+
+    Vector2d p1(2.0, 2.0);
+    Vector2d p2(4.0, 3.0);
+    // 座標(2.0, 2.0)と座標(4.0, 3.0)の距離を計算する(Vector3d型はできない)
+    double dist = Tool::CalcDistance(p1, p2);
+    
+しかし，AgentStateクラスのGetCoordinates関数はVector3dクラスの型なのでZ座標を削除する必要がある．<br>
+Z座標を削除するにはToolクラスのRemoveVectZ関数を使う必要がある．<br>
+したがって，自分の座標と目的の場所の距離を計算するにはこのように書く．
+
+    Vector2d my_pos = Tool::RemoveVectZ(as.GetCoordinates());
+    Vector2d target_pos(5.0, 5.0);
+    double target_dist = Tool::CalcDistance(my_pos, target_pos);
+
 ### 課題 4
 
 行ったり来たり繰り返しせずに目的の場所で止まらさせるにはどうすればいいか．
 
 [ヒント]
-自分の座標
+自分の座標の取得は
+
+    
 
 ## 練習試合
 
