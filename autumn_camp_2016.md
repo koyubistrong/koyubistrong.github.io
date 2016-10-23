@@ -160,7 +160,10 @@ Reset関数は，動作を初期の状態に戻す．
 
 ## 歩行の制御方法
 
-main関数の中身を編集し，「AgentTest」を呼び出すようにする．
+main関数の中身を編集し，「AgentTest」を呼び出すようにする．<br>
+「Strategy/StrategySample」の「StrategySample.cpp」を開く．
+
+
 
 
 
