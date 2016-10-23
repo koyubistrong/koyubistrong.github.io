@@ -230,13 +230,15 @@ FieldStateクラスからボールや敵エージェントの情報を取得す�
 rotation変数の絶対値が大きい時に前進の速度を減らすようにせよ．<br>
 なお，実数の絶対値を算出する関数は「fabs」関数である．
 
+-想定解-
+
+     double rotation = si.GetBallDirectionDiff() / 45.0;
+     rotation = Tool::LimitParam(rotation, -1.0, 1.0);
+     double speed_reduce = fabs(rotation) * 0.8;
+     walk_->SettingSpeed(1.0 - speed_reduce, 0.0, rotation);
+
 ## 練習試合
 
 前半　FUT-K　4　-　0　AIT_Soccer3D<br>
 後半　FUT-K　4　-　0　AIT_Soccer3D<br>
 　　　FUT-K　8　-　0　AIT_Soccer3D<br>
-     
-     double rotation = si.GetBallDirectionDiff() / 45.0;
-     rotation = Tool::LimitParam(rotation, -1.0, 1.0);
-     double speed_reduce = fabs(rotation) * 0.8;
-     walk_->SettingSpeed(1.0 - speed_reduce, 0.0, rotation);
