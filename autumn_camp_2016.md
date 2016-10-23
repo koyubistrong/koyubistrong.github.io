@@ -527,6 +527,14 @@ Z座標を削除するにはToolクラスのRemoveVectZ関数を使う必要が�
     Vector2d my_pos = Tool::RemoveVectZ(as.GetCoordinates());
     Vector2d target_pos(5.0, 10.0);
     double target_dist = Tool::CalcDistance(my_pos, target_pos);
+    
+そして，自分の座標と目的の場所の距離が計算できたら，<br>
+距離が長い場合と短い場合に別れる．<br>
+距離が長い場合は，速度重視で前進と回転の動きで，ロボットを動かす<br>
+距離が短い場合は，位置調整重視で前後の動きと横の動きを組み合わせてロボットを動かす<br>
+なので，距離が長い場合は「walk\_->SettingSpeed(1.0, 0.0, rotation);」でもよい．<br>
+距離が短い場合は，θ＝si.CalcDirectionDiff(target_pos)としてcosθとsinθを使う．<br>
+そして，walkのSettingSpeed関数の第一引数はcosθを入れて，第二引数にはsinθを入れる．
 
 ### 課題 4
 
