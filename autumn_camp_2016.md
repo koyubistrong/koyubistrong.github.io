@@ -237,6 +237,17 @@ rotation変数の絶対値が大きい時に前進の速度を減らすように
      double speed_reduce = fabs(rotation) * 0.8;
      walk_->SettingSpeed(1.0 - speed_reduce, 0.0, rotation);
 
+## 目標の場所に移動する
+
+目標座標に生かせるにはこのようにかく．
+
+    StrategyInformation& si = SStrategyInformation::GetInstance();
+    Vector2d target_pos(5.0, 10.0);
+    double target_dir = si.CalcDirectionDiff(target_pos);
+    double rotation = target_dir / 45.0;
+    rotation = Tool::LimitParam(rotation, -1.0, 1.0);
+    walk_->SettingSpeed(1.0, 0.0, rotation);
+
 ## 練習試合
 
 前半　FUT-K　4　-　0　AIT_Soccer3D<br>
