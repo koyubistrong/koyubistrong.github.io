@@ -271,14 +271,6 @@ rotation変数の絶対値が大きい時に前進の速度を減らすように
 CalcDirectionDiff関数の引数に目標座標を入れれば目標の方向まで後どれくらいの回せばいいのかが出る．
 つまり，引数にボールの座標をいれればGetBallDirectionDiff関数と一緒になる．
 しかしこれも，行ったり来たりと繰り返してしまう．
-
-## 練習試合
-
-前半　FUT-K　4　-　0　AIT_Soccer3D<br>
-後半　FUT-K　4　-　0　AIT_Soccer3D<br>
-　　　FUT-K　8　-　0　AIT_Soccer3D<br>
-
-
 これは自動的に「src」の配下にあるファイルソースコードを自動的に「Makefile.am」に追加する．<br>
 新しくファイル追加した場合や削除した場合はこれを実行するか直接「Makefile.am」を編集する必要ある．<br>
 「Makefile.am」を開いて
