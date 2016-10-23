@@ -147,6 +147,22 @@ Reset関数は，動作を初期の状態に戻す．
 頭を上下に動かすidは「hj2」である．<br>
 「MoveHeadByXML」関数の編集はしなくてもよい．
 
+-想定解-
+    <sequence name="test" refresh="true">
+      <motion name="left" time="100">
+        <move id="hj1" degree="120.0" speed="0.05"/>
+      </motion>
+      <motion name="right" time="100">
+	<move id="hj1" degree="-120.0" speed="0.05"/>
+      </motion>
+    </sequence>
+
 ## 歩行の制御方法
 
 main関数の中身を編集し，「AgentTest」を呼び出すようにする．
+
+
+
+
+
+
