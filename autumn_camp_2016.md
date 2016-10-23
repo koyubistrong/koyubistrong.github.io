@@ -502,7 +502,7 @@ rotation変数の絶対値が大きい時に前進の速度を減らすように
 
     StrategyInformation& si = SStrategyInformation::GetInstance();
     
-    Vector2d target_pos(5.0, 10.0);
+    Vector2d target_pos(5.0, 10.0);
     
     double target_dir = si.CalcDirectionDiff(target_pos);
     
