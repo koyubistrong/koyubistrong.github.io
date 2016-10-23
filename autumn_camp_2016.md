@@ -180,3 +180,17 @@ Run関数に以下のコードがある．
 情報取得のクラスは「RCOpenFUTK」の「README」のシングルトンクラスの項目に書いてある．<br>
 シングルトンはどのクラスからでも情報の取得が可能なクラスである．
 
+AgentStateクラスから情報を取得する場合
+
+    AgentState& as = SAgentState::GetInstance();
+    // 自身の位置座標を取得する
+    Vector3d my_pos = as.GetCoordinates();
+    
+WorldStateクラスから情報を取得する場合
+
+    WorldState& ws = SAgentState::GetInstance();
+    // ゲームのタイムを取得する
+    double game_time = ws.GetGameTime();
+    
+このように「（クラス名）& obj = S(クラス名）::GetInstance()」というように取得してから<br>
+取りたい情報を取得する．
