@@ -161,11 +161,19 @@ Reset関数は，動作を初期の状態に戻す．
 ## 歩行の制御方法
 
 main関数の中身を編集し，「AgentTest」を呼び出すようにする．<br>
-「Strategy/StrategySample」の「StrategySample.cpp」を開く．
+「Strategy/StrategySample」の「StrategySample.cpp」を開く．<br>
+Run関数に以下のコードがある．
 
+    walk_->SettingSpeed(1.0, 0.0, 0.0);
 
+このSettingSpeed関数について説明する．
 
+第一引数は前後の速度であり，正の数であれば前進，負の数えあれば後進する．<br>
+第二引数は横の速度であり，正の数であれば左に動き，負の数であれば，右に動く．<br>
+第三引数は回転の速度であり，正の数であれば左に回転し，負の数であれば，右に回転する．<br>
+数値の範囲は全て-1.0から1.0までである．
 
+このコードの場合は全速力で前進に進むことになっている．
 
 
 
