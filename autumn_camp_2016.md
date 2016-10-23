@@ -210,6 +210,7 @@ FieldStateクラスからボールや敵エージェントの情報を取得す�
 「StrategyInformation」の中の「GetBallDirectionDiff」関数で取得できる．<br>
 例えばこのような感じで「StrategySample.cpp」のRun関数に書く．
 
+    StrategyInformation& si = SStrategyInformation::GetInstance();
     double rotation = si.GetBallDirectionDiff() / 180.0;
     walk_->SettingSpeed(1.0, 0.0, rotation);
     
