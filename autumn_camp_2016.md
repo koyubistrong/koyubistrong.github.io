@@ -261,12 +261,11 @@ rotation変数の絶対値が大きい時に前進の速度を減らすように
 
 目標座標に移動させるにはこのようにかく．
 
-    StrategyInformation& si = SStrategyInformation::GetInstance();
-    
-    Vector2d target_pos(5.0, 10.0);
-    double target_dir = si.CalcDirectionDiff(target_pos);
-    double rotation = target_dir / 45.0;
-    rotation = Tool::LimitParam(rotation, -1.0, 1.0);
+    StrategyInformation& si = SStrategyInformation::GetInstance();<br>
+    Vector2d target_pos(5.0, 10.0);<br>
+    double target_dir = si.CalcDirectionDiff(target_pos);<br>
+    double rotation = target_dir / 45.0;<br>
+    rotation = Tool::LimitParam(rotation, -1.0, 1.0);<br>
     walk_->SettingSpeed(1.0, 0.0, rotation);
 
 CalcDirectionDiff関数の引数に目標座標を入れれば目標の方向まで後どれくらいの回せばいいのかが出る．
