@@ -232,5 +232,6 @@ rotation変数の絶対値が大きい時に前進の速度を減らすように
 
 ## 練習試合
 
-前半　FUT-K　4　-　0　AIT_Soccer3D
-後半　FUT-K
+前半　FUT-K　4　-　0　AIT_Soccer3D<br>
+後半　FUT-K　4　-　0　AIT_Soccer3D<br>
+合計　FUT-K　4　-　0　AIT
