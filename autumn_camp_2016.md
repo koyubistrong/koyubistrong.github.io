@@ -207,3 +207,4 @@ FieldStateクラスからボールや敵エージェントの情報を取得す�
 
 ## ボールに向かわせる
 
+「StrategyInformation」の中の「GetBallDirectionDiff」関数で取得できる．
