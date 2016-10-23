@@ -148,6 +148,7 @@ Reset関数は，動作を初期の状態に戻す．
 「MoveHeadByXML」関数の編集はしなくてもよい．
 
 -想定解-
+
     <sequence name="test" refresh="true">
       <motion name="left" time="100">
         <move id="hj1" degree="120.0" speed="0.05"/>
