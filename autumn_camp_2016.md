@@ -525,15 +525,14 @@ Z座標を削除するにはToolクラスのRemoveVectZ関数を使う必要が�
 したがって，自分の座標と目的の場所の距離を計算するにはこのように書く．
 
     Vector2d my_pos = Tool::RemoveVectZ(as.GetCoordinates());
-    Vector2d target_pos(5.0, 5.0);
+    Vector2d target_pos(5.0, 10.0);
     double target_dist = Tool::CalcDistance(my_pos, target_pos);
 
 ### 課題 4
 
 行ったり来たり繰り返しせずに目的の場所で止まらさせるにはどうすればいいか．
 
-[ヒント]
-自分の座標の取得は
+
 
     
 
