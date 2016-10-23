@@ -188,9 +188,22 @@ AgentStateクラスから情報を取得する場合
     
 WorldStateクラスから情報を取得する場合
 
-    WorldState& ws = SAgentState::GetInstance();
+    WorldState& ws = SWorldState::GetInstance();
     // ゲームのタイムを取得する
     double game_time = ws.GetGameTime();
+
+FieldStateクラスからボールや敵エージェントの情報を取得する場合
+
+    FieldState& fs = SFieldState::GetInstance();
+    const Ball& ball = fs.GetBall();
+    const OtherPlayer& op = fs.
+    // ボールの座標を取得する
+    Vector3d ball_pos = ball.GetAbsoluteCoordinates();
+    // 背番号2番のプレイヤーの座標を取得する
+    Vector3d enemy_pos = op.GetEnemyPlayer(1);
     
 このように「（クラス名）& obj = S(クラス名）::GetInstance()」というように取得してから<br>
 取りたい情報を取得する．
+
+## ボールに向かわせる
+
