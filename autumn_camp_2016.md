@@ -10,7 +10,7 @@
     WorldState → ws
     FieldState → fs
     StrategyInformation → si
-    Ball → ball
+    Ball → ball
 
 ## 事前準備
 
@@ -306,7 +306,7 @@ Z座標を削除するにはToolクラスのRemoveVectZ関数を使う必要が�
 ボールとロボットとの直線とボールとゴールポストの中心との直線のなす角が重要になる．
 下の図のθがそのなす角である．
 
-![ロボットとボールとゴールポストの中心](https://github.com/koyubistrong/koyubistrong.github.io/blob/master/target_and_robot.png "CalcDirectionDiff関数でθを取得できる")
+![ロボットとボールとゴールポストの中心](https://github.com/koyubistrong/koyubistrong.github.io/blob/master/robot_and_goal_cross_ball.png "CulcCrossDegree関数でθを取得できる")
 
 このなす角を計算するにはToolクラスの「CulcCrossDegree」関数を使う．
 
