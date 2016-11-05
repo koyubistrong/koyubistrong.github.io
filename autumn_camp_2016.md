@@ -65,7 +65,7 @@ Think関数の中に「MoveHeadByCode」関数を呼び出すようにする．<
     JointController& jc = SJointController::GetInstance();
     jc.SettingRelativeSpeed(HJ_HJ1, 120.0, 0.05);
 
-SettingRelativeSpeed関数は目標角度と現在の角度大きければ早くなる．<br>
+SettingRelativeSpeed関数は目標角度と現在の角度の差が大きければ早くなる．<br>
 逆に小さければ遅くなる．<br>
 引数を説明する．
 
@@ -308,12 +308,12 @@ Z座標を削除するにはToolクラスのRemoveVectZ関数を使う必要が�
 
 ![ロボットとボールとゴールポストの中心](https://github.com/koyubistrong/koyubistrong.github.io/blob/master/robot_and_goal_cross_ball.png "CulcCrossDegree関数でθを取得できる")
 
-このなす角を計算するにはToolクラスの「CulcCrossDegree」関数を使う．
+このなす角を計算するにはToolクラスの「CalcCrossDegree」関数を使う．
 
     Vector2d ball_pos = Tool::RemoveVectZ(ball.GetAbsoluteCoordinates());
     Vector2d my_pos = Tool::RemoveVectZ(as.GetCoordinates());
     Vector2d goal_pos = si.GetCenterEnemyGoalCoord();
-    double cross_deg = Tool::CulcCrossDegree(ball_pos, me_pos, goal_pos);
+    double cross_deg = Tool::CalcCrossDegree(ball_pos, me_pos, goal_pos);
 
 そして，ボールのほうに向かせ，かつ，なす角を0度になるように移動するにはこのようにやる．
 
@@ -324,7 +324,8 @@ Z座標を削除するにはToolクラスのRemoveVectZ関数を使う必要が�
     walk_->SettingSpeed(0.1, horizon_speed, rotation);
     
 このように前進をさせないようにして，横歩きと回転を使って調整する必要がある．<br>
-なす角が大きければ調整を行い，そうでなければドリブルをするという風にさせればゴールポストに入れることが可能である．
+なす角が大きければ調整を行い，そうでなければドリブルをするという風にさせればゴールポストに入れることが可能である．<br>
+これを応用させれば，キックの位置調整もできる．
 
 ## 練習試合
 
