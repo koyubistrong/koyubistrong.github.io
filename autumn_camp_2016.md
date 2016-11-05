@@ -303,7 +303,7 @@ Z座標を削除するにはToolクラスのRemoveVectZ関数を使う必要が�
 
 ## ボールをゴールポストに入れる
 
-ボールとロボットとの直線とボールとゴールポストの中心との直線のなす角が重要になる．
+ボールとロボットとの直線とボールとゴールポストの中心との直線のなす角が重要になる．<br>
 下の図のθがそのなす角である．
 
 ![ロボットとボールとゴールポストの中心](https://github.com/koyubistrong/koyubistrong.github.io/blob/master/robot_and_goal_cross_ball.png "CulcCrossDegree関数でθを取得できる")
