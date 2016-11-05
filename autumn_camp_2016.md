@@ -2,6 +2,16 @@
 
 ### https://koyubistrong.github.io/ にアクセス(ここのページに行くため）
 
+## ソースコードの表記
+
+ソースコードを簡単にするために一部のオブジェクトの別名を以下のようにしている．
+
+    AgentState → as
+    WorldState → ws
+    FieldState → fs
+    StrategyInformation → si
+    Ball → ball
+
 ## 事前準備
 
 ### ファイルの作成
@@ -207,6 +217,11 @@ FieldStateクラスからボールや敵エージェントの情報を取得す�
 
 ## ボールに向かわせる
 
+ロボットの向いている方向とボールに対する角度の差が重要になる．<br>
+下の図のθがその角度である。
+
+![ロボットとボール](https://github.com/koyubistrong/koyubistrong.github.io/blob/master/ball_and_robot.png "GetBallDirectionDiff関数でθを取得できる")
+
 「StrategyInformation」の中の「GetBallDirectionDiff」関数で取得できる．<br>
 例えばボールを向かわせるにはこのような感じで「StrategySample.cpp」のRun関数に書く．
 
@@ -238,6 +253,11 @@ rotation変数の絶対値が大きい時に前進の速度を減らすように
      walk_->SettingSpeed(1.0 - speed_reduce, 0.0, rotation);
 
 ## 目標の場所に移動する
+
+ロボットの向いている方向と目標座標に対する角度の差が重要になる．<br>
+下の図のθがその角度である。<br>
+
+![ロボットと目標座標](https://github.com/koyubistrong/koyubistrong.github.io/blob/master/target_and_robot.png "CalcDirectionDiff関数でθを取得できる")
 
 目標座標に移動させるにはこのようにかく．
 
@@ -280,6 +300,31 @@ Z座標を削除するにはToolクラスのRemoveVectZ関数を使う必要が�
 ### 課題 4
 
 行ったり来たり繰り返しせずに目的の場所で止まらさせるにはどうすればいいか．
+
+## ボールをゴールポストに入れる
+
+ボールとロボットとの直線とボールとゴールポストの中心との直線のなす角が重要になる．
+下の図のθがそのなす角である．
+
+![ロボットとボールとゴールポストの中心](https://github.com/koyubistrong/koyubistrong.github.io/blob/master/target_and_robot.png "CalcDirectionDiff関数でθを取得できる")
+
+このなす角を計算するにはToolクラスの「CulcCrossDegree」関数を使う．
+
+    Vector2d ball_pos = Tool::RemoveVectZ(ball.GetAbsoluteCoordinates());
+    Vector2d my_pos = Tool::RemoveVectZ(as.GetCoordinates());
+    Vector2d goal_pos = si.GetCenterEnemyGoalCoord();
+    double cross_deg = Tool::CulcCrossDegree(ball_pos, me_pos, goal_pos);
+
+そして，ボールのほうに向かせ，かつ，なす角を0度になるように移動するにはこのようにやる．
+
+    double horizon_speed = cross_deg / 45.0;
+    double rotation = si.GetBallDirectionDiff() / 45.0;
+    rotation = Tool::LimitParam(rotation, -1.0, 1.0);
+    horizon_speed = Tool::LimitParam(rotation, -1.0, 1.0);
+    walk_->SettingSpeed(0.1, horizon_speed, rotation);
+    
+このように前進をさせないようにして，横歩きと回転を使って調整する必要がある．<br>
+なす角が大きければ調整を行い，そうでなければドリブルをするという風にさせればゴールポストに入れることが可能である．
 
 ## 練習試合
 
