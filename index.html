@@ -25,7 +25,8 @@
     <div class="wrapper">
       <header>
         <a href="index.html"><h1>KOYUBI</h1></a>
-		<a href="index.html?id=section_poke_calc">ポケモンけいけんアメ必要数計算</a>
+		<a href="index.html?id=section_poke_calc">ポケモンけいけんアメ必要数計算</a><br>
+		<a href="index.html?id=section_create_auto_map">ローグライクのマップ自動生成</a>
         <br><br>
 		<p class="view"><a href="https://github.com/koyubistrong">View My GitHub Profile</a></p>
 
@@ -77,12 +78,21 @@
 		
 		</table>
 	  </section>
+	  <section id="section_create_auto_map">
+	  　　<h2>ローグライクのマップ自動生成(未完)</h2><br>
+		  <button type="submit" onclick="AutoMap2D.initCustom()">再生成</button><br>
+		  <br>
+		  <canvas id="create_auto_map" style="background-color:white;" width="640" height="480">
+			図形を表示するには、canvasタグをサポートしたブラウザが必要です。
+		  </canvas>
+	  </section>
       <footer>
         <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
       </footer>
     </div>
     <script src="javascripts/scale.fix.js"></script>
     <script src="javascripts/poke_calc.js"></script>
+	<script src="javascripts/create_auto_map.js"></script>
 	   <script>
 	    var queries = GetQueryString();
 		var id = queries["id"];
@@ -93,6 +103,7 @@
 			changeSection("section_index");
 		}
 		PokeCalc.init();
+		AutoMap2D.initCustom();
 		function changeSection(id) {
 			var section = document.getElementsByTagName('section');
 			for (var elem of section) {
