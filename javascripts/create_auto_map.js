@@ -49,7 +49,7 @@ var AutoMap2D = (function() {
 
         static initCustom() {
             AutoMap2D.initMap(56, 34, 8);
-            AutoMap2D.initVirtualMap(6, 5);
+            AutoMap2D.initVirtualMap(5, 4);
         }
 
         static initMap (width, height, cell_size) {
@@ -77,24 +77,24 @@ var AutoMap2D = (function() {
             //AutoMap2D.lineTo(getRandomInt(0, AutoMap2D.nMapWidth),getRandomInt(0, AutoMap2D.nMapHeight),getRandomInt(0, AutoMap2D.nMapWidth),getRandomInt(0, AutoMap2D.nMapHeight),"rgb(255, 255, 255)");
             //AutoMap2D.lineZigzag("V", getRandomInt(0, AutoMap2D.nMapWidth),getRandomInt(0, AutoMap2D.nMapHeight),getRandomInt(0, AutoMap2D.nMapWidth),getRandomInt(0, AutoMap2D.nMapHeight),"rgb(255, 255, 255)");
            // AutoMap2D.lineRightAngle("H", getRandomInt(0, AutoMap2D.nMapWidth),getRandomInt(0, AutoMap2D.nMapHeight),getRandomInt(0, AutoMap2D.nMapWidth),getRandomInt(0, AutoMap2D.nMapHeight),"rgb(255, 255, 255)");
-            AutoMap2D.draw();
+            //AutoMap2D.draw();
         }
 
         static initVirtualMap(width, height) {
             var cellWidth = AutoMap2D.nMapWidth / width;
-            var minCellWidth = cellWidth - 4;
-            var maxCellWidth = cellWidth + 3;
+            var minCellWidth = cellWidth - 3;
+            var maxCellWidth = cellWidth + 2;
 
             var cellHeight = AutoMap2D.nMapHeight / height;
-            var minCellHeight = cellHeight - 3;
-            var maxCellHeight = cellHeight + 3;
+            var minCellHeight = cellHeight - 2;
+            var maxCellHeight = cellHeight + 2;
 
             
             var arrWidthInterval = [];
             var widthTotal = 0;
             for(var x = 0; x < width; x++) {
                 var w = getRandomInt(minCellWidth, maxCellWidth);
-                if(x >= width - 1) w = AutoMap2D.nMapWidth - widthTotal - 1;
+                if(x >= width - 1) w = AutoMap2D.nMapWidth - widthTotal;
                 arrWidthInterval[x] = {
                     x: widthTotal,
                     width: w
@@ -106,7 +106,7 @@ var AutoMap2D = (function() {
             var heightTotal = 0;
             for(var y = 0; y < height; y++) {
                 var h = getRandomInt(minCellHeight, maxCellHeight);
-                if(y >= height - 1) h = AutoMap2D.nMapHeight - heightTotal - 1;
+                if(y >= height - 1) h = AutoMap2D.nMapHeight - heightTotal;
                 arrHeightInterval[y] = {
                     y: heightTotal,
                     height: h
@@ -114,7 +114,6 @@ var AutoMap2D = (function() {
                 heightTotal += h;
             }
             
-
             AutoMap2D.mapVirtualInfo = [];
             var arrHeightTotal = [];
             for(var y = 0; y < height; y++) {
@@ -157,7 +156,7 @@ var AutoMap2D = (function() {
                     var x = r % width;
                     var y = Math.floor(r / width);
                     //x = arrUseRoom[i].x;
-                    //y = arrUseRoom[i].y;
+                   // y = arrUseRoom[i].y;
                     if(AutoMap2D.mapVirtualInfo[y][x].use_room == false) {
                         AutoMap2D.mapVirtualInfo[y][x].color = "rgb(255, 255, 255)";
                         AutoMap2D.mapVirtualInfo[y][x].use_room = true;
@@ -221,10 +220,10 @@ var AutoMap2D = (function() {
                             rh += dirInfo.height;
                         }
                     }
-                    var rrw = getRandomInt(3, rw);
-                    var rrh = getRandomInt(3, rh);
-                    var rrx = getRandomInt(rx, rx + rw - rrw + 1);
-                    var rry = getRandomInt(ry, ry + rh - rrh + 1);
+                    var rrx = getRandomInt(rx, rx + curInfo.width - 3);
+                    var rry = getRandomInt(ry, ry + curInfo.height - 3);
+                    var rrw = getRandomInt(3, rw - (rrx - rx));
+                    var rrh = getRandomInt(3, rh - (rry - ry));
                     AutoMap2D.fillRect(rrx, rry, rrw, rrh, color);
                     curInfo.y = rry;
                     curInfo.x = rrx;
@@ -279,18 +278,23 @@ var AutoMap2D = (function() {
                     }
                 }
                 for(var j = 0; j < trace.length; j++) {
-                    if(trace[j].use_room == false) continue;
+                    if(trace[j].use_room == null || trace[j].use_room == false) continue;
                     var node = trace[j];
                     var child = null;
                     var bef_x = 0;
                     var bef_y = 0;
+                    //console.log("i: " + i + " j: " + j)
                     while(node != null) {
                         var parent = node.parent;
                         if(child == null && parent == null) break;
                         var info = AutoMap2D.mapVirtualInfo[node.y][node.x];
                         //AutoMap2D.fillRect(info.vx, info.vy, info.v_width, info.v_height, "rgb(128, 128, 128)");
+                        var add_v_width = 0;
+                        var add_v_height = 0;
                         if(child == null) {
                             if(info.parent != null) {
+                                if(info.room_x != info.parent.room_x) add_v_width = info.v_width;
+                                if(info.room_y != info.parent.room_y) add_v_height = info.v_height;
                                 info = info.parent;
                             }
                             if(node.x < parent.x) {
@@ -314,7 +318,7 @@ var AutoMap2D = (function() {
                         var next_y = 0;
                         if(parent != null) {
                             if(node.x < parent.x) {
-                                next_x = info.vx + info.v_width;
+                                next_x = info.vx + info.v_width + add_v_width;
                                 next_y = info.vy + getRandomInt(0, info.v_height);
                             }
                             else if(node.x > parent.x) {
@@ -323,7 +327,7 @@ var AutoMap2D = (function() {
                             }
                             else if(node.y < parent.y) {
                                 next_x = info.vx + getRandomInt(0, info.v_width);
-                                next_y = info.vy + info.v_height;
+                                next_y = info.vy + info.v_height + add_v_height;
                             }
                             else if(node.y > parent.y) {
                                 next_x = info.vx + getRandomInt(0, info.v_width);
@@ -350,7 +354,7 @@ var AutoMap2D = (function() {
                                 next_x = info.x + getRandomInt(0, info.width);
                                 next_y = info.y;
                             }
-                        }
+                        }  
                         var type = "H";
                         var zigzag = true;
                         if(child != null && parent != null && child.x != parent.x && child.y != parent.y) {
@@ -374,6 +378,7 @@ var AutoMap2D = (function() {
                                 }
                             }
                         }
+                        //console.log("bef_x: " + bef_x + " bef_y: " + bef_y + " next_x: " + next_x + " next_y: " + next_y);
                         if(zigzag) {
                             AutoMap2D.lineZigzag(type, bef_x, bef_y, next_x, next_y, "rgb(255, 255, 255)");
                         }
@@ -415,6 +420,16 @@ var AutoMap2D = (function() {
                     var rx = x * AutoMap2D.nCellWidth;
                     context.fillStyle = AutoMap2D.mapInfo[y][x].color;
                     context.fillRect(rx, ry, AutoMap2D.nCellWidth, AutoMap2D.nCellHeight);
+                }
+            }
+            for(var y = 0; y < AutoMap2D.mapVirtualInfo.length; y++) {
+                for(var x = 0; x < AutoMap2D.mapVirtualInfo[y].length; x++) {
+                    var ry = AutoMap2D.mapVirtualInfo[y][x].vy * AutoMap2D.nCellHeight;
+                    var rx = AutoMap2D.mapVirtualInfo[y][x].vx * AutoMap2D.nCellWidth;
+                    context.globalAlpha = 0.5;
+                    if((y + x) % 2 == 0) context.fillStyle = "rgba(128, 0, 0, 128)";
+                    else context.fillStyle = "rgba(0, 128, 0, 128)";
+                    context.fillRect(rx, ry, AutoMap2D.mapVirtualInfo[y][x].v_width * AutoMap2D.nCellWidth, AutoMap2D.mapVirtualInfo[y][x].v_height * AutoMap2D.nCellHeight);
                 }
             }
         }
