@@ -103,7 +103,7 @@ var AutoMap2D = (function() {
                 widthTotal += w;
             }
             
-           var arrHeightInterval = [];
+            var arrHeightInterval = [];
             var heightTotal = 0;
             for(var y = 0; y < height; y++) {
                 var h = getRandomInt(minCellHeight, maxCellHeight);
@@ -355,6 +355,27 @@ var AutoMap2D = (function() {
                                     next_x = info.vx + getRandomInt(0, info.v_width);
                                     next_y = info.vy;
                                 }
+                                if(parent.parent == null) {
+                                    var next_child = node;
+                                    var next_node = parent;
+                                    var next_info = AutoMap2D.mapVirtualInfo[next_node.y][next_node.x];
+                                    if(next_node.x < next_child.x) {
+                                        next_x = next_info.x + next_info.width;
+                                        next_y = next_info.y + getRandomInt(0, next_info.height);
+                                    }
+                                    else if(next_node.x > next_child.x) {
+                                        next_x = next_info.x;
+                                        next_y = next_info.y + getRandomInt(0, next_info.height);
+                                    }
+                                    else if(next_node.y < next_child.y) {
+                                        next_x = next_info.x + getRandomInt(0, next_info.width);
+                                        next_y = next_info.y + next_info.height;
+                                    }
+                                    else if(next_node.y > next_child.y) {
+                                        next_x = next_info.x + getRandomInt(0, next_info.width);
+                                        next_y = next_info.y;
+                                    }
+                                }
                             }
                             else {
                                 if(info.parent != null) {
@@ -376,6 +397,7 @@ var AutoMap2D = (function() {
                                     next_x = info.x + getRandomInt(0, info.width);
                                     next_y = info.y;
                                 }
+                                break;
                             }  
                             var type = "H";
                             var zigzag = true;
