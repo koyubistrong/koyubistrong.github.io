@@ -16,6 +16,14 @@ var AutoMap2D = (function() {
         }
     }
 
+    function Array2D(w, h, val) {
+        var array = Array(w);
+        for(var i = 0; i < array.length; i++) {
+            array[i] = Array(h).fill(val);
+        }
+        return array;
+    }
+
     class AutoMap2D {
         
         static mapInfo;
@@ -25,6 +33,7 @@ var AutoMap2D = (function() {
         static nMapHeight;
         static nMapRealWidth;
         static nMapRealHeight;
+        static mapError;
 
         static mapVirtualInfo;
 
@@ -36,22 +45,47 @@ var AutoMap2D = (function() {
         ];
 
         static init() {
-            mapInfo = [];
-            mapVirtualInfo = [];
+            AutoMap2D.mapInfo = [];
+            AutoMap2D.mapVirtualInfo = [];
             AutoMap2D.nCellHeight = AutoMap2D.nCellWidth = 0;
             AutoMap2D.nMapWidth = 0;
             AutoMap2D.nMapHeight = 0;
             AutoMap2D.nMapRealWidth = 0;
             AutoMap2D.nMapRealHeight = 0;
+
+            var connect_rate = document.getElementById("connect_rate");
+            for(var rate = 0; rate <= 10; rate++) {
+                var opt = document.createElement("option");
+                opt.value = rate;
+                opt.innerText = (rate * 10).toString() + "%";
+                connect_rate.appendChild(opt);
+            }
+            connect_rate.options[8].selected = true;
+
+            AutoMap2D.mapError = {};
+            AutoMap2D.mapError["error_min_room_width_size"] = "フロアの大きさ(横)をフロアの分割数(横)で割った数を5以上にしてください。";
+            AutoMap2D.mapError["error_min_room_height_size"] = "フロアの大きさ(縦)をフロアの分割数(縦)で割った数を5以上にしてください。";
+            AutoMap2D.mapError["error_room_aisle"] = "(部屋の数+中間通路の数)を1以上にしてください。";
         }
 
-        static initCustom() {
-            AutoMap2D.initMap(56, 34, 8);
-            //AutoMap2D.initMap(80, 80, 8);
-            AutoMap2D.initVirtualMap(5, 4);
+        static generate() {
+            var floor_height = parseInt(document.getElementById("floor_height").value);
+            var floor_width = parseInt(document.getElementById("floor_width").value);
+            var floor_div_height = parseInt(document.getElementById("floor_div_height").value);
+            var floor_div_width = parseInt(document.getElementById("floor_div_width").value);
+            var room_num = parseInt(document.getElementById("room_num").value);
+            var middle_aisle_num = parseInt(document.getElementById("middle_aisle_num").value);
+            var connect_rate = parseInt(document.getElementById("connect_rate").value);
+            AutoMap2D.initFloor(floor_width, floor_height, 8);
+            var error = AutoMap2D.generateMap(floor_div_width, floor_div_height, room_num, middle_aisle_num, connect_rate);
+            document.getElementById("error_msg_auto_map").innerText = "";
+            if(error != null && AutoMap2D.mapError[error] != null) {
+                document.getElementById("error_msg_auto_map").innerText = AutoMap2D.mapError[error];
+            }
+            AutoMap2D.draw();
         }
 
-        static initMap (width, height, cell_size) {
+        static initFloor (width, height, cell_size) {
             var canvas = document.getElementById('create_auto_map');
             AutoMap2D.mapInfo = [];
             AutoMap2D.nCellHeight = AutoMap2D.nCellWidth = cell_size;
@@ -59,8 +93,8 @@ var AutoMap2D = (function() {
             AutoMap2D.nMapHeight = height;
             AutoMap2D.nMapRealWidth = AutoMap2D.nCellWidth * AutoMap2D.nMapWidth;
             AutoMap2D.nMapRealHeight = AutoMap2D.nCellHeight * AutoMap2D.nMapHeight;
-            canvas.width = AutoMap2D.nMapRealWidth;
-            canvas.height = AutoMap2D.nMapRealHeight;
+            canvas.width = AutoMap2D.nMapRealWidth + AutoMap2D.nCellWidth * 2;
+            canvas.height = AutoMap2D.nMapRealHeight + AutoMap2D.nCellHeight * 2;
             for(var y = 0; y < AutoMap2D.nMapHeight; y++) {
                 AutoMap2D.mapInfo[y] = []
                 for(var x = 0; x < AutoMap2D.nMapWidth; x++) {
@@ -79,15 +113,29 @@ var AutoMap2D = (function() {
             //AutoMap2D.draw();
         }
 
-        static initVirtualMap(width, height) {
-            var cellWidth = AutoMap2D.nMapWidth / width;
+        static generateMap(width, height, use_room_num, use_aisle_num, connect_rate) {
+
+            var cellWidth = Math.floor(AutoMap2D.nMapWidth / width);
             var minCellWidth = cellWidth - 1;
             var maxCellWidth = cellWidth + 1;
 
-            var cellHeight = AutoMap2D.nMapHeight / height;
+            var cellHeight = Math.floor(AutoMap2D.nMapHeight / height);
             var minCellHeight = cellHeight - 1;
             var maxCellHeight = cellHeight + 1;
 
+            if(cellWidth < 5) {
+                return "error_min_room_width_size";
+            }
+
+            if(cellHeight < 5) {
+                return "error_min_room_height_size";
+            }
+
+            if(use_room_num + use_aisle_num <= 0) {
+                return "error_room_aisle";
+            }
+            var room_color = "rgb(196, 196, 196)";
+            var aisle_color = "rgb(196, 196, 196)";
             
             var arrWidthInterval = [];
             var widthTotal = 0;
@@ -128,14 +176,14 @@ var AutoMap2D = (function() {
                         color: "rgb(0, 0, 0)",
                         use_room: false,
                         use_aisle: false,
-                        x: arrWidthInterval[x].x + 1,
-                        width: arrWidthInterval[x].width - 1,
+                        x: arrWidthInterval[x].x,
+                        width: arrWidthInterval[x].width,
                         vx: arrWidthInterval[x].x,
                         v_width: arrWidthInterval[x].width,
                         //y: arrHeightTotal[x],
                         //height: h,
-                        y: arrHeightInterval[y].y + 1,
-                        height: arrHeightInterval[y].height - 1,
+                        y: arrHeightInterval[y].y,
+                        height: arrHeightInterval[y].height,
                         vy: arrHeightInterval[y].y,
                         v_height: arrHeightInterval[y].height,
                         room_x: x,
@@ -148,8 +196,9 @@ var AutoMap2D = (function() {
             }
 
             var arrUseRoom = []
+            var use_count = 0;
             //arrUseRoom = [{x: 4, y: 3}, {x: 1, y: 1}]
-            for(var i = 0; i < 8; i++) {
+            for(var i = 0; i < use_room_num + use_aisle_num && use_count < width * height; i++) {
                 var ok = false;
                 while(ok == false) {
                     var r = getRandomInt(0, width * height);
@@ -158,56 +207,55 @@ var AutoMap2D = (function() {
                     //x = arrUseRoom[i].x;
                     //y = arrUseRoom[i].y;
                     if(AutoMap2D.mapVirtualInfo[y][x].use_room == false) {
-                        AutoMap2D.mapVirtualInfo[y][x].color = "rgb(255, 255, 255)";
+                        AutoMap2D.mapVirtualInfo[y][x].color = room_color;
                         AutoMap2D.mapVirtualInfo[y][x].use_room = true;
                         AutoMap2D.mapVirtualInfo[y][x].id = i;
+                        if(i >= use_room_num) AutoMap2D.mapVirtualInfo[y][x].use_aisle = true;
                         arrUseRoom.push({x: x, y: y});
                         ok = true;
+                        use_count++;
+                        if(AutoMap2D.mapVirtualInfo[y][x].use_aisle) continue;
+                        if(getRandomInt(0, 10) < 5) {
+                            var ii = 0;
+                            var d = getRandomInt(0, AutoMap2D.direction.length);
+                            var curInfo = AutoMap2D.mapVirtualInfo[y][x];
+                            while(ii < AutoMap2D.direction.length){
+                                var bd = d;
+                                var dx = x + AutoMap2D.direction[d].x;
+                                var dy = y + AutoMap2D.direction[d].y;
+                                d = (d + 1) % AutoMap2D.direction.length; 
+                                ii++;
+                                if(AutoMap2D.checkRange(dx, dy, width, height) == false) continue;
+                                var dirInfo = AutoMap2D.mapVirtualInfo[dy][dx];
+                                if(dirInfo.use_room == false) {
+                                    dirInfo.color = room_color;
+                                    dirInfo.use_room = true;
+                                    dirInfo.id = curInfo.id;
+                                    if(AutoMap2D.direction[bd].x < 0 || AutoMap2D.direction[bd].y < 0) {
+                                        curInfo.parent = dirInfo;
+                                        dirInfo.child.push(curInfo);
+                                        arrUseRoom[arrUseRoom.length - 1].x = dx;
+                                        arrUseRoom[arrUseRoom.length - 1].y = dy;
+                                    }
+                                    else {
+                                        dirInfo.parent = curInfo;
+                                        curInfo.child.push(dirInfo);
+                                    }
+                                    use_count++;
+                                    break;
+                                }
+                            }
+                        }
                     }
                 }
             }
             shuffle(arrUseRoom)
 
-            for(var i = 0; i < arrUseRoom.length; i++) {
-                var extend = getRandomInt(0, AutoMap2D.direction.length + 1);
-                if(extend > 0) {
-                    var x = arrUseRoom[i].x;
-                    var y = arrUseRoom[i].y;
-                    var ii = 0;
-                    var d = getRandomInt(0, AutoMap2D.direction.length);
-                    var curInfo = AutoMap2D.mapVirtualInfo[y][x];
-                    while(ii < AutoMap2D.direction.length){
-                        var bd = d;
-                        var dx = x + AutoMap2D.direction[d].x;
-                        var dy = y + AutoMap2D.direction[d].y;
-                        d = (d + 1) % AutoMap2D.direction.length; 
-                        ii++;
-                        if(AutoMap2D.checkRange(dx, dy, width, height) == false) continue;
-                        var dirInfo = AutoMap2D.mapVirtualInfo[dy][dx];
-                        if(dirInfo.use_room == false) {
-                            dirInfo.color = "rgb(255, 255, 255)";
-                            dirInfo.use_room = true;
-                            dirInfo.id = curInfo.id;
-                            if(AutoMap2D.direction[bd].x < 0 || AutoMap2D.direction[bd].y < 0) {
-                                curInfo.parent = dirInfo;
-                                dirInfo.child.push(curInfo);
-                                arrUseRoom[i].x = dx;
-                                arrUseRoom[i].y = dy;
-                            }
-                            else {
-                                dirInfo.parent = curInfo;
-                                curInfo.child.push(dirInfo);
-                            }
-                            break;
-                        }
-                    }
-                }
-            }
-
             for(var y = 0; y < height; y++) {
                 for(var x = 0; x < width; x++) {
                     var curInfo = AutoMap2D.mapVirtualInfo[y][x];
                     if(curInfo.parent != null) continue;
+                    if(curInfo.use_room == false) continue;
                     var ry = curInfo.y;
                     var rh = curInfo.height;
                     var rx = curInfo.x;
@@ -226,10 +274,16 @@ var AutoMap2D = (function() {
                     var rry = getRandomInt(ry, ry + curInfo.height - 3 - 1);
                     var dfx = rrx - rx;
                     var dfy = rry - ry;
-                    var rrw = getRandomInt(3, rw - dfx - 1);
-                    var rrh = getRandomInt(3, rh - dfy - 1);
+                    var rrw = getRandomInt(3, rw - dfx + ((x < width - 1) ? 0 : 1));
+                    var rrh = getRandomInt(3, rh - dfy + ((y < height - 1) ? 0 : 1));
                     if(curInfo.width != rw) rrw = getRandomInt(curInfo.width - dfx + 1, rw - dfx);
                     if(curInfo.height != rh) rrh = getRandomInt(curInfo.height - dfy + 1, rh - dfy);
+                    if(curInfo.use_aisle) {
+                        rry = curInfo.y + Math.floor(curInfo.width / 2) + getRandomInt(0, 2);
+                        rrx = curInfo.x + Math.floor(curInfo.height / 2) + getRandomInt(0, 2);
+                        rrw = 1;
+                        rrh = 1;
+                    }
                     AutoMap2D.fillRect(rrx, rry, rrw, rrh, color);
                     curInfo.y = rry;
                     curInfo.x = rrx;
@@ -258,19 +312,11 @@ var AutoMap2D = (function() {
                     }
                 }
             }
-            var addedRoom = {}
-            var addedRoom = Array(height);
-            for(var y = 0; y < addedRoom.length; y++) {
-                addedRoom[y] = Array(width).fill(false);
-            }
 
             var trace = []
             for(var i = 0; i < arrUseRoom.length; i++) {
                 var queue = [];
-                var search = Array(height);
-                for(var y = 0; y < search.length; y++) {
-                    search[y] = Array(width).fill(false);
-                }
+                var search = Array2D(height, width, false);
                 trace[i] = [{parent: null, x: arrUseRoom[i].x, y: arrUseRoom[i].y}];
                 var infoParent = AutoMap2D.mapVirtualInfo[arrUseRoom[i].y][arrUseRoom[i].x];
                 queue.push({parent: trace[i][0], x: trace[i][0].x, y: trace[i][0].y, level: 0});
@@ -302,8 +348,8 @@ var AutoMap2D = (function() {
                     }
                     queue.shift();
                 }
-                trace[i].sort(function (a, b) {
-                    return a.level - b.level;
+                trace[i].sort(function (b, a) {
+                    return b.level - a.level;
                 });
             }
 
@@ -311,24 +357,22 @@ var AutoMap2D = (function() {
                 return x + y * width;
             }
             
-            var addedRoomPair = Array(width * height);
-            for(var i = 0; i < addedRoomPair.length; i++) {
-                addedRoomPair[i] = Array(width * height).fill(false);
-            }
+            var addedRoomPair =Array2D(width * height, width * height, false);
+            var addedAisle = Array2D(height, width, false);
             var count_conn = 0;
             var MAX_COUNT = 8;
             var ROOT_ID = coordToId(arrUseRoom[0].x, arrUseRoom[0].y, width);
             var uf = new UnionFind(width * height);
+            var is_tree_connect = false;
             //while(count_conn < MAX_COUNT) {
-            while(uf.Size(ROOT_ID) < arrUseRoom.length) {
+            while(true) {
+                var not_exist_connect = true;
                 for(var i = 0; i < trace.length; i++) {
                     var tr = trace[i];
                     var src_id = coordToId(arrUseRoom[i].x, arrUseRoom[i].y, width);
-                    if(uf.Root(src_id) == ROOT_ID) {
-                        //(src_id == ROOT_ID && uf.Size(ROOT_ID) > 1) || 
+                    if(!is_tree_connect && uf.Root(src_id) == ROOT_ID) {
                         continue;
                     }
-                    var find = false;
                     for(var j = 0; j < tr.length; j++) {
                         if(tr[j].use_room == null || tr[j].use_room == false) continue;
                         var node = tr[j];
@@ -336,11 +380,14 @@ var AutoMap2D = (function() {
                         var bef_x = 0;
                         var bef_y = 0;
                         var target_id = coordToId(node.x, node.y, width);
+                        var save_route = [];
+                        var addedTmpAisle = Array2D(height, width, false);
+                        var find = false;
                         if(AutoMap2D.mapVirtualInfo[node.y][node.x].parent != null) {
                             var info = AutoMap2D.mapVirtualInfo[node.y][node.x].parent;
                             target_id = coordToId(info.room_x, info.room_y, width);
                         }
-                        if(uf.Root(target_id) != ROOT_ID) {
+                        if(!is_tree_connect && uf.Root(target_id) != ROOT_ID) {
                             continue;
                         }
                         if(addedRoomPair[src_id][target_id]) continue;
@@ -348,6 +395,7 @@ var AutoMap2D = (function() {
                         while(node != null) {
                             var parent = node.parent;
                             if(child == null && parent == null) break;
+                            if(is_tree_connect && addedAisle[node.y][node.x]) break;
                             var info = AutoMap2D.mapVirtualInfo[node.y][node.x];
                             //AutoMap2D.fillRect(info.vx, info.vy, info.v_width, info.v_height, "rgb(128, 128, 128)");
                             var add_v_width = 0;
@@ -394,6 +442,9 @@ var AutoMap2D = (function() {
                                     next_x = info.vx + getRandomInt(0, info.v_width);
                                     next_y = info.vy;
                                 }
+                                if(child != null) {
+                                    addedTmpAisle[node.y][node.x] = true;
+                                }
                                 if(parent.parent == null) {
                                     var next_child = node;
                                     var next_node = parent;
@@ -417,6 +468,28 @@ var AutoMap2D = (function() {
                                         next_x = next_info.x + getRandomInt(0, next_info.width);
                                         next_y = next_info.y;
                                     }
+                                    if((getRandomInt(0, 2) == 0 || Math.abs(bef_x - next_x) < 3) && next_node.x != next_child.x) {
+                                        if(bef_y < next_info.y) {
+                                            next_y = next_info.y;
+                                        }
+                                        else if(bef_y > next_info.y + next_info.height - 1) {
+                                            next_y = next_info.y + next_info.height - 1;
+                                        }
+                                        else {
+                                            next_y = bef_y;
+                                        }
+                                    }
+                                    if((getRandomInt(0, 2) == 0 || Math.abs(bef_y - next_y) < 3) && next_node.y != next_child.y) {
+                                        if(bef_x < next_info.x) {
+                                            next_x = next_info.x;
+                                        }
+                                        else if(bef_x > next_info.x + next_info.width - 1) {
+                                            next_x = next_info.x + next_info.width - 1;
+                                        }
+                                        else {
+                                            next_x = bef_x;
+                                        }
+                                    }
                                 }
                             }
                             else {
@@ -439,6 +512,7 @@ var AutoMap2D = (function() {
                                     next_x = info.x + getRandomInt(0, info.width);
                                     next_y = info.y;
                                 }
+                                find = true;
                                 break;
                             }  
                             var type = "H";
@@ -465,32 +539,60 @@ var AutoMap2D = (function() {
                                 }
                             }
                             //console.log("bef_x: " + bef_x + " bef_y: " + bef_y + " next_x: " + next_x + " next_y: " + next_y);
-                            if(zigzag) {
-                                AutoMap2D.lineZigzag(type, bef_x, bef_y, next_x, next_y, "rgb(255, 255, 255)");
-                            }
-                            else {
-                                AutoMap2D.lineRightAngle(type, bef_x, bef_y, next_x, next_y, "rgb(255, 255, 255)");
-                            }
+                            save_route.push({zigzag: zigzag, type: type, bef_x: bef_x, bef_y: bef_y, next_x: next_x, next_y: next_y, color: aisle_color})
                             child = node;
                             node = parent;
                             bef_x = next_x;
                             bef_y = next_y;
                         }
-                        addedRoomPair[src_id][target_id] = true;
-                        addedRoomPair[target_id][src_id] = true;
-                        find = true;
-                        uf.Union(target_id, src_id);
-                        break;
+                        if(find) {
+                            if(!is_tree_connect || (getRandomInt(0, 10) < connect_rate)) {
+                                for(var y = 0; y < addedAisle.length; y++) {
+                                    for(var x = 0; x < addedAisle[y].length; x++) {
+                                        if(addedTmpAisle[y][x]) {
+                                            addedAisle[y][x] = true;
+                                        }
+                                    }
+                                }
+                            
+                                for(var k = 0; k < save_route.length; k++) {
+                                    var t = save_route[k];
+                                    if(t.zigzag) {
+                                        AutoMap2D.lineZigzag(t.type, t.bef_x, t.bef_y, t.next_x, t.next_y, t.color);
+                                    }
+                                    else {
+                                        AutoMap2D.lineRightAngle(t.type, t.bef_x, t.bef_y, t.next_x, t.next_y, t.color);
+                                    }
+                                }
+                            }
+                            not_exist_connect = false;
+                            addedRoomPair[src_id][target_id] = true;
+                            addedRoomPair[target_id][src_id] = true;
+                            uf.Union(target_id, src_id);
+                        }
+                        if(!is_tree_connect) {
+                            break;
+                        }
                     }
                     count_conn++;
                     if(count_conn >= MAX_COUNT) {
                         //break;
                     }
                 }
+                if(uf.Size(ROOT_ID) >= arrUseRoom.length) {
+                    is_tree_connect = true;
+                    //break;
+                }
+                if(not_exist_connect) {
+                    break;
+                }
             }
-            AutoMap2D.draw();
-            return;
-
+            return null;
+            var addedRoom = {}
+            var addedRoom = Array(height);
+            for(var y = 0; y < addedRoom.length; y++) {
+                addedRoom[y] = Array(width).fill(false);
+            }
             for(var i = 0; i < arrUseRoom.length; i++) {
                 var queue = [];
                 var search = Array(height);
@@ -669,12 +771,16 @@ var AutoMap2D = (function() {
         static draw() {
             var canvas = document.getElementById('create_auto_map');
             var context = canvas.getContext('2d');
+            context.fillRect(0, 0, canvas.width, canvas.height, "rgb(0, 0, 0)");
+
+            var offset_x = AutoMap2D.nCellWidth;
+            var offset_y = AutoMap2D.nCellWidth;
             for(var y = 0; y < AutoMap2D.nMapHeight; y++) {
                 for(var x = 0; x < AutoMap2D.nMapWidth; x++) {
                     var ry = y * AutoMap2D.nCellHeight;
                     var rx = x * AutoMap2D.nCellWidth;
                     context.fillStyle = AutoMap2D.mapInfo[y][x].color;
-                    context.fillRect(rx, ry, AutoMap2D.nCellWidth, AutoMap2D.nCellHeight);
+                    context.fillRect(offset_x + rx, offset_y + ry, AutoMap2D.nCellWidth, AutoMap2D.nCellHeight);
                 }
             }
             for(var y = 0; y < AutoMap2D.mapVirtualInfo.length; y++) {

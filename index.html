@@ -79,8 +79,15 @@
 		</table>
 	  </section>
 	  <section id="section_create_auto_map">
-	  　　<h2>ローグライクのマップ自動生成(未完)</h2><br>
-		  <button type="submit" onclick="AutoMap2D.initCustom()">再生成</button><br>
+	  	<h2>ローグライクのマップ自動生成</h2><br>
+		<table style="width: 480px">
+			<tr><td>フロアの大きさ</td><td>横 <input type="number" id="floor_width" min="1" max="300" value="56"> 縦 <input type="number" id="floor_height" min="1" max="300" value="34"> </td></tr>
+			<tr><td>フロアの分割数</td><td> 横 <input type="number" id="floor_div_width" min="1" max="100" value="4"> 縦 <input type="number" id="floor_div_height" size="10" min="1" max="100" value="3"></td></tr>
+			<tr><td>部屋の数</td><td><input type="number" id="room_num" min="0" max="1000" value="6"></td></tr>
+			<tr><td>中間通路の数</td><td><input type="number" id="middle_aisle_num" min="0" max="1000" value="4"></td></tr>
+			<tr><td>部屋間接続確率</td><td><select id="connect_rate"></select> ※0%にしても最低限の接続は行われる</td></tr>
+		</table>
+		  <button type="submit" onclick="AutoMap2D.generate()">再生成</button> <span style="color:red" id="error_msg_auto_map"></span><br>
 		  <br>
 		  <canvas id="create_auto_map" style="background-color:white;" width="640" height="480">
 			図形を表示するには、canvasタグをサポートしたブラウザが必要です。
@@ -90,7 +97,7 @@
         <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
       </footer>
     </div>
-	<script src="javascripts/union_find.js"></script>
+	<script src="javascripts/library/union_find.js"></script>
     <script src="javascripts/scale.fix.js"></script>
     <script src="javascripts/poke_calc.js"></script>
 	<script src="javascripts/create_auto_map.js"></script>
@@ -104,7 +111,8 @@
 			changeSection("section_index");
 		}
 		PokeCalc.init();
-		AutoMap2D.initCustom();
+		AutoMap2D.init();
+		AutoMap2D.generate();
 		function changeSection(id) {
 			var section = document.getElementsByTagName('section');
 			for (var elem of section) {
