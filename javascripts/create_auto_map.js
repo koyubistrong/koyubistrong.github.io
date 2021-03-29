@@ -140,7 +140,7 @@ var AutoMap2D = (function() {
             var arrWidthInterval = [];
             var widthTotal = 0;
             for(var x = 0; x < width; x++) {
-                var w = getRandomInt(minCellWidth, maxCellWidth);
+                var w = getRandomInt(minCellWidth, maxCellWidth + 1);
                 if(x >= width - 1) w = AutoMap2D.nMapWidth - widthTotal;
                 arrWidthInterval[x] = {
                     x: widthTotal,
@@ -152,7 +152,7 @@ var AutoMap2D = (function() {
             var arrHeightInterval = [];
             var heightTotal = 0;
             for(var y = 0; y < height; y++) {
-                var h = getRandomInt(minCellHeight, maxCellHeight);
+                var h = getRandomInt(minCellHeight, maxCellHeight + 1);
                 if(y >= height - 1) h = AutoMap2D.nMapHeight - heightTotal;
                 arrHeightInterval[y] = {
                     y: heightTotal,
@@ -279,8 +279,8 @@ var AutoMap2D = (function() {
                     if(curInfo.width != rw) rrw = getRandomInt(curInfo.width - dfx + 1, rw - dfx);
                     if(curInfo.height != rh) rrh = getRandomInt(curInfo.height - dfy + 1, rh - dfy);
                     if(curInfo.use_aisle) {
-                        rry = curInfo.y + Math.floor(curInfo.width / 2) + getRandomInt(0, 2);
-                        rrx = curInfo.x + Math.floor(curInfo.height / 2) + getRandomInt(0, 2);
+                        rry = curInfo.y + Math.floor(curInfo.height / 2) + getRandomInt(0, 2);
+                        rrx = curInfo.x + Math.floor(curInfo.width / 2) + getRandomInt(0, 2);
                         rrw = 1;
                         rrh = 1;
                     }
@@ -612,7 +612,7 @@ var AutoMap2D = (function() {
                     context.globalAlpha = 0.5;
                     if((y + x) % 2 == 0) context.fillStyle = "rgba(128, 0, 0, 128)";
                     else context.fillStyle = "rgba(0, 128, 0, 128)";
-                    //context.fillRect(rx, ry, AutoMap2D.mapVirtualInfo[y][x].v_width * AutoMap2D.nCellWidth, AutoMap2D.mapVirtualInfo[y][x].v_height * AutoMap2D.nCellHeight);
+                    //context.fillRect(offset_x + rx, offset_y + ry, AutoMap2D.mapVirtualInfo[y][x].v_width * AutoMap2D.nCellWidth, AutoMap2D.mapVirtualInfo[y][x].v_height * AutoMap2D.nCellHeight);
                 }
             }
         }
@@ -620,7 +620,12 @@ var AutoMap2D = (function() {
         static fillRect(rx, ry, width, height, color) {
             for(var y = 0; y < height; y++) {
                 for(var x = 0; x < width; x++) {
-                    AutoMap2D.mapInfo[ry + y][rx + x].color = color;
+                    if(AutoMap2D.checkRange(rx + x, ry + y, AutoMap2D.mapInfo[y].length, AutoMap2D.mapInfo.length)) {
+                        AutoMap2D.mapInfo[ry + y][rx + x].color = color;
+                    }
+                    else {
+                        console.log("error " + "rx: " + rx  + " ry: " + ry + " x: " + (rx + x) + " y: " + (ry + y));
+                    }
                 }
             }
         }
