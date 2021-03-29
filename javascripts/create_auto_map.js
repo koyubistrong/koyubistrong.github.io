@@ -116,12 +116,12 @@ var AutoMap2D = (function() {
         static generateMap(width, height, use_room_num, use_aisle_num, connect_rate) {
 
             var cellWidth = Math.floor(AutoMap2D.nMapWidth / width);
-            var minCellWidth = cellWidth - 1;
-            var maxCellWidth = cellWidth + 1;
+            var minCellWidth = cellWidth;
+            var maxCellWidth = cellWidth;
 
             var cellHeight = Math.floor(AutoMap2D.nMapHeight / height);
-            var minCellHeight = cellHeight - 1;
-            var maxCellHeight = cellHeight + 1;
+            var minCellHeight = cellHeight;
+            var maxCellHeight = cellHeight;
 
             if(cellWidth < 5) {
                 return "error_min_room_width_size";
