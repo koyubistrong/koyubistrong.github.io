@@ -695,6 +695,22 @@ var AutoMap2D = (function() {
             if(y < 0 || y >= height) return false;
             return true;
         }
+
+        static limitFormCheck(obj) {
+            var min = parseInt(obj.min);
+            var max = parseInt(obj.max);
+            var val = parseInt(obj.value);
+            if(isNaN(val)) {
+                obj.value = obj.min;
+                return;
+            }
+            if(val < min) {
+                obj.value = obj.min;
+            }
+            if(val > max) {
+                obj.value = obj.max;
+            }
+        }
     }
    
     return AutoMap2D;
