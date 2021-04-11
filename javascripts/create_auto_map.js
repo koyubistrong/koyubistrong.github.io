@@ -34,8 +34,8 @@ var AutoMap2D = (function() {
         static nMapRealWidth;
         static nMapRealHeight;
         static mapError;
-
         static mapVirtualInfo;
+        static app;
 
         static direction = [
             {x: -1, y: 0},
@@ -66,6 +66,15 @@ var AutoMap2D = (function() {
             AutoMap2D.mapError["error_min_room_width_size"] = "フロアの大きさ(横)をフロアの分割数(横)で割った数を5以上にしてください。";
             AutoMap2D.mapError["error_min_room_height_size"] = "フロアの大きさ(縦)をフロアの分割数(縦)で割った数を5以上にしてください。";
             AutoMap2D.mapError["error_room_aisle"] = "(部屋の数+中間通路の数)を1以上にしてください。";
+
+            var connect_rate = document.getElementById("connect_rate");
+
+            AutoMap2D.app = new PIXI.Application({
+                backgroundColor: 0x000000,
+            });
+            
+            var canvas = document.getElementById('create_auto_map')
+            canvas.appendChild(AutoMap2D.app.view);
         }
 
         static generate() {
@@ -86,25 +95,36 @@ var AutoMap2D = (function() {
         }
 
         static initFloor (width, height, cell_size) {
-            var canvas = document.getElementById('create_auto_map');
-            AutoMap2D.mapInfo = [];
+            if(AutoMap2D.mapInfo != null) {
+                for(var y = 0; y < AutoMap2D.nMapHeight; y++) {
+                    for(var x = 0; x < AutoMap2D.nMapWidth; x++) {
+                        AutoMap2D.app.stage.removeChild(AutoMap2D.mapInfo[y][x].object);
+                        AutoMap2D.mapInfo[y][x].object = null;
+                    }
+                }
+            }
             AutoMap2D.nCellHeight = AutoMap2D.nCellWidth = cell_size;
             AutoMap2D.nMapWidth = width;
             AutoMap2D.nMapHeight = height;
             AutoMap2D.nMapRealWidth = AutoMap2D.nCellWidth * AutoMap2D.nMapWidth;
             AutoMap2D.nMapRealHeight = AutoMap2D.nCellHeight * AutoMap2D.nMapHeight;
-            canvas.width = AutoMap2D.nMapRealWidth + AutoMap2D.nCellWidth * 2;
-            canvas.height = AutoMap2D.nMapRealHeight + AutoMap2D.nCellHeight * 2;
+            AutoMap2D.app.renderer.autoResize = true;
+            AutoMap2D.app.renderer.resize(AutoMap2D.nMapRealWidth + AutoMap2D.nCellWidth * 2, AutoMap2D.nMapRealHeight + AutoMap2D.nCellHeight * 2);
+            AutoMap2D.mapInfo = [];
+
             for(var y = 0; y < AutoMap2D.nMapHeight; y++) {
                 AutoMap2D.mapInfo[y] = []
                 for(var x = 0; x < AutoMap2D.nMapWidth; x++) {
-                    var color = "rgb(0, 0, 0)";
+                    var color = 0x000000;
                     if((x + y) % 2 == 1) {
-                        //color = "rgb(255, 255, 255)";
+                        //color = 0xFFFFFF;
                     }
+                    var rect = new PIXI.Graphics();
                     AutoMap2D.mapInfo[y][x] = {
-                        color: color
+                        color: color,
+                        object: rect
                     };
+                    AutoMap2D.app.stage.addChild(rect);
                 }
             }
             //AutoMap2D.lineTo(getRandomInt(0, AutoMap2D.nMapWidth),getRandomInt(0, AutoMap2D.nMapHeight),getRandomInt(0, AutoMap2D.nMapWidth),getRandomInt(0, AutoMap2D.nMapHeight),"rgb(255, 255, 255)");
@@ -134,8 +154,8 @@ var AutoMap2D = (function() {
             if(use_room_num + use_aisle_num <= 0) {
                 return "error_room_aisle";
             }
-            var room_color = "rgb(196, 196, 196)";
-            var aisle_color = "rgb(196, 196, 196)";
+            var room_color = 0xAAAAAA;
+            var aisle_color = 0xAAAAAA;
             
             var arrWidthInterval = [];
             var widthTotal = 0;
@@ -173,7 +193,7 @@ var AutoMap2D = (function() {
                     */
                     AutoMap2D.mapVirtualInfo[y][x] = {
                         id: -1,
-                        color: "rgb(0, 0, 0)",
+                        color: 0x000000,
                         use_room: false,
                         use_aisle: false,
                         x: arrWidthInterval[x].x,
@@ -591,9 +611,9 @@ var AutoMap2D = (function() {
         }
 
         static draw() {
-            var canvas = document.getElementById('create_auto_map');
-            var context = canvas.getContext('2d');
-            context.fillRect(0, 0, canvas.width, canvas.height, "rgb(0, 0, 0)");
+            //var canvas = document.getElementById('create_auto_map');
+            //var context = canvas.getContext('2d');
+            //context.fillRect(0, 0, canvas.width, canvas.height, "rgb(0, 0, 0)");
 
             var offset_x = AutoMap2D.nCellWidth;
             var offset_y = AutoMap2D.nCellWidth;
@@ -601,17 +621,21 @@ var AutoMap2D = (function() {
                 for(var x = 0; x < AutoMap2D.nMapWidth; x++) {
                     var ry = y * AutoMap2D.nCellHeight;
                     var rx = x * AutoMap2D.nCellWidth;
-                    context.fillStyle = AutoMap2D.mapInfo[y][x].color;
-                    context.fillRect(offset_x + rx, offset_y + ry, AutoMap2D.nCellWidth, AutoMap2D.nCellHeight);
+                    var obj = AutoMap2D.mapInfo[y][x].object;
+                    obj.beginFill(AutoMap2D.mapInfo[y][x].color);
+                    obj.drawRect(offset_x + rx, offset_y + ry, AutoMap2D.nCellWidth, AutoMap2D.nCellHeight);
+                    obj.endFill();
+                    //context.fillStyle = AutoMap2D.mapInfo[y][x].color;
+                    //context.fillRect(offset_x + rx, offset_y + ry, AutoMap2D.nCellWidth, AutoMap2D.nCellHeight);
                 }
             }
             for(var y = 0; y < AutoMap2D.mapVirtualInfo.length; y++) {
                 for(var x = 0; x < AutoMap2D.mapVirtualInfo[y].length; x++) {
                     var ry = AutoMap2D.mapVirtualInfo[y][x].vy * AutoMap2D.nCellHeight;
                     var rx = AutoMap2D.mapVirtualInfo[y][x].vx * AutoMap2D.nCellWidth;
-                    context.globalAlpha = 0.5;
-                    if((y + x) % 2 == 0) context.fillStyle = "rgba(128, 0, 0, 128)";
-                    else context.fillStyle = "rgba(0, 128, 0, 128)";
+                    //context.globalAlpha = 0.5;
+                    //if((y + x) % 2 == 0) context.fillStyle = "rgba(128, 0, 0, 128)";
+                    //else context.fillStyle = "rgba(0, 128, 0, 128)";
                     //context.fillRect(offset_x + rx, offset_y + ry, AutoMap2D.mapVirtualInfo[y][x].v_width * AutoMap2D.nCellWidth, AutoMap2D.mapVirtualInfo[y][x].v_height * AutoMap2D.nCellHeight);
                 }
             }
