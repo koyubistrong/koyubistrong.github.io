@@ -82,14 +82,6 @@ var AutoMap2D = (function() {
         }
 
         static initFloor (width, height, cell_size) {
-            if(AutoMap2D.mapInfo != null) {
-                for(var y = 0; y < AutoMap2D.nMapHeight; y++) {
-                    for(var x = 0; x < AutoMap2D.nMapWidth; x++) {
-                        AutoMap2D.app.stage.removeChild(AutoMap2D.mapInfo[y][x].object);
-                        AutoMap2D.mapInfo[y][x].object = null;
-                    }
-                }
-            }
             AutoMap2D.nCellHeight = AutoMap2D.nCellWidth = cell_size;
             AutoMap2D.nMapWidth = width;
             AutoMap2D.nMapHeight = height;
@@ -98,6 +90,11 @@ var AutoMap2D = (function() {
             AutoMap2D.app.renderer.autoResize = true;
             AutoMap2D.app.renderer.resize(AutoMap2D.nMapRealWidth + AutoMap2D.nCellWidth * 2, AutoMap2D.nMapRealHeight + AutoMap2D.nCellHeight * 2);
             AutoMap2D.mapInfo = [];
+            if(AutoMap2D.mapDrawing != null) {
+                AutoMap2D.app.stage.removeChild(AutoMap2D.mapDrawing);
+            }
+            AutoMap2D.mapDrawing = new PIXI.Graphics();
+            AutoMap2D.app.stage.addChild(AutoMap2D.mapDrawing);
 
             for(var y = 0; y < AutoMap2D.nMapHeight; y++) {
                 AutoMap2D.mapInfo[y] = []
@@ -106,12 +103,9 @@ var AutoMap2D = (function() {
                     if((x + y) % 2 == 1) {
                         //color = 0xFFFFFF;
                     }
-                    var rect = new PIXI.Graphics();
                     AutoMap2D.mapInfo[y][x] = {
                         color: color,
-                        object: rect
                     };
-                    AutoMap2D.app.stage.addChild(rect);
                 }
             }
             //AutoMap2D.lineTo(getRandomInt(0, AutoMap2D.nMapWidth),getRandomInt(0, AutoMap2D.nMapHeight),getRandomInt(0, AutoMap2D.nMapWidth),getRandomInt(0, AutoMap2D.nMapHeight),"rgb(255, 255, 255)");
@@ -608,14 +602,13 @@ var AutoMap2D = (function() {
                 for(var x = 0; x < AutoMap2D.nMapWidth; x++) {
                     var ry = y * AutoMap2D.nCellHeight;
                     var rx = x * AutoMap2D.nCellWidth;
-                    var obj = AutoMap2D.mapInfo[y][x].object;
-                    obj.beginFill(AutoMap2D.mapInfo[y][x].color);
-                    obj.drawRect(offset_x + rx, offset_y + ry, AutoMap2D.nCellWidth, AutoMap2D.nCellHeight);
-                    obj.endFill();
+                    AutoMap2D.mapDrawing.beginFill(AutoMap2D.mapInfo[y][x].color);
+                    AutoMap2D.mapDrawing.drawRect(offset_x + rx, offset_y + ry, AutoMap2D.nCellWidth, AutoMap2D.nCellHeight);
                     //context.fillStyle = AutoMap2D.mapInfo[y][x].color;
                     //context.fillRect(offset_x + rx, offset_y + ry, AutoMap2D.nCellWidth, AutoMap2D.nCellHeight);
                 }
             }
+            AutoMap2D.mapDrawing.endFill();
             for(var y = 0; y < AutoMap2D.mapVirtualInfo.length; y++) {
                 for(var x = 0; x < AutoMap2D.mapVirtualInfo[y].length; x++) {
                     var ry = AutoMap2D.mapVirtualInfo[y][x].vy * AutoMap2D.nCellHeight;
