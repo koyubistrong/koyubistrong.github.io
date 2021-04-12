@@ -1,13 +1,13 @@
 var AutoMap2D = (function() {
 
-    function getRandomInt(min, max) {
+    var getRandomInt = function(min, max) {
         min = Math.ceil(min);
         max = Math.floor(max);
         if(min >= max) return min;
         return Math.floor(Math.random() * (max - min) + min); //The maximum is exclusive and the minimum is inclusive
     }
 
-    function shuffle(arr) {
+    var shuffle = function(arr) {
         for(var i = 0; i < arr.length; i++) {
             var r = getRandomInt(0, arr.length);
             var tmp = arr[i];
@@ -16,7 +16,7 @@ var AutoMap2D = (function() {
         }
     }
 
-    function Array2D(w, h, val) {
+    var Array2D = function(w, h, val) {
         var array = Array(w);
         for(var i = 0; i < array.length; i++) {
             array[i] = Array(h).fill(val);
@@ -25,25 +25,6 @@ var AutoMap2D = (function() {
     }
 
     class AutoMap2D {
-        
-        static mapInfo;
-        static nCellWidth;
-        static nCellHeight;
-        static nMapWidth;
-        static nMapHeight;
-        static nMapRealWidth;
-        static nMapRealHeight;
-        static mapError;
-        static mapVirtualInfo;
-        static app;
-
-        static direction = [
-            {x: -1, y: 0},
-            {x: 1, y: 0},
-            {x: 0, y: -1},
-            {x: 0, y: 1}
-        ];
-
         static init() {
             AutoMap2D.mapInfo = [];
             AutoMap2D.mapVirtualInfo = [];
@@ -52,6 +33,12 @@ var AutoMap2D = (function() {
             AutoMap2D.nMapHeight = 0;
             AutoMap2D.nMapRealWidth = 0;
             AutoMap2D.nMapRealHeight = 0;
+            AutoMap2D.direction = [
+                {x: -1, y: 0},
+                {x: 1, y: 0},
+                {x: 0, y: -1},
+                {x: 0, y: 1}
+            ];
 
             var connect_rate = document.getElementById("connect_rate");
             for(var rate = 0; rate <= 10; rate++) {
@@ -186,11 +173,11 @@ var AutoMap2D = (function() {
             for(var y = 0; y < height; y++) {
                 AutoMap2D.mapVirtualInfo[y] = []
                 for(var x = 0; x < width; x++) {
-                    /*
-                    if(arrHeightTotal[x] == null) arrHeightTotal[x] = 0;
-                    var h = getRandomInt(minCellHeight, maxCellHeight);
-                    if(y >= height - 1) h = AutoMap2D.nMapHeight - arrHeightTotal[x] - 1;
-                    */
+                    
+                    //if(arrHeightTotal[x] == null) arrHeightTotal[x] = 0;
+                    //var h = getRandomInt(minCellHeight, maxCellHeight);
+                    //if(y >= height - 1) h = AutoMap2D.nMapHeight - arrHeightTotal[x] - 1;
+                    
                     AutoMap2D.mapVirtualInfo[y][x] = {
                         id: -1,
                         color: 0x000000,
