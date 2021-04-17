@@ -1,30 +1,28 @@
+const ObjType = {
+    WALL: 0,
+    FLAT: 1
+}
 var AutoMap2D = (function() {
-
-    var getRandomInt = function(min, max) {
-        min = Math.ceil(min);
-        max = Math.floor(max);
-        if(min >= max) return min;
-        return Math.floor(Math.random() * (max - min) + min); //The maximum is exclusive and the minimum is inclusive
-    }
-
-    var shuffle = function(arr) {
-        for(var i = 0; i < arr.length; i++) {
-            var r = getRandomInt(0, arr.length);
-            var tmp = arr[i];
-            arr[i] = arr[r];
-            arr[r] = tmp;
-        }
-    }
-
-    var Array2D = function(w, h, val) {
-        var array = Array(w);
-        for(var i = 0; i < array.length; i++) {
-            array[i] = Array(h).fill(val);
-        }
-        return array;
-    }
-
     class AutoMap2D {
+        static getMap() {
+            return JSON.parse(JSON.stringify(AutoMap2D.mapInfo));
+        }
+
+        //static getVirtualMap() {
+        //    return JSON.parse(JSON.stringify(AutoMap2D.mapVirtualInfo));
+        //}
+
+        static getSizeInfo() {
+            return {
+                nCellHeight: AutoMap2D.nCellHeight,
+                nCellWidth: AutoMap2D.nCellWidth,
+                nMapWidth: AutoMap2D.nMapWidth,
+                nMapHeight: AutoMap2D.nMapHeight,
+                nMapRealWidth: AutoMap2D.nMapRealWidth,
+                nMapRealHeight: AutoMap2D.nMapRealHeight,
+            };
+        }
+
         static init() {
             AutoMap2D.mapInfo = [];
             AutoMap2D.mapVirtualInfo = [];
@@ -39,32 +37,40 @@ var AutoMap2D = (function() {
                 {x: 0, y: -1},
                 {x: 0, y: 1}
             ];
+            if(!AutoMap2D.bElemInit) {
+                var connect_rate = document.getElementById("connect_rate");
+                for(var rate = 0; rate <= 10; rate++) {
+                    var opt = document.createElement("option");
+                    opt.value = rate;
+                    opt.innerText = (rate * 10).toString() + "%";
+                    connect_rate.appendChild(opt);
+                }
+                connect_rate.options[8].selected = true;
 
-            var connect_rate = document.getElementById("connect_rate");
-            for(var rate = 0; rate <= 10; rate++) {
-                var opt = document.createElement("option");
-                opt.value = rate;
-                opt.innerText = (rate * 10).toString() + "%";
-                connect_rate.appendChild(opt);
+                AutoMap2D.mapError = {};
+                AutoMap2D.mapError["error_min_room_width_size"] = "フロアの大きさ(横)をフロアの分割数(横)で割った数を5以上にしてください。";
+                AutoMap2D.mapError["error_min_room_height_size"] = "フロアの大きさ(縦)をフロアの分割数(縦)で割った数を5以上にしてください。";
+                AutoMap2D.mapError["error_room_aisle"] = "(部屋の数+中間通路の数)を1以上にしてください。";
+
+                var connect_rate = document.getElementById("connect_rate");
+
+                AutoMap2D.app = new PIXI.Application({
+                    backgroundColor: 0x000000,
+                });
+                
+                var canvas = document.getElementById('create_auto_map')
+                canvas.appendChild(AutoMap2D.app.view);
+                AutoMap2D.bElemInit = true;
             }
-            connect_rate.options[8].selected = true;
-
-            AutoMap2D.mapError = {};
-            AutoMap2D.mapError["error_min_room_width_size"] = "フロアの大きさ(横)をフロアの分割数(横)で割った数を5以上にしてください。";
-            AutoMap2D.mapError["error_min_room_height_size"] = "フロアの大きさ(縦)をフロアの分割数(縦)で割った数を5以上にしてください。";
-            AutoMap2D.mapError["error_room_aisle"] = "(部屋の数+中間通路の数)を1以上にしてください。";
-
-            var connect_rate = document.getElementById("connect_rate");
-
-            AutoMap2D.app = new PIXI.Application({
-                backgroundColor: 0x000000,
-            });
-            
-            var canvas = document.getElementById('create_auto_map')
-            canvas.appendChild(AutoMap2D.app.view);
         }
 
-        static generate() {
+        static generate(floor_width, floor_height, cell_size, floor_div_width, floor_div_height, room_num, middle_aisle_num, connect_rate) {
+            AutoMap2D.initFloor(floor_width, floor_height, cell_size);
+            var error = AutoMap2D.generateMap(floor_div_width, floor_div_height, room_num, middle_aisle_num, connect_rate);
+            return error;
+        }
+
+        static run() {
             var floor_height = parseInt(document.getElementById("floor_height").value);
             var floor_width = parseInt(document.getElementById("floor_width").value);
             var floor_div_height = parseInt(document.getElementById("floor_div_height").value);
@@ -72,8 +78,7 @@ var AutoMap2D = (function() {
             var room_num = parseInt(document.getElementById("room_num").value);
             var middle_aisle_num = parseInt(document.getElementById("middle_aisle_num").value);
             var connect_rate = parseInt(document.getElementById("connect_rate").value);
-            AutoMap2D.initFloor(floor_width, floor_height, 8);
-            var error = AutoMap2D.generateMap(floor_div_width, floor_div_height, room_num, middle_aisle_num, connect_rate);
+            var error = AutoMap2D.generate(floor_width, floor_height, 8, floor_div_width, floor_div_height, room_num, middle_aisle_num, connect_rate);
             document.getElementById("error_msg_auto_map").innerText = "";
             if(error != null && AutoMap2D.mapError[error] != null) {
                 document.getElementById("error_msg_auto_map").innerText = AutoMap2D.mapError[error];
@@ -105,6 +110,9 @@ var AutoMap2D = (function() {
                     }
                     AutoMap2D.mapInfo[y][x] = {
                         color: color,
+                        room_id: -1,
+                        type: ObjType.WALL,
+                        middle_aisle: false,
                     };
                 }
             }
@@ -226,7 +234,7 @@ var AutoMap2D = (function() {
                                 var dy = y + AutoMap2D.direction[d].y;
                                 d = (d + 1) % AutoMap2D.direction.length; 
                                 ii++;
-                                if(AutoMap2D.checkRange(dx, dy, width, height) == false) continue;
+                                if(checkRange(dx, dy, width, height) == false) continue;
                                 var dirInfo = AutoMap2D.mapVirtualInfo[dy][dx];
                                 if(dirInfo.use_room == false) {
                                     dirInfo.color = room_color;
@@ -277,6 +285,7 @@ var AutoMap2D = (function() {
                     var dfy = rry - ry;
                     var rrw = getRandomInt(3, rw - dfx + ((x < width - 1) ? 0 : 1));
                     var rrh = getRandomInt(3, rh - dfy + ((y < height - 1) ? 0 : 1));
+                    var middle_aisle = false;
                     if(curInfo.width != rw) rrw = getRandomInt(curInfo.width - dfx + 1, rw - dfx);
                     if(curInfo.height != rh) rrh = getRandomInt(curInfo.height - dfy + 1, rh - dfy);
                     if(curInfo.use_aisle) {
@@ -284,8 +293,9 @@ var AutoMap2D = (function() {
                         rrx = curInfo.x + Math.floor(curInfo.width / 2) + getRandomInt(0, 2);
                         rrw = 1;
                         rrh = 1;
+                        middle_aisle = true;
                     }
-                    AutoMap2D.fillRect(rrx, rry, rrw, rrh, color);
+                    AutoMap2D.fillRect(rrx, rry, rrw, rrh, {color: color, room_id: curInfo.id, type: ObjType.FLAT, middle_aisle: middle_aisle});
                     curInfo.y = rry;
                     curInfo.x = rrx;
                     curInfo.width = rrw;
@@ -339,7 +349,7 @@ var AutoMap2D = (function() {
                         var d = AutoMap2D.direction[j];
                         var dx = p.x + d.x;
                         var dy = p.y + d.y;
-                        if(AutoMap2D.checkRange(dx, dy, width, height) == false) continue;
+                        if(checkRange(dx, dy, width, height) == false) continue;
                         if(search[dy][dx]) continue;
                         var use_room = AutoMap2D.mapVirtualInfo[dy][dx].use_room;
                         trace[i].push({parent: p.parent, x: dx, y: dy, use_room: use_room, level: p.level + 1});
@@ -412,7 +422,7 @@ var AutoMap2D = (function() {
                                     bef_y = info.y + getRandomInt(0, info.height);
                                 }
                                 else if(node.x > parent.x) {
-                                    bef_x = info.x;
+                                    bef_x = info.x - 1;
                                     bef_y = info.y + getRandomInt(0, info.height);
                                 }
                                 else if(node.y < parent.y) {
@@ -421,7 +431,7 @@ var AutoMap2D = (function() {
                                 }
                                 else if(node.y > parent.y) {
                                     bef_x = info.x + getRandomInt(0, info.width);
-                                    bef_y = info.y;
+                                    bef_y = info.y - 1;
                                 }
                             }
                             var next_x = 0;
@@ -458,7 +468,7 @@ var AutoMap2D = (function() {
                                         next_y = next_info.y + getRandomInt(0, next_info.height);
                                     }
                                     else if(next_node.x > next_child.x) {
-                                        next_x = next_info.x;
+                                        next_x = next_info.x - 1;
                                         next_y = next_info.y + getRandomInt(0, next_info.height);
                                     }
                                     else if(next_node.y < next_child.y) {
@@ -467,7 +477,7 @@ var AutoMap2D = (function() {
                                     }
                                     else if(next_node.y > next_child.y) {
                                         next_x = next_info.x + getRandomInt(0, next_info.width);
-                                        next_y = next_info.y;
+                                        next_y = next_info.y - 1;
                                     }
                                     if((getRandomInt(0, 2) == 0 || Math.abs(bef_x - next_x) < 3) && next_node.x != next_child.x) {
                                         if(bef_y < next_info.y) {
@@ -559,10 +569,10 @@ var AutoMap2D = (function() {
                                 for(var k = 0; k < save_route.length; k++) {
                                     var t = save_route[k];
                                     if(t.zigzag) {
-                                        AutoMap2D.lineZigzag(t.type, t.bef_x, t.bef_y, t.next_x, t.next_y, t.color);
+                                        AutoMap2D.lineZigzag(t.type, t.bef_x, t.bef_y, t.next_x, t.next_y, {color: t.color, room_id: -1, type: ObjType.FLAT, middle_aisle: false});
                                     }
                                     else {
-                                        AutoMap2D.lineRightAngle(t.type, t.bef_x, t.bef_y, t.next_x, t.next_y, t.color);
+                                        AutoMap2D.lineRightAngle(t.type, t.bef_x, t.bef_y, t.next_x, t.next_y, {color: t.color, room_id: -1, type: ObjType.FLAT, middle_aisle: false});
                                     }
                                 }
                             }
@@ -621,11 +631,11 @@ var AutoMap2D = (function() {
             }
         }
 
-        static fillRect(rx, ry, width, height, color) {
+        static fillRect(rx, ry, width, height, info) {
             for(var y = 0; y < height; y++) {
                 for(var x = 0; x < width; x++) {
-                    if(AutoMap2D.checkRange(rx + x, ry + y, AutoMap2D.mapInfo[y].length, AutoMap2D.mapInfo.length)) {
-                        AutoMap2D.mapInfo[ry + y][rx + x].color = color;
+                    if(checkRange(rx + x, ry + y, AutoMap2D.mapInfo[y].length, AutoMap2D.mapInfo.length)) {
+                        AutoMap2D.mapInfo[ry + y][rx + x] = info;
                     }
                     else {
                         console.log("error " + "rx: " + rx  + " ry: " + ry + " x: " + (rx + x) + " y: " + (ry + y));
@@ -634,33 +644,33 @@ var AutoMap2D = (function() {
             }
         }
 
-        static lineZigzag(type, rx, ry, tx, ty, color) {
+        static lineZigzag(type, rx, ry, tx, ty, info) {
             var hx = Math.floor((rx + tx) / 2);
             var hy = Math.floor((ry + ty) / 2);
             if(type == "H") {
-                AutoMap2D.lineTo(rx, ry, hx, ry, color);
-                AutoMap2D.lineTo(hx, ry, hx, ty, color);
-                AutoMap2D.lineTo(tx, ty, hx, ty, color);
+                AutoMap2D.lineTo(rx, ry, hx, ry, info);
+                AutoMap2D.lineTo(hx, ry, hx, ty, info);
+                AutoMap2D.lineTo(tx, ty, hx, ty, info);
             }
             if(type == "V") {
-                AutoMap2D.lineTo(rx, ry, rx, hy, color);
-                AutoMap2D.lineTo(rx, hy, tx, hy, color);
-                AutoMap2D.lineTo(tx, ty, tx, hy, color);
+                AutoMap2D.lineTo(rx, ry, rx, hy, info);
+                AutoMap2D.lineTo(rx, hy, tx, hy, info);
+                AutoMap2D.lineTo(tx, ty, tx, hy, info);
             }
         }
 
-        static lineRightAngle(type, rx, ry, tx, ty, color) {
+        static lineRightAngle(type, rx, ry, tx, ty, info) {
             if(type == "H") {
-                AutoMap2D.lineTo(rx, ry, tx, ry, color);
-                AutoMap2D.lineTo(tx, ty, tx, ry, color);
+                AutoMap2D.lineTo(rx, ry, tx, ry, info);
+                AutoMap2D.lineTo(tx, ty, tx, ry, info);
             }
             if(type == "V") {
-                AutoMap2D.lineTo(rx, ry, rx, ty, color);
-                AutoMap2D.lineTo(tx, ty, rx, ty, color);
+                AutoMap2D.lineTo(rx, ry, rx, ty, info);
+                AutoMap2D.lineTo(tx, ty, rx, ty, info);
             }
         }
 
-        static lineTo(rx, ry, tx, ty, color) {
+        static lineTo(rx, ry, tx, ty, info) {
             var dx = Math.abs(tx - rx);
             var dy = Math.abs(ty - ry);
             var sx = 1;
@@ -671,9 +681,9 @@ var AutoMap2D = (function() {
             var befx = rx;
             var befy = ry;
             while(true) {
-                AutoMap2D.mapInfo[ry][rx].color = color;
+                AutoMap2D.mapInfo[ry][rx] = info;
                 if(rx != befx && ry != befy) {
-                    AutoMap2D.mapInfo[befy + sy][befx].color = color;
+                    AutoMap2D.mapInfo[befy + sy][befx] = info;
                 }
                 befx = rx;
                 befy = ry;
@@ -690,30 +700,8 @@ var AutoMap2D = (function() {
             }
         }
 
-        static fillRectWithFrame(x, y, width, height, color) {
-            AutoMap2D.fillRect(x + 1, y + 1, width - 1, height - 1, color);
-        }
-
-        static checkRange(x, y, width, height) {
-            if(x < 0 || x >= width) return false;
-            if(y < 0 || y >= height) return false;
-            return true;
-        }
-
-        static limitFormCheck(obj) {
-            var min = parseInt(obj.min);
-            var max = parseInt(obj.max);
-            var val = parseInt(obj.value);
-            if(isNaN(val)) {
-                obj.value = obj.min;
-                return;
-            }
-            if(val < min) {
-                obj.value = obj.min;
-            }
-            if(val > max) {
-                obj.value = obj.max;
-            }
+        static fillRectWithFrame(x, y, width, height, info) {
+            AutoMap2D.fillRect(x + 1, y + 1, width - 1, height - 1, info);
         }
     }
    

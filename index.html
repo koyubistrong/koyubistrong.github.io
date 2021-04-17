@@ -26,18 +26,22 @@
       <header>
         <a href="index.html"><h1>KOYUBI</h1></a>
 		<a href="index.html?id=section_poke_calc">ポケモンけいけんアメ必要数計算</a><br>
-		<a href="index.html?id=section_create_auto_map">ローグライクのマップ自動生成</a>
+		<a href="index.html?id=section_create_auto_map">ローグライクのマップ自動生成</a><br>
+		<a href="index.html?id=section_roguelike_game">動きテスト</a>
         <br><br>
 		<p class="view"><a href="https://github.com/koyubistrong">View My GitHub Profile</a></p>
 
       </header>
-      <section id="section_index">
+      <section id="section_index" style="display: none">
         <h3>
-		<a id="welcome-to-github-pages" class="anchor" href="#welcome-to-github-pages" aria-hidden="true"><span class="octicon octicon-link"></span></a>Welcome to GitHub Pages.</h3>
-
+		<a id="welcome-to-github-pages" class="anchor" href="#welcome-to-github-pages" aria-hidden="true">
+			<span class="octicon octicon-link"></span>
+		</a>
+		Welcome to GitHub Pages.
+		</h3>
       </section>
-	  <section id="section_poke_calc">
-	  　　<h2>ポケモンけいけんアメ必要数計算</h2>
+	  <section id="section_poke_calc" style="display: none">
+	  　<h2>ポケモンけいけんアメ必要数計算</h2>
 	    経験値タイプ
 		<select id="exp_type" onChange="PokeCalc.recalc()">
 		  <option value="0">60万経験値</option>
@@ -78,29 +82,37 @@
 		
 		</table>
 	  </section>
-	  <section id="section_create_auto_map">
+	  <section id="section_create_auto_map" style="display: none">
 	  	<h2>ローグライクのマップ自動生成</h2>
 		<table style="width: 480px">
-			<tr><td>フロアの大きさ</td><td>横 <input type="number" id="floor_width" min="1" max="300" value="56" onchange="AutoMap2D.limitFormCheck(this)"> 縦 <input type="number" id="floor_height" min="1" max="300" value="34" onchange="AutoMap2D.limitFormCheck(this)"> </td></tr>
-			<tr><td>フロアの分割数</td><td> 横 <input type="number" id="floor_div_width" min="1" max="10" value="4" onchange="AutoMap2D.limitFormCheck(this)"> 縦 <input type="number" id="floor_div_height" size="10" min="1" max="10" value="3" onchange="AutoMap2D.limitFormCheck(this)"></td></tr>
-			<tr><td>部屋の数</td><td><input type="number" id="room_num" min="0" max="100" value="6" onchange="AutoMap2D.limitFormCheck(this)"></td></tr>
-			<tr><td>中間通路の数</td><td><input type="number" id="middle_aisle_num" min="0" max="100" value="4" onchange="AutoMap2D.limitFormCheck(this)"></td></tr>
+			<tr><td>フロアの大きさ</td><td>横 <input type="number" id="floor_width" min="1" max="300" value="56" onchange="limitFormCheck(this)"> 縦 <input type="number" id="floor_height" min="1" max="300" value="34" onchange="limitFormCheck(this)"> </td></tr>
+			<tr><td>フロアの分割数</td><td> 横 <input type="number" id="floor_div_width" min="1" max="10" value="4" onchange="limitFormCheck(this)"> 縦 <input type="number" id="floor_div_height" size="10" min="1" max="10" value="3" onchange="limitFormCheck(this)"></td></tr>
+			<tr><td>部屋の数</td><td><input type="number" id="room_num" min="0" max="100" value="6" onchange="limitFormCheck(this)"></td></tr>
+			<tr><td>中間通路の数</td><td><input type="number" id="middle_aisle_num" min="0" max="100" value="4" onchange="limitFormCheck(this)"></td></tr>
 			<tr><td>部屋間接続確率</td><td><select id="connect_rate"></select> ※0%にしても最低限の接続は行われる</td></tr>
 		</table>
-		  <button type="submit" onclick="AutoMap2D.generate()">再生成</button> <span style="color:red" id="error_msg_auto_map"></span><br>
+		  <button type="submit" onclick="AutoMap2D.run()">再生成</button> <span style="color:red" id="error_msg_auto_map"></span><br>
 		  <br>
 		  <main id="create_auto_map">
 		  </main>
+	  </section>
+	  <section id="section_roguelike_game" style="display: none">
+		<h2>動きテスト</h2>
+		<button type="submit" onclick="rg.init()">再生成</button><br><br>
+		<main id="roguelike_game">
+		</main>
 	  </section>
       <footer>
         <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
       </footer>
     </div>
+	<script src="javascripts/library/global.js"></script>
 	<script src="javascripts/library/union_find.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/5.1.3/pixi.min.js"></script>
     <script src="javascripts/scale.fix.js"></script>
     <script src="javascripts/poke_calc.js"></script>
 	<script src="javascripts/create_auto_map.js"></script>
+	<script src="javascripts/roguelike_game.js"></script>
 	   <script>
 	    var queries = GetQueryString();
 		var id = queries["id"];
@@ -110,9 +122,6 @@
 		else {
 			changeSection("section_index");
 		}
-		PokeCalc.init();
-		AutoMap2D.init();
-		AutoMap2D.generate();
 		function changeSection(id) {
 			var section = document.getElementsByTagName('section');
 			for (var elem of section) {
@@ -123,27 +132,16 @@
 					elem.style.display = "none";
 				}
 			}
-		}
-		function GetQueryString() {
-			var result = {};
-			if( 1 < window.location.search.length ) {
-				var query = window.location.search.substring( 1 );
-
-				// クエリの区切り記号 (&) で文字列を配列に分割する
-				var parameters = query.split( '&' );
-
-				for( var i = 0; i < parameters.length; i++ ) {
-					// パラメータ名とパラメータ値に分割する
-					var element = parameters[ i ].split( '=' );
-
-					var paramName = decodeURIComponent( element[ 0 ] );
-					var paramValue = decodeURIComponent( element[ 1 ] );
-
-					// パラメータ名をキーとして連想配列に追加する
-					result[ paramName ] = paramValue;
-				}
+			if(id == "section_poke_calc") {
+				PokeCalc.init();
 			}
-			return result;
+			else if(id == "section_create_auto_map") {
+				AutoMap2D.init();
+				AutoMap2D.run();
+			}
+			else if(id == "section_roguelike_game") {
+				rg.init();
+			}
 		}
 	</script>
   </body>
