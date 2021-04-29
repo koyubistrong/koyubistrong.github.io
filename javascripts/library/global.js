@@ -66,6 +66,14 @@ const GetQueryString = function() {
     return result;
 }
 
+// ビジーwaitを使う方法
+const sleep = function(waitMsec) {
+    var startMsec = new Date();
+  
+    // 指定ミリ秒間だけループさせる（CPUは常にビジー状態）
+    while (new Date() - startMsec < waitMsec);
+}
+
 const direction8 = [{x: -1, y: -1, diagonal: true}, {x: 0, y: -1, diagonal: false}, {x: 1, y: -1, diagonal: true},
                     {x: -1, y:  0, diagonal: false}                               , {x: 1, y:  0, diagonal: false},
                     {x: -1, y:  1, diagonal: true}, {x: 0, y:  1, diagonal: false}, {x: 1, y:  1, diagonal: true},]

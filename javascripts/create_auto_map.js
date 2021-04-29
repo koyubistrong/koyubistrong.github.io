@@ -23,7 +23,7 @@ var AutoMap2D = (function() {
             };
         }
 
-        static init() {
+        static init(no_elem_init) {
             AutoMap2D.mapInfo = [];
             AutoMap2D.mapVirtualInfo = [];
             AutoMap2D.nCellHeight = AutoMap2D.nCellWidth = 0;
@@ -37,6 +37,10 @@ var AutoMap2D = (function() {
                 {x: 0, y: -1},
                 {x: 0, y: 1}
             ];
+            AutoMap2D.bNoElemInit = false;
+            if(no_elem_init != null) {
+                AutoMap2D.bNoElemInit = true;
+            }
             if(!AutoMap2D.bElemInit) {
                 var connect_rate = document.getElementById("connect_rate");
                 for(var rate = 0; rate <= 10; rate++) {
@@ -52,14 +56,14 @@ var AutoMap2D = (function() {
                 AutoMap2D.mapError["error_min_room_height_size"] = "フロアの大きさ(縦)をフロアの分割数(縦)で割った数を5以上にしてください。";
                 AutoMap2D.mapError["error_room_aisle"] = "(部屋の数+中間通路の数)を1以上にしてください。";
 
-                var connect_rate = document.getElementById("connect_rate");
-
-                AutoMap2D.app = new PIXI.Application({
-                    backgroundColor: 0x000000,
-                });
-                
-                var canvas = document.getElementById('create_auto_map')
-                canvas.appendChild(AutoMap2D.app.view);
+                if(!AutoMap2D.bNoElemInit) {
+                    AutoMap2D.app = new PIXI.Application({
+                        backgroundColor: 0x000000,
+                    });
+                    
+                    var canvas = document.getElementById('create_auto_map')
+                    canvas.appendChild(AutoMap2D.app.view);
+                }
                 AutoMap2D.bElemInit = true;
             }
         }
@@ -92,14 +96,16 @@ var AutoMap2D = (function() {
             AutoMap2D.nMapHeight = height;
             AutoMap2D.nMapRealWidth = AutoMap2D.nCellWidth * AutoMap2D.nMapWidth;
             AutoMap2D.nMapRealHeight = AutoMap2D.nCellHeight * AutoMap2D.nMapHeight;
-            AutoMap2D.app.renderer.autoResize = true;
-            AutoMap2D.app.renderer.resize(AutoMap2D.nMapRealWidth + AutoMap2D.nCellWidth * 2, AutoMap2D.nMapRealHeight + AutoMap2D.nCellHeight * 2);
             AutoMap2D.mapInfo = [];
-            if(AutoMap2D.mapDrawing != null) {
-                AutoMap2D.app.stage.removeChild(AutoMap2D.mapDrawing);
+            if(!AutoMap2D.bNoElemInit) {
+                AutoMap2D.app.renderer.autoDensity = true;
+                AutoMap2D.app.renderer.resize(AutoMap2D.nMapRealWidth + AutoMap2D.nCellWidth * 2, AutoMap2D.nMapRealHeight + AutoMap2D.nCellHeight * 2);
+                if(AutoMap2D.mapDrawing != null) {
+                    AutoMap2D.app.stage.removeChild(AutoMap2D.mapDrawing);
+                }
+                AutoMap2D.mapDrawing = new PIXI.Graphics();
+                AutoMap2D.app.stage.addChild(AutoMap2D.mapDrawing);
             }
-            AutoMap2D.mapDrawing = new PIXI.Graphics();
-            AutoMap2D.app.stage.addChild(AutoMap2D.mapDrawing);
 
             for(var y = 0; y < AutoMap2D.nMapHeight; y++) {
                 AutoMap2D.mapInfo[y] = []
