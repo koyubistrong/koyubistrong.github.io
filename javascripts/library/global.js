@@ -74,6 +74,48 @@ const sleep = function(waitMsec) {
     while (new Date() - startMsec < waitMsec);
 }
 
+const getCSV = function(func, url, sp, new_line, timeout)　{
+    if(sp == null) {
+        sp = ",";
+    }
+    if(new_line == null) {
+        new_line = "\r\n";
+    }
+    if(timeout == null) {
+        timeout = 10000;
+    }
+    var result = [];
+    var req = new XMLHttpRequest();
+    var is_end = false;
+    req.ontimeout = function () {
+        console.error("The request for " + url + " timed out.");
+        func(null);
+        is_end = true;
+    }
+    req.onload = function(){
+        if(req.readyState != 4) {
+            is_end = true;
+            return;
+        }
+        if(req.status != 200) {
+            is_end = true;
+            return;
+        }
+        var str = req.responseText;
+		var tmp = str.split(new_line);
+		for(var i = 0; i < tmp.length; ++i){
+			result[i] = tmp[i].split(sp);
+		}
+        is_end = true;
+        func(result);
+    }
+    req.open("get", url, true); // アクセスするファイルを指定
+    req.timeout = timeout;
+    req.send(null); // HTTPリクエストの発行
+
+    return true;
+}
+
 const direction8 = [{x: -1, y: -1, diagonal: true}, {x: 0, y: -1, diagonal: false}, {x: 1, y: -1, diagonal: true},
                     {x: -1, y:  0, diagonal: false}                               , {x: 1, y:  0, diagonal: false},
                     {x: -1, y:  1, diagonal: true}, {x: 0, y:  1, diagonal: false}, {x: 1, y:  1, diagonal: true},]

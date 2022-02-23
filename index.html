@@ -27,7 +27,8 @@
         <a href="index.html"><h1>KOYUBI</h1></a>
 		<a href="index.html?id=section_poke_calc">ポケモンけいけんアメ必要数計算</a><br>
 		<a href="index.html?id=section_create_auto_map">ローグライクのマップ自動生成</a><br>
-		<a href="index.html?id=section_roguelike_game">動きテスト</a>
+		<a href="index.html?id=section_roguelike_game">動きテスト</a><br>
+		<a href="index.html?id=section_shiren5">シレン5&nbsp;&nbsp;受ダメ&与ダメ計算</a>
         <br><br>
 		<p class="view"><a href="https://github.com/koyubistrong">View My GitHub Profile</a></p>
 
@@ -102,6 +103,195 @@
 		<main id="roguelike_game">
 		</main>
 	  </section>
+	  <section id="section_shiren5" style="display: none">
+		<h2>シレン5&nbsp;&nbsp;受ダメ&与ダメ計算</h2>
+		<h3>説明</h3>
+		<ul>
+			<li>「受ダメ」は敵から通常攻撃を受けた時の最小ダメージと最大ダメージ。</li>
+			<li>「与ダメ」は敵に通常攻撃した時の最小ダメージと最大ダメージ。</li>
+			<li>「倒確率n」は敵HP満タンからn回通常攻撃を行った時の敵を倒せる確率。0%と100%以外の値は正確に計算していないため、概ねの確率になる。</li>
+			<li>計算結果の保証はできませんので悪しからず。</li>
+		</ul>
+		<h3>参照</h3>
+		<ul>
+			<li>
+				[DS] 不思議のダンジョン 風来のシレン5 フォーチュンタワーと運命のダイス 攻略 組長式
+				<ul>
+					<li><a href="https://web.archive.org/web/20110925132715/http://kumicyou.sakura.ne.jp/shiren-ds-5/system-damage.html">ダメージ計算</a></li>
+					<li><a href="https://web.archive.org/web/20110223053219/http://kumicyou.sakura.ne.jp/shiren-ds-5/monster-kind.html">モンスター系統</a></li>
+					<li><a href="https://web.archive.org/web/20110215135525/http://kumicyou.sakura.ne.jp/shiren-ds-5/dungeon-gensi.html">原始に続く穴</a></li>
+					<li><a href="https://web.archive.org/web/20101219220505/http://kumicyou.sakura.ne.jp/shiren-ds-5/dungeon-ana.html">人生の落とし穴</a></li>
+				</ul>
+			</li>
+		</ul>
+		<h3>計算</h3>
+		<table>
+			<tr>
+				<th style="width: 100px"></th><th></th>
+			</tr>
+			<tr>
+				<td>レベル</td>	
+				<td><input type="number" id="shiren5_level" min="1" max="99" value="1" onchange="limitFormCheck(this)" onInput="Shiren5Calc.calc()"></td>
+			</tr>
+			<tr>
+				<td>武器</td>
+				<td><input type="number" id="shiren5_weapon" min="0" max="152" value="0" onchange="limitFormCheck(this)" onInput="Shiren5Calc.calc()"></td>
+			</tr>
+			<tr>
+				<td>力</td>
+				<td><input type="number" id="shiren5_power" min="1" max="50" value="8" onchange="limitFormCheck(this)" onInput="Shiren5Calc.calc()"></td>
+			</tr>
+			<tr>
+				<td>特攻</td>
+				<td>
+					<select id="shiren5_sp_weapon_kind" onInput="Shiren5Calc.calc()">
+						<option value="無" selected>無特攻武器</option>
+						<option value="全">金食い虫こん棒</option>
+						<option value="目">一ツ目殺し</option>
+						<option value="吸">ドレイン斬り</option>
+						<option value="竜">トカゲ斬りの刃</option>
+						<option value="爆">三日月刀</option>
+						<option value="浮">空の刃</option>
+						<option value="水">水斬りの剣</option>
+						<option value="植">草かりのカマ</option>
+						<option value="金">かねきりの刃</option>
+						<option value="魔">魔法斬りの剣</option>
+					</select>
+					<select id="shiren5_sp_weapon_level" onInput="Shiren5Calc.calc()">
+						<option value="1" selected>レベル1</option>
+						<option value="2">レベル2</option>
+						<option value="3">レベル3</option>
+						<option value="4">レベル4</option>
+						<option value="5">レベル5</option>
+						<option value="6">レベル6</option>
+						<option value="7">レベル7</option>
+						<option value="8">レベル8</option>
+					</select>
+				</td>
+			</tr>
+			<tr>
+				<td>武器印</td>
+				<td>
+					<input type="checkbox" id="shiren5_special_all" onchange="Shiren5Calc.calc()">
+					金食い
+					<input type="checkbox" id="shiren5_special_eye" onchange="Shiren5Calc.calc()">
+					一ツ目
+					<input type="checkbox" id="shiren5_special_drain" onchange="Shiren5Calc.calc()">
+					ドレイン
+					<input type="checkbox" id="shiren5_special_dragon" onchange="Shiren5Calc.calc()">
+					ドラゴン
+					<input type="checkbox" id="shiren5_special_explosion" onchange="Shiren5Calc.calc()">
+					爆発
+					<input type="checkbox" id="shiren5_special_floating" onchange="Shiren5Calc.calc()">
+					浮遊
+					<input type="checkbox" id="shiren5_special_water" onchange="Shiren5Calc.calc()">
+					水棲
+					<input type="checkbox" id="shiren5_special_plant" onchange="Shiren5Calc.calc()">
+					植物
+					<input type="checkbox" id="shiren5_special_metal" onchange="Shiren5Calc.calc()">
+					金属
+					<input type="checkbox" id="shiren5_special_magic" onchange="Shiren5Calc.calc()">
+					魔法
+				</td>
+			</tr>
+			<tr>
+				<td>自攻撃力アップ</td>
+				<td>
+					<select id="shiren5_power_up" onInput="Shiren5Calc.calc()">
+						<option value="-99">レベル-8</option>
+						<option value="-97">レベル-7</option>
+						<option value="-95">レベル-6</option>
+						<option value="-90">レベル-5</option>
+						<option value="-80">レベル-4</option>
+						<option value="-70">レベル-3</option>
+						<option value="-60">レベル-2</option>
+						<option value="-50">レベル-1</option>
+						<option value="0" selected>レベル0</option>
+						<option value="50">レベル1</option>
+						<option value="100">レベル2</option>
+						<option value="150">レベル3</option>
+						<option value="200">レベル4</option>
+						<option value="250">レベル5</option>
+						<option value="300">レベル6</option>
+						<option value="350">レベル7</option>
+						<option value="400">レベル8</option>
+					</select>
+				</td>
+			</tr>
+			<tr>
+				<td>盾</td>
+				<td><input type="number" id="shiren5_shield" min="0" max="152" value="0" onchange="limitFormCheck(this)" onInput="Shiren5Calc.calc()"></td>
+			</tr>
+			<tr>
+				<td>割合軽減</td>
+				<td>
+					<select id="shiren5_rate_shield_kind" onInput="Shiren5Calc.calc()">
+						<option value="無" selected>無軽減盾</option>
+						<option value="昼">昼の盾</option>
+						<option value="金">金食い虫の盾</option>
+					</select>
+					<select id="shiren5_rate_shield_level" onInput="Shiren5Calc.calc()">
+						<option value="1" selected>レベル1</option>
+						<option value="2">レベル2</option>
+						<option value="3">レベル3</option>
+						<option value="4">レベル4</option>
+						<option value="5">レベル5</option>
+						<option value="6">レベル6</option>
+						<option value="7">レベル7</option>
+						<option value="8">レベル8</option>
+					</select>
+				</td>
+			</tr>
+			<tr>
+				<td>盾印</td>
+				<td>
+					<input type="checkbox" id="shiren5_rate_noon" onchange="Shiren5Calc.calc()">
+					昼強化
+					<input type="checkbox" id="shiren5_rate_money" onchange="Shiren5Calc.calc()">
+					金食い
+				</td>
+			</tr>
+			<tr>
+				<td>自防御力アップ</td>
+				<td>
+					<select id="shiren5_defence_up" onInput="Shiren5Calc.calc()">
+						<option value="-400">レベル-8</option>
+						<option value="-350">レベル-7</option>
+						<option value="-300">レベル-6</option>
+						<option value="-250">レベル-5</option>
+						<option value="-200">レベル-4</option>
+						<option value="-150">レベル-3</option>
+						<option value="-100">レベル-2</option>
+						<option value="-50">レベル-1</option>
+						<option value="0" selected>レベル0</option>
+						<option value="20">レベル1</option>
+						<option value="30">レベル2</option>
+						<option value="40">レベル3</option>
+						<option value="50">レベル4</option>
+						<option value="60">レベル5</option>
+						<option value="70">レベル6</option>
+						<option value="80">レベル7</option>
+						<option value="90">レベル8</option>
+					</select>
+				</td>
+			</tr>
+			<tr>
+				<td>階層<br>(絞り込み条件)</td>
+				<td>
+					<select id="shiren5_dungeon" onInput="Shiren5Calc.calc()">
+						<option value="All" selected>全て</option>
+						<option value="Genshi">原始に続く穴</option>
+						<option value="Zinsei">人生の落とし穴</option>
+					</select>
+					<input type="number" id="shiren5_floor" min="1" max="99" value="1" onchange="limitFormCheck(this)" onInput="Shiren5Calc.calc()">
+				</td>
+			</tr>
+		</table>
+		<table id="shiren5_monster_table">
+
+		</table>
+		<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+	  </section>
       <footer>
         <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
       </footer>
@@ -113,6 +303,7 @@
     <script src="javascripts/poke_calc.js"></script>
 	<script src="javascripts/create_auto_map.js"></script>
 	<script src="javascripts/roguelike_game.js"></script>
+	<script src="javascripts/shiren5_calc.js"></script>
 	   <script>
 	    var queries = GetQueryString();
 		var id = queries["id"];
@@ -141,6 +332,9 @@
 			}
 			else if(id == "section_roguelike_game") {
 				rg.init();
+			}
+			else if(id == "section_shiren5") {
+				Shiren5Calc.init();
 			}
 		}
 	</script>
