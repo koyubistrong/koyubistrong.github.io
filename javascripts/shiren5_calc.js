@@ -142,6 +142,8 @@ var Shiren5Calc = (function() {
                 tr.appendChild(th);
             }
             elem_table.appendChild(tr);
+            
+            var fragment = document.createDocumentFragment();
             for(var i = 0; i < monster_table.length; i++) {
                 // 与ダメ計算
                 var monster = monster_table[i];
@@ -215,8 +217,9 @@ var Shiren5Calc = (function() {
                         attack_end = true;
                     }
                 }
-                elem_table.appendChild(tr);
+                fragment.appendChild(tr);
             }
+            elem_table.appendChild(fragment);
         }
 
         static calcAttack(level, weapon, power) {
