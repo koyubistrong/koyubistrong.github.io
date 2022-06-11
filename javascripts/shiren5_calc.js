@@ -29,6 +29,11 @@ var Shiren5Calc = (function() {
             var level = parseInt(document.getElementById("shiren5_level").value);
             var weapon = parseInt(document.getElementById("shiren5_weapon").value);
             var power = parseInt(document.getElementById("shiren5_power").value);
+            var isogeny_weapon = parseInt(document.getElementById("shiren5_isogeny_weapon").value);
+            var weapon_bundle_bracelet = parseInt(document.getElementById("shiren5_weapon_bundle_bracelet").value);
+            if(isogeny_weapon > 0) {
+                weapon += (4 + 4 * isogeny_weapon) * weapon_bundle_bracelet;
+            }
             var attack = Shiren5Calc.calcAttack(level, weapon, power);
 
             var special = {}
@@ -57,6 +62,10 @@ var Shiren5Calc = (function() {
 
             var power_up = 100 + parseInt(document.getElementById("shiren5_power_up").value);
             special["全"] = Math.floor(special["全"] * power_up / 100)
+
+            if(document.getElementById("shiren5_blow_conscience_me").checked) {
+                special["全"] = Math.floor(special["全"] * 200 / 100)
+            }
 
             // 防御力
             var shield = parseInt(document.getElementById("shiren5_shield").value);
@@ -137,8 +146,8 @@ var Shiren5Calc = (function() {
                 // 与ダメ計算
                 var monster = monster_table[i];
                 var monster_defence = monster.defence / 2;
-                var min_attack = Math.round(attack * MIN_RAND / 100 - monster_defence);
-                var max_attack = Math.round(attack * MAX_RAND / 100 - monster_defence);
+                var min_attack = attack * MIN_RAND / 100 - monster_defence;
+                var max_attack = attack * MAX_RAND / 100 - monster_defence;
                 var sp_rate = special["全"];
                 for(var j = 0; j < monster.type.length; j++) {
                     if(special[monster.type[j]] == null) continue;
