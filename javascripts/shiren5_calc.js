@@ -150,7 +150,7 @@ var Shiren5Calc = (function() {
                 var min_attack = Math.round(attack * MIN_RAND / 100 - monster_defence);
                 var max_attack = Math.round(attack * MAX_RAND / 100 - monster_defence);
                 
-                    // 特攻印
+                    // 特効印
                 var special_rate = 100;
                 for(var j = 0; j < monster.type.length; j++) {
                     if(special[monster.type[j]] == null) continue;
