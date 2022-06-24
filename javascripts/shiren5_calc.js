@@ -151,11 +151,13 @@ var Shiren5Calc = (function() {
                 var max_attack = Math.round(attack * MAX_RAND / 100 - monster_defence);
                 
                     // 特攻印
+                var special_rate = 100;
                 for(var j = 0; j < monster.type.length; j++) {
                     if(special[monster.type[j]] == null) continue;
-                    min_attack = Math.floor(min_attack * special[monster.type[j]] / 100);
-                    max_attack = Math.floor(max_attack * special[monster.type[j]] / 100);
+                    special_rate = Math.floor(special_rate * special[monster.type[j]] / 100);
                 }
+                min_attack = Math.floor(min_attack * special_rate / 100);
+                max_attack = Math.floor(max_attack * special_rate / 100);
 
                     // 金食い・パワーアップ・会心の一撃
                 for(var j = 0; j < all_attack_type.length; j++) {
@@ -163,6 +165,26 @@ var Shiren5Calc = (function() {
                     min_attack = Math.floor(min_attack * special[all_attack_type[j]] / 100);
                     max_attack = Math.floor(max_attack * special[all_attack_type[j]] / 100);
                 }
+
+                /*
+                    デバッグ用
+                if(monster.name != "パコレプキン") continue;
+                for(var att = MIN_RAND; att <= MAX_RAND; att++) {
+                    var rand_attack = Math.round(attack * att / 100 - monster_defence);
+                    var special_rate = 100;
+                    for(var j = 0; j < monster.type.length; j++) {
+                        if(special[monster.type[j]] == null) continue;
+                        special_rate = Math.floor(special_rate * special[monster.type[j]] / 100);
+                    }
+                    rand_attack = Math.floor(rand_attack * special_rate / 100);
+                        // 金食い・パワーアップ・会心の一撃
+                    for(var j = 0; j < all_attack_type.length; j++) {
+                        if(special[all_attack_type[j]] == null) continue;
+                        rand_attack = Math.floor(rand_attack * special[all_attack_type[j]] / 100);
+                    }
+                    console.log(att + ": " + rand_attack);
+                }
+                */
 
                 if(min_attack < 1) min_attack = 1;
                 if(max_attack < 1) max_attack = 1;
