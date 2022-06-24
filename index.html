@@ -189,8 +189,6 @@
 			<tr>
 				<td>武器印</td>
 				<td>
-					<input type="checkbox" id="shiren5_special_all" onchange="Shiren5Calc.calc()">
-					金食い
 					<input type="checkbox" id="shiren5_special_eye" onchange="Shiren5Calc.calc()">
 					一ツ目
 					<input type="checkbox" id="shiren5_special_drain" onchange="Shiren5Calc.calc()">
@@ -201,6 +199,7 @@
 					爆発
 					<input type="checkbox" id="shiren5_special_floating" onchange="Shiren5Calc.calc()">
 					浮遊
+					<br>
 					<input type="checkbox" id="shiren5_special_water" onchange="Shiren5Calc.calc()">
 					水棲
 					<input type="checkbox" id="shiren5_special_plant" onchange="Shiren5Calc.calc()">
@@ -209,6 +208,8 @@
 					金属
 					<input type="checkbox" id="shiren5_special_magic" onchange="Shiren5Calc.calc()">
 					魔法
+					<input type="checkbox" id="shiren5_special_all" onchange="Shiren5Calc.calc()">
+					金食い
 				</td>
 			</tr>
 			<tr>
@@ -246,8 +247,8 @@
 				<td>
 					<select id="shiren5_rate_shield_kind" onInput="Shiren5Calc.calc()">
 						<option value="無" selected>無軽減盾</option>
-						<option value="昼">昼の盾</option>
 						<option value="金">金食い虫の盾</option>
+						<option value="昼">昼の盾</option>
 					</select>
 					<select id="shiren5_rate_shield_level" onInput="Shiren5Calc.calc()">
 						<option value="1" selected>レベル1</option>
@@ -264,10 +265,12 @@
 			<tr>
 				<td>盾印</td>
 				<td>
-					<input type="checkbox" id="shiren5_rate_noon" onchange="Shiren5Calc.calc()">
-					昼強化
 					<input type="checkbox" id="shiren5_rate_money" onchange="Shiren5Calc.calc()">
 					金食い
+					<input type="checkbox" id="shiren5_rate_noon" onchange="Shiren5Calc.calc()">
+					昼強化
+					<input type="checkbox" id="shiren5_rate_desperate" onchange="Shiren5Calc.calc()">
+					捨て身
 				</td>
 			</tr>
 			<tr>
