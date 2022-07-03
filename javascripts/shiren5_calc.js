@@ -147,47 +147,36 @@ var Shiren5Calc = (function() {
                 // 与ダメ計算
                 var monster = monster_table[i];
                 var monster_defence = monster.defence / 2;
-                var min_attack = Math.round(attack * MIN_RAND / 100 - monster_defence);
-                var max_attack = Math.round(attack * MAX_RAND / 100 - monster_defence);
-                
-                    // 特効印
+
+                    // 特効印(倍率計算)
                 var special_rate = 100;
                 for(var j = 0; j < monster.type.length; j++) {
                     if(special[monster.type[j]] == null) continue;
                     special_rate = Math.floor(special_rate * special[monster.type[j]] / 100);
                 }
-                min_attack = Math.floor(min_attack * special_rate / 100);
-                max_attack = Math.floor(max_attack * special_rate / 100);
+
+                    // 87から112までの全ての乱数によるダメージ計算
+                var range_attack = MAX_RAND - MIN_RAND + 1;
+                var all_attack = new Array(range_attack).fill(0);
+                for(var att = MIN_RAND, ct = 0; att <= MAX_RAND; att++, ct++) {
+                    var rand_attack = Math.round(attack * att / 100 - monster_defence);
+                    // 特効印(攻撃力計算)
+                    rand_attack = Math.floor(rand_attack * special_rate / 100);
 
                     // 金食い・パワーアップ・会心の一撃
-                for(var j = 0; j < all_attack_type.length; j++) {
-                    if(special[all_attack_type[j]] == null) continue;
-                    min_attack = Math.floor(min_attack * special[all_attack_type[j]] / 100);
-                    max_attack = Math.floor(max_attack * special[all_attack_type[j]] / 100);
-                }
-
-                /*
-                    デバッグ用
-                if(monster.name != "パコレプキン") continue;
-                for(var att = MIN_RAND; att <= MAX_RAND; att++) {
-                    var rand_attack = Math.round(attack * att / 100 - monster_defence);
-                    var special_rate = 100;
-                    for(var j = 0; j < monster.type.length; j++) {
-                        if(special[monster.type[j]] == null) continue;
-                        special_rate = Math.floor(special_rate * special[monster.type[j]] / 100);
-                    }
-                    rand_attack = Math.floor(rand_attack * special_rate / 100);
-                        // 金食い・パワーアップ・会心の一撃
                     for(var j = 0; j < all_attack_type.length; j++) {
                         if(special[all_attack_type[j]] == null) continue;
                         rand_attack = Math.floor(rand_attack * special[all_attack_type[j]] / 100);
                     }
-                    console.log(att + ": " + rand_attack);
+                    if(rand_attack < 1) rand_attack = 1;
+                    all_attack[ct] = rand_attack;
                 }
-                */
 
-                if(min_attack < 1) min_attack = 1;
-                if(max_attack < 1) max_attack = 1;
+                    // 表示用に最小値と最大値取得
+                var min_attack = 0;
+                var max_attack = 0;
+                min_attack = all_attack[0];
+                max_attack = all_attack[range_attack - 1];
 
                 // 受ダメ計算
                 var monster_attack = monster.attack;
@@ -208,11 +197,75 @@ var Shiren5Calc = (function() {
                     max_defence *= multi_attack[monster.name];
                 }
 
+               // 正確な倒確率計算
+               var sum_min_attack = min_attack;
+               var sum_max_attack = max_attack;
+               var monster_hp = monster.hp;
+               var attack_end = false;
+               var die_rate_str = new Array(DIE_RATE_NUM);
+               var old_dp = new Array(monster_hp + 1).fill(0);
+               old_dp[0] = 1;
+               for(var j = 0; j < DIE_RATE_NUM; j++) {
+                   if(attack_end) {
+                       die_rate_str[j] = "-";
+                       continue;
+                   }
+                   var new_dp = new Array(monster_hp + 1).fill(0);
+                   for(var jj = 0; jj <= monster_hp; jj++) {
+                       if(old_dp[jj] == 0) continue;
+                       for(var jjj = 0; jjj < all_attack.length; jjj++) {
+                           var add_attck = jj + all_attack[jjj];
+                           if(add_attck > monster_hp) add_attck = monster_hp;
+                           new_dp[add_attck] += old_dp[jj];
+                       }
+                   }
+                   var not_enough_num = 0;
+                   for(var jj = 0; jj < monster_hp; jj++) {
+                       not_enough_num += new_dp[jj];
+                   }
+                   var die_rate = 0;
+                   if(not_enough_num == 0) {
+                       die_rate = 100.0;
+                       attack_end = true;
+                   }
+                   else {
+                       die_rate = (1.0 - not_enough_num / (not_enough_num + new_dp[monster_hp])) * 100;
+                   }
+                   die_rate_str[j] = (Math.floor(die_rate * 10) / 10).toFixed(1) + "%";
+                   old_dp = new_dp;
+               }
+               
+               /*
+                   // 概ねの倒確率計算
+               attack_end = false;
+               for(var j = 0; j < DIE_RATE_NUM; j++) {
+                   var die_rate = 0;
+                   if(monster_hp <= sum_min_attack) {
+                       die_rate = 100;
+                   }
+                   else if(monster_hp > sum_min_attack && monster_hp <= sum_max_attack) {
+                       die_rate = (sum_max_attack - monster_hp + 1) / (sum_max_attack - sum_min_attack + 1) * 100;
+                   }
+                   else {
+                       die_rate = 0;
+                   }
+
+                   if(attack_end == false) {
+                       die_rate_str[j] = die_rate.toFixed(1) + "%";
+                   }
+                   else {
+                       die_rate_str[j] = "-";
+                   }
+
+                   sum_min_attack += min_attack;
+                   sum_max_attack += max_attack;
+                   if(die_rate >= 100) {
+                       attack_end = true;
+                   }
+               }
+               */
+
                 // テーブル作成
-                var sum_min_attack = min_attack;
-                var sum_max_attack = max_attack;
-                var monster_hp = monster.hp;
-                var attack_end = false;
                 var tr = document.createElement("tr");
                 var td = document.createElement("td");
                 td.innerHTML = monster.name;
@@ -225,32 +278,14 @@ var Shiren5Calc = (function() {
                 td.innerHTML = min_attack + "-" + max_attack;
                 td.style = "text-align: center;"
                 tr.appendChild(td);
+
                 for(var j = 0; j < DIE_RATE_NUM; j++) {
-                    var die_rate = 0;
-                    if(monster_hp <= sum_min_attack) {
-                        die_rate = 100;
-                    }
-                    else if(monster_hp > sum_min_attack && monster_hp <= sum_max_attack) {
-                        die_rate = (sum_max_attack - monster_hp + 1) / (sum_max_attack - sum_min_attack + 1) * 100;
-                    }
-                    else {
-                        die_rate = 0;
-                    }
                     td = document.createElement("td");
                     td.style = "text-align: right;";
-                    if(attack_end == false) {
-                        td.innerHTML = die_rate.toFixed(1) + "%";
-                    }
-                    else {
-                        td.innerHTML = "-";
-                    }
+                    td.innerHTML = die_rate_str[j];
                     tr.appendChild(td);
-                    sum_min_attack += min_attack;
-                    sum_max_attack += max_attack;
-                    if(die_rate >= 100) {
-                        attack_end = true;
-                    }
                 }
+
                 fragment.appendChild(tr);
             }
             elem_table.appendChild(fragment);
