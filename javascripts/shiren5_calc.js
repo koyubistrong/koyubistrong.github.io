@@ -4,8 +4,6 @@ var Shiren5Calc = (function() {
 
     class Shiren5Calc {
 
-
-  
         static init() {
             Shiren5Calc.assMonster = {};
             Shiren5Calc.dpMonster = [];
