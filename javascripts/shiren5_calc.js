@@ -44,7 +44,6 @@ var Shiren5Calc = (function() {
 
             // 特攻系
             var special = {}
-            special["全"] = (document.getElementById("shiren5_special_all").checked) ? 130 : 100;
 			special["目"] = (document.getElementById("shiren5_special_eye").checked) ? 135 : 100;
 			special["吸"] = (document.getElementById("shiren5_special_drain").checked) ? 135 : 100;
 			special["竜"] = (document.getElementById("shiren5_special_dragon").checked) ? 135 : 100;
@@ -56,6 +55,8 @@ var Shiren5Calc = (function() {
 			special["魔"] = (document.getElementById("shiren5_special_magic").checked) ? 135 : 100;
 
             var all_attack_rate = {}
+            all_attack_rate["全"] = (document.getElementById("shiren5_special_all").checked) ? 130 : 100;
+
             var sp_weapon_kind = document.getElementById("shiren5_sp_weapon_kind").value;
             var sp_weapon_level = parseInt(document.getElementById("shiren5_sp_weapon_level").value);
             if(sp_weapon_kind == "無") {
