@@ -128,6 +128,7 @@
 				<ul>
 					<li><a href="https://eminaemanon.hatenablog.com/entry/2022/06/11/%E3%80%90%E9%A2%A8%E6%9D%A5%E3%81%AE%E3%82%B7%E3%83%AC%E3%83%B35plus%E3%80%91%E6%AD%A6%E5%99%A8%E6%9D%9F%E3%81%AD%E3%81%AE%E8%85%95%E8%BC%AA%E3%81%AE%E4%BB%95%E6%A7%98%E6%A4%9C%E8%A8%BC">【風来のシレン5plus】武器束ねの腕輪の仕様検証</a></li>
 					<li><a href="https://eminaemanon.hatenablog.com/entry/2022/06/24/%E3%80%90%E9%A2%A8%E6%9D%A5%E3%81%AE%E3%82%B7%E3%83%AC%E3%83%B35_plus%E3%80%91%E3%83%80%E3%83%A1%E3%83%BC%E3%82%B8%E8%A8%88%E7%AE%97%E5%BC%8F%E3%81%AE%E6%8E%A8%E5%AE%9A%E3%80%90%E6%B1%BA%E5%AE%9A">【風来のシレン5 plus】ダメージ計算式の推定【決定版】</a></li>
+					<li><a href="https://eminaemanon.hatenablog.com/entry/2022/08/15/%E3%80%90%E9%A2%A8%E6%9D%A5%E3%81%AE%E3%82%B7%E3%83%AC%E3%83%B35_plus%E3%80%91%E3%83%80%E3%83%A1%E3%83%BC%E3%82%B8%E8%A8%88%E7%AE%97%E5%BC%8F%E3%81%AE%E6%8E%A8%E5%AE%9A%E3%80%90%E5%90%84%E7%A8%AE">【風来のシレン5 plus】ダメージ計算式の推定【各種ダメージアップ・ダウン編】</a></li>
 				</ul>
 			</li>
 		</ul>
@@ -216,7 +217,7 @@
 			<tr>
 				<td>自攻撃力アップ</td>
 				<td>
-					<select id="shiren5_power_up" onInput="Shiren5Calc.calc()">
+					<select id="shiren5_power_up_me" onInput="Shiren5Calc.calc()">
 						<option value="-99">レベル-8</option>
 						<option value="-97">レベル-7</option>
 						<option value="-95">レベル-6</option>
@@ -235,8 +236,43 @@
 						<option value="350">レベル7</option>
 						<option value="400">レベル8</option>
 					</select>
+				</td>
+			</tr>
+			<tr>
+				<td>敵防御力アップ</td>
+				<td>
+					<select id="shiren5_defence_up_enemy" onInput="Shiren5Calc.calc()">
+						<option value="400">レベル-8</option>
+						<option value="350">レベル-7</option>
+						<option value="300">レベル-6</option>
+						<option value="250">レベル-5</option>
+						<option value="200">レベル-4</option>
+						<option value="150">レベル-3</option>
+						<option value="100">レベル-2</option>
+						<option value="50">レベル-1</option>
+						<option value="0" selected>レベル0</option>
+						<option value="-50">レベル1</option>
+						<option value="-60">レベル2</option>
+						<option value="-70">レベル3</option>
+						<option value="-80">レベル4</option>
+						<option value="-90">レベル5</option>
+						<option value="-95">レベル6</option>
+						<option value="-97">レベル7</option>
+						<option value="-99">レベル8</option>
+					</select>
+				</td>
+			</tr>
+			<tr>
+				<td>その他攻撃力</td>
+				<td>
 					<input type="checkbox" id="shiren5_blow_conscience_me" onchange="Shiren5Calc.calc()">
 					会心の一撃
+					<input type="checkbox" id="shiren5_angry_me" onchange="Shiren5Calc.calc()">
+					イカリ
+					<input type="checkbox" id="shiren5_blessing_weapon" onchange="Shiren5Calc.calc()">
+					祝福武器
+					<input type="checkbox" id="shiren5_slip_enemy" onchange="Shiren5Calc.calc()">
+					敵スリップ
 				</td>
 			</tr>
 			<tr>
@@ -277,7 +313,7 @@
 			<tr>
 				<td>自防御力アップ</td>
 				<td>
-					<select id="shiren5_defence_up" onInput="Shiren5Calc.calc()">
+					<select id="shiren5_defence_up_me" onInput="Shiren5Calc.calc()">
 						<option value="-400">レベル-8</option>
 						<option value="-350">レベル-7</option>
 						<option value="-300">レベル-6</option>

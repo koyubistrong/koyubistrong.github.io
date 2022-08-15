@@ -42,7 +42,7 @@ var Shiren5Calc = (function() {
             var attack = Shiren5Calc.calcAttack(level, weapon, power);
             var defence = shield * 0.61785;
 
-            // 特殊攻撃・全体攻撃
+            // 特攻系
             var special = {}
             special["全"] = (document.getElementById("shiren5_special_all").checked) ? 130 : 100;
 			special["目"] = (document.getElementById("shiren5_special_eye").checked) ? 135 : 100;
@@ -55,20 +55,42 @@ var Shiren5Calc = (function() {
 			special["金"] = (document.getElementById("shiren5_special_metal").checked) ? 135 : 100;
 			special["魔"] = (document.getElementById("shiren5_special_magic").checked) ? 135 : 100;
 
+            var all_attack_rate = {}
             var sp_weapon_kind = document.getElementById("shiren5_sp_weapon_kind").value;
             var sp_weapon_level = parseInt(document.getElementById("shiren5_sp_weapon_level").value);
             if(sp_weapon_kind == "無") {
                 // 処理なし
             }
             else if(sp_weapon_kind == "全") {
-                special[sp_weapon_kind] = 120 + 10 * sp_weapon_level;
+                all_attack_rate[sp_weapon_kind] = 120 + 10 * sp_weapon_level;
             }
             else {
                 special[sp_weapon_kind] = 110 + 25 * sp_weapon_level;
             }
 
-            special["パ"] = 100 + parseInt(document.getElementById("shiren5_power_up").value);
-            special["会"] = (document.getElementById("shiren5_blow_conscience_me").checked) ? 200 : 100;
+            // 攻撃力アップ系
+            all_attack_rate["会"] = (document.getElementById("shiren5_blow_conscience_me").checked) ? 200 : 100;
+            all_attack_rate["怒"] = (document.getElementById("shiren5_angry_me").checked) ? 200 : 100;
+            all_attack_rate["祝"] = (document.getElementById("shiren5_blessing_weapon").checked) ? 125 : 100;
+            all_attack_rate["スリ"] = (document.getElementById("shiren5_slip_enemy").checked) ? 200 : 100;
+            var power_up_me = parseInt(document.getElementById("shiren5_power_up_me").value);
+            var defence_up_enemy = parseInt(document.getElementById("shiren5_defence_up_enemy").value);
+            if(power_up_me >= 0) {
+                all_attack_rate["自攻U"] = 100 + power_up_me;
+                all_attack_rate["自攻D"] = 100;
+            }
+            else {
+                all_attack_rate["自攻U"] = 100;
+                all_attack_rate["自攻D"] = 100 + power_up_me;
+            }
+            if(defence_up_enemy >= 0) {
+                all_attack_rate["敵防D"] = 100 + defence_up_enemy;
+                all_attack_rate["敵防U"] = 100;
+            }
+            else {
+                all_attack_rate["敵防D"] = 100;
+                all_attack_rate["敵防U"] = 100 + defence_up_enemy;
+            }
 
             // 割合軽減
             var rate_shield = {}
@@ -84,7 +106,7 @@ var Shiren5Calc = (function() {
                 rate_shield["金"] = 90 - 5 * rate_shield_level;
             }
 
-            rate_shield["デ"] = 100 - parseInt(document.getElementById("shiren5_defence_up").value);
+            rate_shield["デ"] = 100 - parseInt(document.getElementById("shiren5_defence_up_enemy").value);
 
             // モンスター一覧
             var dungeon = document.getElementById("shiren5_dungeon").value;
@@ -104,10 +126,10 @@ var Shiren5Calc = (function() {
                 }
             }
             //Shiren5Calc.makeAttackMonsterTable(Shiren5Calc.dpMonster, attack, special);
-            Shiren5Calc.makeAttackMonsterTable(monster_table, attack, special, defence, rate_shield);
+            Shiren5Calc.makeAttackMonsterTable(monster_table, attack, special, all_attack_rate, defence, rate_shield);
         }
 
-        static makeAttackMonsterTable(monster_table, attack, special, defence, rate_shield) {
+        static makeAttackMonsterTable(monster_table, attack, special, all_attack_rate, defence, rate_shield) {
             const MIN_RAND = 87;
             const MAX_RAND = 112;
             const DIE_RATE_NUM = 3;
@@ -139,7 +161,7 @@ var Shiren5Calc = (function() {
             elem_table.appendChild(tr);
             
             var fragment = document.createDocumentFragment();
-            var all_attack_type = ["全", "パ", "会"];
+            var all_attack_type = ["会", "怒", "特", "祝", "全", "スリ", "自攻U", "敵防U", "敵防D", "自攻D"];
             var all_defence_type = ["金", "昼", "デ"];
             for(var i = 0; i < monster_table.length; i++) {
                 // 与ダメ計算
@@ -152,19 +174,16 @@ var Shiren5Calc = (function() {
                     if(special[monster.type[j]] == null) continue;
                     special_rate = Math.floor(special_rate * special[monster.type[j]] / 100);
                 }
+                all_attack_rate["特"] = special_rate;
 
                     // 87から112までの全ての乱数によるダメージ計算
                 var range_attack = MAX_RAND - MIN_RAND + 1;
                 var all_attack = new Array(range_attack).fill(0);
                 for(var att = MIN_RAND, ct = 0; att <= MAX_RAND; att++, ct++) {
                     var rand_attack = Math.round(attack * att / 100 - monster_defence);
-                    // 特効印(攻撃力計算)
-                    rand_attack = Math.floor(rand_attack * special_rate / 100);
-
-                    // 金食い・パワーアップ・会心の一撃
                     for(var j = 0; j < all_attack_type.length; j++) {
-                        if(special[all_attack_type[j]] == null) continue;
-                        rand_attack = Math.floor(rand_attack * special[all_attack_type[j]] / 100);
+                        if(all_attack_rate[all_attack_type[j]] == null) continue;
+                        rand_attack = Math.floor(rand_attack * all_attack_rate[all_attack_type[j]] / 100);
                     }
                     if(rand_attack < 1) rand_attack = 1;
                     all_attack[ct] = rand_attack;
