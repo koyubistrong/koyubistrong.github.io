@@ -107,7 +107,7 @@ var Shiren5Calc = (function() {
                 rate_shield["金"] = 90 - 5 * rate_shield_level;
             }
 
-            rate_shield["デ"] = 100 - parseInt(document.getElementById("shiren5_defence_up_enemy").value);
+            rate_shield["デ"] = 100 - parseInt(document.getElementById("shiren5_defence_up_me").value);
 
             // モンスター一覧
             var dungeon = document.getElementById("shiren5_dungeon").value;
