@@ -23,6 +23,8 @@ var Shiren5Calc = (function() {
             if(Shiren5Calc.isInit() == false) {
                 return;
             }
+            var is_arrow_mode = document.getElementById("shiren5_weapon_arrow_mode").checked;
+
             // 攻撃と防御の基本値計算
             var level = parseInt(document.getElementById("shiren5_level").value);
             var weapon = parseInt(document.getElementById("shiren5_weapon").value);
@@ -39,7 +41,10 @@ var Shiren5Calc = (function() {
                 weapon += shield;
                 shield = 0;
             }
-            var attack = Shiren5Calc.calcAttack(level, weapon, power);
+            if(is_arrow_mode) {
+                weapon = parseInt(document.getElementById("shiren5_weapon_arrow").value);
+            }
+            var attack = Shiren5Calc.calcAttack(level, weapon, power, is_arrow_mode);
             var defence = shield * 0.61785;
 
             // 特攻系
@@ -127,10 +132,10 @@ var Shiren5Calc = (function() {
                 }
             }
             //Shiren5Calc.makeAttackMonsterTable(Shiren5Calc.dpMonster, attack, special);
-            Shiren5Calc.makeAttackMonsterTable(monster_table, attack, special, all_attack_rate, defence, rate_shield);
+            Shiren5Calc.makeAttackMonsterTable(monster_table, attack, special, all_attack_rate, defence, rate_shield, is_arrow_mode);
         }
 
-        static makeAttackMonsterTable(monster_table, attack, special, all_attack_rate, defence, rate_shield) {
+        static makeAttackMonsterTable(monster_table, attack, special, all_attack_rate, defence, rate_shield, is_arrow_mode) {
             const MIN_RAND = 87;
             const MAX_RAND = 112;
             const DIE_RATE_NUM = 3;
@@ -176,6 +181,10 @@ var Shiren5Calc = (function() {
                     special_rate = Math.floor(special_rate * special[monster.type[j]] / 100);
                 }
                 all_attack_rate["特"] = special_rate;
+                if(is_arrow_mode) {
+                    // 矢モードは特攻無効
+                    all_attack_rate["特"] = 100;
+                }
 
                     // 87から112までの全ての乱数によるダメージ計算
                 var range_attack = MAX_RAND - MIN_RAND + 1;
@@ -309,15 +318,19 @@ var Shiren5Calc = (function() {
             elem_table.appendChild(fragment);
         }
 
-        static calcAttack(level, weapon, power) {
-            //Lv攻撃＋力攻撃＋装備攻撃
+        static calcAttack(level, weapon, power, is_arrow_mode) {
+            //Lv攻撃＋力攻撃＋装備攻撃力(矢攻撃力)
             //レベル攻撃力	LOG(レベル×0.4＋1)×24－3
             //ちから攻撃力	
             //ちから７以下	LOG(2.7)×LOG(2.7)×ちから÷8×25
             //ちから８以上	LOG([ちから÷2]－1.25)×LOG([ちから÷2]－1.25)×25
             //装備攻撃力	強さ×0.585
+            //矢攻撃力      強さ×0.330
             var level_attack = Math.log10(level * 0.4 + 1) * 24 - 3;
             var weapon_attack = weapon * 0.585;
+            if(is_arrow_mode) {
+                weapon_attack = weapon * 0.330;
+            }
             var power_attack = 0;
             if(power < 8) {
                 power_attack = Math.log10(2.7) * Math.log10(2.7) * power / 8 * 25;
@@ -377,6 +390,18 @@ var Shiren5Calc = (function() {
             Shiren5Calc.bDBInitNum++;
             Shiren5Calc.calc();
             return true;
+        }
+
+        static changeArrowMode() {
+            var is_arrow_mode = document.getElementById("shiren5_weapon_arrow_mode").checked;
+            if(is_arrow_mode) {
+                document.getElementById("shiren5_weapon").style.display = "none";
+                document.getElementById("shiren5_weapon_arrow").style.display = "inline";
+            }
+            else {
+                document.getElementById("shiren5_weapon").style.display = "inline";
+                document.getElementById("shiren5_weapon_arrow").style.display = "none";
+            }
         }
     }
    

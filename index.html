@@ -131,6 +131,7 @@
 					<li><a target="_blank" rel="noopener noreferrer" href="https://eminaemanon.hatenablog.com/entry/2022/06/11/%E3%80%90%E9%A2%A8%E6%9D%A5%E3%81%AE%E3%82%B7%E3%83%AC%E3%83%B35plus%E3%80%91%E6%AD%A6%E5%99%A8%E6%9D%9F%E3%81%AD%E3%81%AE%E8%85%95%E8%BC%AA%E3%81%AE%E4%BB%95%E6%A7%98%E6%A4%9C%E8%A8%BC">【風来のシレン5plus】武器束ねの腕輪の仕様検証</a></li>
 					<li><a target="_blank" rel="noopener noreferrer" href="https://eminaemanon.hatenablog.com/entry/2022/06/24/%E3%80%90%E9%A2%A8%E6%9D%A5%E3%81%AE%E3%82%B7%E3%83%AC%E3%83%B35_plus%E3%80%91%E3%83%80%E3%83%A1%E3%83%BC%E3%82%B8%E8%A8%88%E7%AE%97%E5%BC%8F%E3%81%AE%E6%8E%A8%E5%AE%9A%E3%80%90%E6%B1%BA%E5%AE%9A">【風来のシレン5 plus】ダメージ計算式の推定【決定版】</a></li>
 					<li><a target="_blank" rel="noopener noreferrer" href="https://eminaemanon.hatenablog.com/entry/2022/08/15/%E3%80%90%E9%A2%A8%E6%9D%A5%E3%81%AE%E3%82%B7%E3%83%AC%E3%83%B35_plus%E3%80%91%E3%83%80%E3%83%A1%E3%83%BC%E3%82%B8%E8%A8%88%E7%AE%97%E5%BC%8F%E3%81%AE%E6%8E%A8%E5%AE%9A%E3%80%90%E5%90%84%E7%A8%AE">【風来のシレン5 plus】ダメージ計算式の推定【各種ダメージアップ・ダウン編】</a></li>
+					<li><a target="_blank" rel="noopener noreferrer" href="https://eminaemanon.hatenablog.com/entry/2022/12/08/%E3%80%90%E9%A2%A8%E6%9D%A5%E3%81%AE%E3%82%B7%E3%83%AC%E3%83%B35_plus%E3%80%91%E3%83%80%E3%83%A1%E3%83%BC%E3%82%B8%E8%A8%88%E7%AE%97%E5%BC%8F%E3%81%AE%E6%8E%A8%E5%AE%9A%E3%80%90%E7%9F%A2%E7%B7%A8">【風来のシレン5 plus】ダメージ計算式の推定【矢編】</a></li>
 				</ul>
 			</li>
 		</ul>
@@ -145,7 +146,22 @@
 			</tr>
 			<tr>
 				<td>武器</td>
-				<td><input type="number" id="shiren5_weapon" min="0" max="152" value="0" onchange="limitFormCheck(this)" onInput="Shiren5Calc.calc()"></td>
+				<td>
+					<input type="number" id="shiren5_weapon" min="0" max="152" value="0" onchange="limitFormCheck(this)" onInput="Shiren5Calc.calc()">
+					<select id="shiren5_weapon_arrow" style="display: none" onInput="Shiren5Calc.calc()">
+						<option value="2" selected>木の矢</option>
+						<option value="7">鉄の矢</option>
+						<option value="3">銀の矢</option>
+						<option value="4">会心の矢</option>
+						<option value="2">毒矢</option>
+						<option value="3">吹き飛ばしの矢</option>
+						<option value="3">必中の矢</option>
+						<option value="2">生気の矢</option>
+						<option value="5">必中の矢</option>
+					</select>
+					<input type="checkbox" id="shiren5_weapon_arrow_mode" onchange="Shiren5Calc.changeArrowMode(); Shiren5Calc.calc()">
+					矢モード
+				</td>
 			</tr>
 			<tr>
 				<td>力</td>
@@ -154,7 +170,7 @@
 			<tr>
 				<td>武器束ねの腕輪</td>
 				<td>
-					<select id="shiren5_weapon_bundle_bracelet"" onInput="Shiren5Calc.calc()">
+					<select id="shiren5_weapon_bundle_bracelet" onInput="Shiren5Calc.calc()">
 					<option value="0">なし</option>
 					<option value="1">1個</option>
 					<option value="2">2個</option>
