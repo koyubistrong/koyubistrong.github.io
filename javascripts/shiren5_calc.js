@@ -10,7 +10,7 @@ var Shiren5Calc = (function() {
             Shiren5Calc.dpMonsterTable = {};
             Shiren5Calc.DB_INIT_NUM = 3;
             Shiren5Calc.bDBInitNum = 0;
-            getCSV(Shiren5Calc.readDataBase, "https://koyubistrong.github.io/shiren5/monster.html", "\t", "\n");
+            getCSV(Shiren5Calc.readDataBase, "https://koyubistrong.github.io/shiren5/monster_20230205.html", "\t", "\n");
             getCSV(Shiren5Calc.readMonsterTable.bind(null, "Genshi"), "https://koyubistrong.github.io/shiren5/genshi_monster_table.html", "\t", "\n");
             getCSV(Shiren5Calc.readMonsterTable.bind(null, "Zinsei"), "https://koyubistrong.github.io/shiren5/zinsei_monster_table.html", "\t", "\n");
         }
@@ -136,9 +136,17 @@ var Shiren5Calc = (function() {
                 // 名前絞り込み
             if(name !== "") {
                 var cond_monster_table = [];
+                // カタカナをひらがなに変換
+                var ruby_name = name.replace(/[ァ-ン]/g, function(s) {
+                    return String.fromCharCode(s.charCodeAt(0) - 0x60);
+                });
                 for(var i = 0; i < monster_table.length; i++) {
                     var monster = monster_table[i];
                     if(monster.name.indexOf(name) > -1){
+                        cond_monster_table.push(monster);
+                        continue;
+                    }
+                    if(monster.ruby.indexOf(ruby_name) > -1){
                         cond_monster_table.push(monster);
                     }
                 }
@@ -365,7 +373,7 @@ var Shiren5Calc = (function() {
                 return false;
             }
             for(var i = 1; i < table.length; i++) {
-                if(table[i].length != 10) continue;
+                if(table[i].length < 11) continue;
                 var arr = table[i];
                 var name = arr[1]
                 if(Shiren5Calc.assMonster[name] != null) {
@@ -381,6 +389,7 @@ var Shiren5Calc = (function() {
                 data.exp = Number(arr[7]);
                 data.skill = Number(arr[8]);
                 data.drop = arr[9];
+                data.ruby = arr[10];
                 Shiren5Calc.dpMonster.push(data);
                 Shiren5Calc.assMonster[name] = data;
             }
