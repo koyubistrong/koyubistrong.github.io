@@ -352,8 +352,14 @@
 					</select>
 				</td>
 			</tr>
+		</table>
+		<h3>絞り込み条件</h3>
+		<table>
 			<tr>
-				<td>階層<br>(絞り込み条件)</td>
+				<th style="width: 100px"></th><th></th>
+			</tr>
+			<tr>
+				<td>階層</td>
 				<td>
 					<select id="shiren5_dungeon" onInput="Shiren5Calc.calc()">
 						<option value="All" selected>全て</option>
@@ -361,6 +367,12 @@
 						<option value="Zinsei">人生の落とし穴</option>
 					</select>
 					<input type="number" id="shiren5_floor" min="1" max="99" value="1" onchange="limitFormCheck(this)" onInput="Shiren5Calc.calc()">
+				</td>
+			</tr>
+			<tr>
+				<td>名前(部分一致)</td>
+				<td>
+					<input type="text" id="shiren5_name" value="" onInput="Shiren5Calc.calc()">
 				</td>
 			</tr>
 		</table>

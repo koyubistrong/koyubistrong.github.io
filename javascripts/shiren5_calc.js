@@ -117,7 +117,9 @@ var Shiren5Calc = (function() {
             // モンスター一覧
             var dungeon = document.getElementById("shiren5_dungeon").value;
             var floor = parseInt(document.getElementById("shiren5_floor").value);
+            var name = document.getElementById("shiren5_name").value;
             var monster_table = [];
+                // 階層絞り込み
             if(Shiren5Calc.dpMonsterTable[dungeon] == null) {
                 monster_table = Shiren5Calc.dpMonster;
             }
@@ -130,6 +132,21 @@ var Shiren5Calc = (function() {
                     }
                     monster_table.push(Shiren5Calc.assMonster[monster[i]]);
                 }
+            }
+                // 名前絞り込み
+            if(name !== "") {
+                var cond_monster_table = [];
+                for(var i = 0; i < monster_table.length; i++) {
+                    var monster = monster_table[i];
+                    if(monster.name.indexOf(name) > -1){
+                        cond_monster_table.push(monster);
+                    }
+                }
+                monster_table = cond_monster_table;
+            }
+            if(monster_table.length == 0) {
+                document.getElementById("shiren5_monster_table").innerHTML = "一致する条件が見つかりませんでした。";
+                return;
             }
             //Shiren5Calc.makeAttackMonsterTable(Shiren5Calc.dpMonster, attack, special);
             Shiren5Calc.makeAttackMonsterTable(monster_table, attack, special, all_attack_rate, defence, rate_shield, is_arrow_mode);
