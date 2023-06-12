@@ -103,8 +103,12 @@ const getCSV = function(func, url, sp, new_line, timeout)　{
         }
         var str = req.responseText;
 		var tmp = str.split(new_line);
+        var count = 0;
 		for(var i = 0; i < tmp.length; ++i){
-			result[i] = tmp[i].split(sp);
+            if(tmp[i][0] == null) continue;
+            if(tmp[i][0].indexOf("#") === 0) continue;
+			result[count] = tmp[i].split(sp);
+            count++;
 		}
         is_end = true;
         func(result);
