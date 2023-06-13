@@ -14,7 +14,6 @@ var Shiren2Calc = (function() {
             getCSV(Shiren2Calc.readMonster, "https://koyubistrong.github.io/shiren2/monster.html", "\t", "\n");
             getCSV(Shiren2Calc.readAlly, "https://koyubistrong.github.io/shiren2/ally.html", "\t", "\n");
             getCSV(Shiren2Calc.readMonsterTable.bind(null, "Saihate"), "https://koyubistrong.github.io/shiren2/saihate.html", "\t", "\n");
-            //getCSV(Shiren2Calc.readMonsterTable.bind(null, "Zinsei"), "https://koyubistrong.github.io/shiren5/zinsei_monster_table.html", "\t", "\n");
         }
 
         static isInit() {
@@ -185,7 +184,7 @@ var Shiren2Calc = (function() {
                 var min_attack = parseInt(ave_attack - ave_attack / 8);
                 var max_attack = parseInt(ave_attack + ave_attack / 8);
                 if(min_attack < 1) min_attack = 1;
-                if(min_attack < 1) min_attack = 1;
+                if(max_attack < 1) max_attack = 1;
                 var all_attack = [];
                 all_attack[0] = min_attack;
                 all_attack[1] = max_attack;
