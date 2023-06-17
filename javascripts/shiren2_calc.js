@@ -306,12 +306,12 @@ var Shiren2Calc = (function() {
         }
 
         static addMark(id) {
-            if(Shiren2Calc.confirmEmptyMark(id)) {
-                document.getElementById(id).innerHTML = "";
-            }
             var weapon_mark = document.getElementById(id + "_select").value;
             if(weapon_mark == "") {
                 return;
+            }
+            if(Shiren2Calc.confirmEmptyMark(id)) {
+                document.getElementById(id).innerHTML = "";
             }
             const MAX_MARK = 17;
             var empty_id = null;
