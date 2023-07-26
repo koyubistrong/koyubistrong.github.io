@@ -49,7 +49,7 @@ var AutoMap2D = (function() {
                     opt.innerText = (rate * 10).toString() + "%";
                     connect_rate.appendChild(opt);
                 }
-                connect_rate.options[8].selected = true;
+                connect_rate.options[10].selected = true;
 
                 AutoMap2D.mapError = {};
                 AutoMap2D.mapError["error_min_room_width_size"] = "フロアの大きさ(横)をフロアの分割数(横)で割った数を5以上にしてください。";
@@ -212,25 +212,36 @@ var AutoMap2D = (function() {
 
             var arrUseRoom = []
             var use_count = 0;
-            //arrUseRoom = [{x: 4, y: 3}, {x: 1, y: 1}]
+            var customUseRoom = [
+                {x: 2, y: 0},
+                {x: 3, y: 0, aisle: true},
+                {x: 4, y: 0, aisle: true},
+                {x: 4, y: 1, aisle: true},
+                {x: 4, y: 2, aisle: true},
+                {x: 4, y: 3}]
             for(var i = 0; i < use_room_num + use_aisle_num && use_count < width * height; i++) {
                 var ok = false;
                 while(ok == false) {
                     var r = getRandomInt(0, width * height);
                     var x = r % width;
                     var y = Math.floor(r / width);
-                    //x = arrUseRoom[i].x;
-                    //y = arrUseRoom[i].y;
+                    var force_aisle = false;
+                    if(customUseRoom != null && i < customUseRoom.length) {
+                        x = customUseRoom[i].x;
+                        y = customUseRoom[i].y;
+                        if(customUseRoom[i].aisle != null)
+                         force_aisle = true;
+                    }
                     if(AutoMap2D.mapVirtualInfo[y][x].use_room == false) {
                         AutoMap2D.mapVirtualInfo[y][x].color = room_color;
                         AutoMap2D.mapVirtualInfo[y][x].use_room = true;
                         AutoMap2D.mapVirtualInfo[y][x].id = i;
-                        if(i >= use_room_num) AutoMap2D.mapVirtualInfo[y][x].use_aisle = true;
+                        if(i >= use_room_num || force_aisle) AutoMap2D.mapVirtualInfo[y][x].use_aisle = true;
                         arrUseRoom.push({x: x, y: y});
                         ok = true;
                         use_count++;
                         if(AutoMap2D.mapVirtualInfo[y][x].use_aisle) continue;
-                        if(getRandomInt(0, 10) < 5) {
+                        if(getRandomInt(0, 10) < 0) {
                             var ii = 0;
                             var d = getRandomInt(0, AutoMap2D.direction.length);
                             var curInfo = AutoMap2D.mapVirtualInfo[y][x];
@@ -266,6 +277,7 @@ var AutoMap2D = (function() {
             }
             shuffle(arrUseRoom)
 
+            var minCell = 5;
             for(var y = 0; y < height; y++) {
                 for(var x = 0; x < width; x++) {
                     var curInfo = AutoMap2D.mapVirtualInfo[y][x];
@@ -285,12 +297,12 @@ var AutoMap2D = (function() {
                             rh += dirInfo.height;
                         }
                     }
-                    var rrx = getRandomInt(rx, rx + curInfo.width - 3 - 1);
-                    var rry = getRandomInt(ry, ry + curInfo.height - 3 - 1);
+                    var rrx = getRandomInt(rx, rx + curInfo.width - minCell - 1);
+                    var rry = getRandomInt(ry, ry + curInfo.height - minCell - 1);
                     var dfx = rrx - rx;
                     var dfy = rry - ry;
-                    var rrw = getRandomInt(3, rw - dfx + ((x < width - 1) ? 0 : 1));
-                    var rrh = getRandomInt(3, rh - dfy + ((y < height - 1) ? 0 : 1));
+                    var rrw = getRandomInt(minCell, rw - dfx + ((x < width - 1) ? 0 : 1));
+                    var rrh = getRandomInt(minCell, rh - dfy + ((y < height - 1) ? 0 : 1));
                     var middle_aisle = false;
                     if(curInfo.width != rw) rrw = getRandomInt(curInfo.width - dfx + 1, rw - dfx);
                     if(curInfo.height != rh) rrh = getRandomInt(curInfo.height - dfy + 1, rh - dfy);

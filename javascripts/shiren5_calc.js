@@ -6,13 +6,19 @@ var Shiren5Calc = (function() {
 
         static init() {
             Shiren5Calc.assMonster = {};
+            Shiren5Calc.assMaxMonster = {};
             Shiren5Calc.dpMonster = [];
             Shiren5Calc.dpMonsterTable = {};
-            Shiren5Calc.DB_INIT_NUM = 3;
+            Shiren5Calc.DB_INIT_NUM = 7;
             Shiren5Calc.bDBInitNum = 0;
+            Shiren5Calc.bInitMaxMonster = false;
             getCSV(Shiren5Calc.readDataBase, "https://koyubistrong.github.io/shiren5/monster_20230205.html", "\t", "\n");
+            getCSV(Shiren5Calc.readMaxMonster, "https://koyubistrong.github.io/shiren5/max_level_monster.html", "\t", "\n");
             getCSV(Shiren5Calc.readMonsterTable.bind(null, "Genshi"), "https://koyubistrong.github.io/shiren5/genshi_monster_table.html", "\t", "\n");
             getCSV(Shiren5Calc.readMonsterTable.bind(null, "Zinsei"), "https://koyubistrong.github.io/shiren5/zinsei_monster_table.html", "\t", "\n");
+            getCSV(Shiren5Calc.readMonsterTable.bind(null, "Onigiri"), "https://koyubistrong.github.io/shiren5/onigiri_monster_table.html", "\t", "\n");
+            getCSV(Shiren5Calc.readMonsterTable.bind(null, "Shisen"), "https://koyubistrong.github.io/shiren5/shisen_monster_table.html", "\t", "\n");
+            getCSV(Shiren5Calc.readMonsterTable.bind(null, "Syukai"), "https://koyubistrong.github.io/shiren5/syukai_monster_table.html", "\t", "\n");
         }
 
         static isInit() {
@@ -22,6 +28,10 @@ var Shiren5Calc = (function() {
         static calc() {
             if(Shiren5Calc.isInit() == false) {
                 return;
+            }
+            if(Shiren5Calc.bInitMaxMonster == false) {
+                Shiren5Calc.initMaxMonster();
+                Shiren5Calc.bInitMaxMonster = true;
             }
             var is_arrow_mode = document.getElementById("shiren5_weapon_arrow_mode").checked;
 
@@ -367,6 +377,33 @@ var Shiren5Calc = (function() {
             return level_attack + weapon_attack + power_attack;
         }
 
+        static initMaxMonster() {
+            var monster_table = Shiren5Calc.dpMonster;
+            for(var i = 0; i < monster_table.length; i++) {
+                var monster = monster_table[i];
+                if(Shiren5Calc.assMaxMonster[monster.name] == null) {
+                    continue;
+                }
+                var monster_level = Shiren5Calc.assMaxMonster[monster.name];
+                for(var j = 0; j < monster_level.length; j++) {
+                    var data = {};
+                    data.name = monster.name + monster_level[j].toString(10);
+                    data.type = monster.type;
+                    data.hp = monster.hp;
+                    data.attack = monster.attack * monster_level[j];
+                    data.defence = monster.defence + Math.floor(monster.defence * (monster_level[j] - 1) / 4);
+                    data.speed = monster.speed;
+                    data.exp = monster.exp + Math.floor(monster.exp * (monster_level[j] - 1) / 4);
+                    data.skill = monster.skill;
+                    data.drop = monster.drop;
+                    data.ruby = monster.ruby + monster_level[j].toString(10);
+                    monster_table.splice(i + 1, 0, data);
+                    Shiren5Calc.assMonster[data.name] = data;
+                    i++;
+                }
+            }
+        }
+
         static readDataBase(table) {
             if(table == null) {
                 console.log("init error");
@@ -392,6 +429,28 @@ var Shiren5Calc = (function() {
                 data.ruby = arr[10];
                 Shiren5Calc.dpMonster.push(data);
                 Shiren5Calc.assMonster[name] = data;
+            }
+            Shiren5Calc.bDBInitNum++;
+            Shiren5Calc.calc();
+            return true;
+        }
+        static readMaxMonster(table) {
+            if(table == null) {
+                console.log("init error");
+                return false;
+            }
+            for(var i = 0; i < table.length; i++) {
+                if(table[i].length < 2) {
+                    console.log("paramater error");
+                    continue;
+                }
+                var arr = table[i];
+                var name = arr[0];
+                var level = parseInt(arr[1]);
+                if(Shiren5Calc.assMaxMonster[name] == null) {
+                    Shiren5Calc.assMaxMonster[name] = [];
+                }
+                Shiren5Calc.assMaxMonster[name].push(level);
             }
             Shiren5Calc.bDBInitNum++;
             Shiren5Calc.calc();
