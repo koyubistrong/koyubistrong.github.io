@@ -9,16 +9,20 @@ var Shiren5Calc = (function() {
             Shiren5Calc.assMaxMonster = {};
             Shiren5Calc.dpMonster = [];
             Shiren5Calc.dpMonsterTable = {};
-            Shiren5Calc.DB_INIT_NUM = 7;
+            Shiren5Calc.DB_INIT_NUM = 11;
             Shiren5Calc.bDBInitNum = 0;
             Shiren5Calc.bInitMaxMonster = false;
             getCSV(Shiren5Calc.readDataBase, "https://koyubistrong.github.io/shiren5/monster_20230205.html", "\t", "\n");
             getCSV(Shiren5Calc.readMaxMonster, "https://koyubistrong.github.io/shiren5/max_level_monster.html", "\t", "\n");
             getCSV(Shiren5Calc.readMonsterTable.bind(null, "Genshi"), "https://koyubistrong.github.io/shiren5/genshi_monster_table.html", "\t", "\n");
-            getCSV(Shiren5Calc.readMonsterTable.bind(null, "Zinsei"), "https://koyubistrong.github.io/shiren5/zinsei_monster_table.html", "\t", "\n");
             getCSV(Shiren5Calc.readMonsterTable.bind(null, "Onigiri"), "https://koyubistrong.github.io/shiren5/onigiri_monster_table.html", "\t", "\n");
             getCSV(Shiren5Calc.readMonsterTable.bind(null, "Shisen"), "https://koyubistrong.github.io/shiren5/shisen_monster_table.html", "\t", "\n");
+            getCSV(Shiren5Calc.readMonsterTable.bind(null, "Arashi"), "https://koyubistrong.github.io/shiren5/arasi_monster_table.html", "\t", "\n");
+            getCSV(Shiren5Calc.readMonsterTable.bind(null, "Zinsei"), "https://koyubistrong.github.io/shiren5/zinsei_monster_table.html", "\t", "\n");
             getCSV(Shiren5Calc.readMonsterTable.bind(null, "Syukai"), "https://koyubistrong.github.io/shiren5/syukai_monster_table.html", "\t", "\n");
+            getCSV(Shiren5Calc.readMonsterTable.bind(null, "Izigen"), "https://koyubistrong.github.io/shiren5/izigen_monster_table.html", "\t", "\n");
+            getCSV(Shiren5Calc.readMonsterTable.bind(null, "Genshima"), "https://koyubistrong.github.io/shiren5/genshima_monster_table.html", "\t", "\n");
+            getCSV(Shiren5Calc.readMonsterTable.bind(null, "Wakupara"), "https://koyubistrong.github.io/shiren5/wakupara_monster_table.html", "\t", "\n");
         }
 
         static isInit() {
@@ -134,13 +138,15 @@ var Shiren5Calc = (function() {
                 monster_table = Shiren5Calc.dpMonster;
             }
             else {
-                var monster = Shiren5Calc.dpMonsterTable[dungeon][floor - 1].monster;
-                for(var i = 0; i < monster.length; i++) {
-                    if(Shiren5Calc.assMonster[monster[i]] == null) {
-                        console.log("No Data " + monster[i]);
-                        continue;
+                if(Shiren5Calc.dpMonsterTable[dungeon][floor - 1] != null) {
+                    var monster = Shiren5Calc.dpMonsterTable[dungeon][floor - 1].monster;
+                    for(var i = 0; i < monster.length; i++) {
+                        if(Shiren5Calc.assMonster[monster[i]] == null) {
+                            console.log("No Data " + monster[i]);
+                            continue;
+                        }
+                        monster_table.push(Shiren5Calc.assMonster[monster[i]]);
                     }
-                    monster_table.push(Shiren5Calc.assMonster[monster[i]]);
                 }
             }
                 // 名前絞り込み
