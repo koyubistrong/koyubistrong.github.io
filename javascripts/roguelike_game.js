@@ -859,6 +859,7 @@ var RogueGame = (function() {
                     }
                     url += "%0D%0A[結果] " + this.nPoint + " / " + this.nCertNum;
                     url += "%0D%0Ahttps://koyubistrong.github.io/index.html?id=section_diagonal_cert";
+                    url += "%0D%0A%23斜め軸検定";
                     window.open(url);
                     return;
                 }
