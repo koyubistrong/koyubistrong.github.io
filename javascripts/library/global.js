@@ -120,6 +120,15 @@ const getCSV = function(func, url, sp, new_line, timeout)　{
     return true;
 }
 
+const isSmartPhone= function() {
+    // UserAgentからのスマホ判定
+    if (navigator.userAgent.match(/iPhone|Android.+Mobile/)) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
 const direction8 = [{x: -1, y: -1, diagonal: true}, {x: 0, y: -1, diagonal: false}, {x: 1, y: -1, diagonal: true},
                     {x: -1, y:  0, diagonal: false}                               , {x: 1, y:  0, diagonal: false},
                     {x: -1, y:  1, diagonal: true}, {x: 0, y:  1, diagonal: false}, {x: 1, y:  1, diagonal: true},]

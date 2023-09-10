@@ -570,11 +570,79 @@
 		<br><br>
 		<main id="diagonal_cert">
 		</main>
+		<style>
+			.btn--orange,
+			button.btn--orange {
+			color: #fff;
+			background-color: #000000;
+			padding: 10px;
+			font-size: 24px;
+			}
+			.btn--orange:hover,
+			button.btn--orange:hover {
+			color: #fff;
+			background: #666666;
+			padding: 10px;
+			font-size: 24px;
+			}
+		</style>
+		<table id="diagonal_cert_smart_phone_key">
+			<tr>
+				<td rowspan="3" style="border:none">
+					<button class="btn btn--orange" type="button" ontouchstart="rg.inputKeydown(27);" ontouchend="rg.inputKeyup(27);">
+					Esc
+					</button>
+					<br>
+					<button style="padding: 25px;" class="btn btn--orange" type="button" ontouchstart="rg.inputKeydown(32);" ontouchend="rg.inputKeyup(32);">
+					Space
+					</button>
+					<br>
+					<button class="btn btn--orange" type="button" ontouchstart="rg.inputKeydown(13);" ontouchend="rg.inputKeyup(13);">
+					Enter
+					</button>
+				</td>
+				<td style="border:none">
+					<button class="btn btn--orange" type="button" ontouchstart="rg.inputKeydown(38);rg.inputKeydown(37);" ontouchend="rg.inputKeyup(38);rg.inputKeyup(37);">↖</button>
+				</td>
+				<td style="border:none">
+					<button class="btn btn--orange" type="button" ontouchstart="rg.inputKeydown(38);" ontouchend="rg.inputKeyup(38);">⇧</button>
+				</td>
+				<td style="border:none">
+					<button class="btn btn--orange" type="button" ontouchstart="rg.inputKeydown(38);rg.inputKeydown(39);" ontouchend="rg.inputKeyup(38);rg.inputKeyup(39);">↗</button>
+				</td>
+			</tr>
+			<tr>
+				<td style="border:none">
+					<button class="btn btn--orange" type="button" ontouchstart="rg.inputKeydown(37);" ontouchend="rg.inputKeyup(37);">⇦</button>
+				</td>
+				<td style="border:none">
+					<button class="btn btn--orange" type="button">　</button>
+				</td>
+				<td style="border:none">
+					<button class="btn btn--orange" type="button" ontouchstart="rg.inputKeydown(39);" ontouchend="rg.inputKeyup(39);">⇨</button>
+				</td>
+			</tr>
+			<tr>
+				<td style="border:none">
+					<button class="btn btn--orange" type="button" ontouchstart="rg.inputKeydown(40);rg.inputKeydown(37);" ontouchend="rg.inputKeyup(40);rg.inputKeyup(37);">↙</button>
+				</td>
+				<td style="border:none">
+					<button class="btn btn--orange" type="button" ontouchstart="rg.inputKeydown(40);" ontouchend="rg.inputKeyup(40);">⇩</button>
+				</td>
+				<td style="border:none">
+					<button class="btn btn--orange" type="button" ontouchstart="rg.inputKeydown(40);rg.inputKeydown(39);" ontouchend="rg.inputKeyup(40);rg.inputKeyup(39);">↘</button>
+				</td>
+			</tr>
+		</table>
 		<br>
 		※正常に読み込まれない場合は、キャッシュを削除してください。
 		<br>
 		<br>
 		<h3>バージョン履歴</h3>
+		<h4>2023/09/11　Ver. 0.9.1</h4>
+		<ul>
+			<li>スマホからの操作に対応</li>
+		</ul>
 		<h4>2023/09/10　Ver. 0.9.0</h4>
 		<ul>
 			<li>「斜め軸検定」公開</li>
@@ -631,6 +699,10 @@
 			}
 			else if(id == "section_diagonal_cert") {
 				rg.init('DIAGONAL_CERT');
+				if(isSmartPhone() == false) {
+					let elem = document.getElementById('diagonal_cert_smart_phone_key');
+					elem.style.display = "none";
+				}
 			}
 		}
 	</script>

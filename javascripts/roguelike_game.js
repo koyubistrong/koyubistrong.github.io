@@ -469,7 +469,7 @@ var RogueGame = (function() {
                     this.textVersion = new PIXI.Text;
                     this.textVersion.style = {font:'メイリオ', fontSize: 20, fill:'white',
                                             stroke: 'white', strokeThickness: 1, align: "center"};
-                    this.textVersion.text = "Ver. 0.9.0";
+                    this.textVersion.text = "Ver. 0.9.1";
                     this.textVersion.x = this.nDispSizeX - this.nDispSizeX / 5;
                     this.textVersion.y = this.nDispSizeY - this.nDispSizeY / 12;
 
@@ -964,6 +964,15 @@ var RogueGame = (function() {
                 nUnit: this.nUnit, hp: 20, bef_target_find: false
             };
             return info;
+        }
+
+        inputKeydown(code) {
+            this.pressedKeys[code] = true;
+            this.downKeys[code] = true;
+        }
+
+        inputKeyup(code) {
+            this.pressedKeys[code] = false;
         }
     }
    
