@@ -846,6 +846,7 @@ var RogueGame = (function() {
             if(bForceEnd == null) {
                 if(this.downKeys[13]) {
                     let url = "https://twitter.com/intent/tweet?text=";
+                    url += "斜め軸検定 ";
                     url += (this.bPracticeMode) ? "練習" : "本番";
                     url += "で";
                     let level = ["初級", "中級", "上級", "超上級"];
