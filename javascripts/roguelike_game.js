@@ -17,23 +17,23 @@ var RogueGame = (function() {
             grpChara.beginFill(color);
             grpChara.lineStyle(0);
             grpChara.drawCircle(rad, rad, rad);
-            grpChara.x = this.divUnit(this.rx) + this.cell_size;
-            grpChara.y = this.divUnit(this.ry) + this.cell_size;
+            grpChara.x = this.divUnit(this.rx) + this.n_draw_offset_X;
+            grpChara.y = this.divUnit(this.ry) + this.n_draw_offset_Y;
         }
 
         move(info) {
             let ch = this;
             let moving = false;
-            let speed = 200;
+            let speed = 100;
             if(info.pressedKeys[90] && ch.speed_x == 0 && ch.speed_y == 0) {
-                speed = 1200;
+                speed = 800;
             }
             ch.speed_x = speed * Math.sign(this.toReal(this.multUnit(ch.x)) - ch.rx);
             ch.speed_y = speed * Math.sign(this.toReal(this.multUnit(ch.y)) - ch.ry);
             ch.rx += ch.speed_x;
             ch.ry += ch.speed_y;
-            ch.grpChara.x = this.divUnit(ch.rx) + this.cell_size;
-            ch.grpChara.y = this.divUnit(ch.ry) + this.cell_size;
+            ch.grpChara.x = this.divUnit(ch.rx) + this.n_draw_offset_X;
+            ch.grpChara.y = this.divUnit(ch.ry) + this.n_draw_offset_Y;
             if(ch.speed_x != 0 || ch.speed_y != 0) {
                 moving = true;
             }
@@ -352,10 +352,23 @@ var RogueGame = (function() {
         }
     }
 
+    class Item extends Charactor {
+        think(info) {
+            // no move
+            return true;
+        }
+    }
+
     class RogueGame {
-        init() {
+        init(type, b_all_reset) {
+            if(type == null) {
+                type = "TEST_GAME";
+            }
             if(this.app == null) {
-                let canvas = document.getElementById('roguelike_game')
+                let canvas = document.getElementById('roguelike_game');
+                if(type == "DIAGONAL_CERT") {
+                    canvas = document.getElementById('diagonal_cert');
+                }
                 this.app = new PIXI.Application({
                     backgroundColor: 0x000000,
                 });
@@ -376,6 +389,7 @@ var RogueGame = (function() {
                     this.pressedKeys[e.keyCode] = false;
                 },false);
             }
+            this.strGameType = type;
             this.dire_for_search = [];
             for(let i = 0; i < 2; i++) {
                 for(let j = 0; j < direction8.length; j++) {
@@ -389,126 +403,43 @@ var RogueGame = (function() {
             }
             this.nCellSize = 8;
             this.nUnit = 100;
+            if(type == "DIAGONAL_CERT") {
+                this.nMarginTop = 30;
+                this.nMarginBottom = 30;
+            }
+            else {
+                this.nMarginTop = 0;
+                this.nMarginBottom = 0;
+            }
+            this.nDrawOffsetX = this.nCellSize;
+            this.nDrawOffsetY = this.nCellSize + this.nMarginTop;
             this.pressedKeys = Array(256).fill(false);
             this.downKeys = Array(256).fill(false);
-            this.initMap();
-            this.initCharactor();
-        }
+            this.initMap(type);
+            this.initCharactor(type);
 
-        initMap() {
-            const floor_div_width = 4;
-            const floor_div_height = 3;
-            const floor_height = 34;    // 34
-            const floor_width = 56;     // 56
-            const room_num = 6;
-            const middle_aisle_num = 4;
-            const connect_rate = 8;
-            AutoMap2D.init();
-            AutoMap2D.generate(floor_width, floor_height, this.nCellSize, floor_div_width, floor_div_height, room_num, middle_aisle_num, connect_rate);
-
-            this.mapInfo = AutoMap2D.getMap();
-            //this.virtualMapInfo = AutoMap2D.getVirtualMap();
-            this.sizeInfo = AutoMap2D.getSizeInfo();
-
-            this.app.renderer.autoDensity = true;
-            this.app.renderer.resize(this.sizeInfo.nMapRealWidth + this.sizeInfo.nCellWidth * 2,
-                this.sizeInfo.nMapRealHeight + this.sizeInfo.nCellHeight * 2);
-
-            if(this.grpMap != null) {
-                this.app.stage.removeChild(this.grpMap);
-            }
-            this.grpMap = this.makeImgMap();
-            this.app.stage.addChild(this.grpMap);
-            
-            if(this.textFPS != null) {
-                this.app.stage.removeChild(this.textFPS);
-            }
-            var word = "";
-            var style = {font:'Arial', fontSize: 14, fill:'white'};
-            this.textFPS = new PIXI.Text(word, style);
-            this.app.stage.addChild(this.textFPS);
-        }
-
-        initCharactor() {
-            if(this.charaInfo != null) {
-                for(let i = 0; i < this.nCharaNum; i++) {
-                    this.app.stage.removeChild(this.charaInfo[i].grpChara);
-                }
-            }
-            this.charaInfo = [];
-            this.nCharaNum = 40;
-            for(let i = 0; i < this.nCharaNum; i++) {
-                while(true) {
-                    let y = getRandomInt(0, this.sizeInfo.nMapHeight);
-                    let x = getRandomInt(0, this.sizeInfo.nMapWidth);
-                    let cell = this.mapInfo[y][x];
-                    if(this.mapInfo[y][x].charactor == null && cell.room_id >= 0) {
-                        let grpChara = new PIXI.Graphics();
-                        let info = {id: i, grpChara: grpChara, x: x, y: y, bef_x: x, bef_y: y,
-                            rx: this.sizeInfo.nCellWidth * x * this.nUnit,
-                            ry: this.sizeInfo.nCellHeight * y * this.nUnit,
-                            direction: 6, tx: x, ty: y,
-                            speed_x: 0, speed_y: 0, no_move_count: 999999,
-                            actioned: false, cell_size: this.nCellSize,
-                            nUnit: this.nUnit, hp: 20, bef_target_find: false
-                        };
-                        let ch = null;
-                        if(i == -1) {
-                            ch = new Player(info);
-                            ch.makeGraph(0xFF0000);
-                            this.player = ch;
-                        }
-                        else {
-                            ch = new Enemy(info);
-                            ch.makeGraph(0x888888);
-                        }
-                        this.charaInfo.push(ch);
-                        this.mapInfo[y][x].charactor = ch;
-                        this.app.stage.addChild(ch.grpChara);
-                        break;
-                    }
-                }
-            }
             if(this.main == null) {
                 this.bef_time = Date.now();
                 this.sum_fps = 0;
                 this.ct_fps = 0;
+                this.state = (type == "DIAGONAL_CERT") ? "Ready" : "Play";
+                this.judge = "";
                 this.main = () => {
                     let t = Date.now();
                     //console.log(t - this.bef_time);
                     //console.log(this.app.ticker.FPS);               
-                    let can_next = true;
-                    for(let i = 0; i < this.nCharaNum; i++) {
-                        let ch = this.charaInfo[i];
-                        if(ch.move(this) == true) {
-                            can_next = false;
-                        }
+                    if(this.state == "Ready") {
+                        this.Ready();
                     }
-
-                    if(can_next) {
-                        for(let i = 0; i < this.nCharaNum; i++) {
-                            let ch = this.charaInfo[i];
-                            let bef_pos = {x: ch.x, y: ch.y};
-                            let is_think = ch.think(this);//this.thinkCharactor(ch);
-
-                            if(!is_think) {
-                                continue;
-                            }
-
-                            if(ch.x == bef_pos.x && ch.y == bef_pos.y) {
-                                ch.no_move_count++;
-                            }
-                            else {
-                                ch.no_move_count = 0;
-                            }
-                            let pos_info = this.mapInfo[ch.y][ch.x];
-                            let bef_info = this.mapInfo[bef_pos.y][bef_pos.x];
-                            ch.bef_x = bef_pos.x;
-                            ch.bef_y = bef_pos.y;
-                            [bef_info.charactor, pos_info.charactor] = [pos_info.charactor, bef_info.charactor];
-                        }
+                    else if(this.state == "Play") {
+                        this.Play();
                     }
-
+                    else if(this.state == "Result") {
+                        this.Result();
+                    }
+                    else if(this.state == "End") {
+                        this.End();
+                    }
                     for(let i = 0; i < this.downKeys.length; i++) {
                         this.downKeys[i] = false;
                     }
@@ -524,12 +455,474 @@ var RogueGame = (function() {
                 };
                 this.app.ticker.add(this.main);
             }
+
+            if(type == "DIAGONAL_CERT") {
+                if(this.state == "Ready") {
+                    this.app.stage.removeChildren();
+                    this.textTitle = new PIXI.Text;
+                    this.textTitle.style = {font:'メイリオ', fontSize: 34, fill:'white',
+                                            stroke: 'white', strokeThickness: 1, align: "center"};
+                    this.textTitle.text = "\n\n斜め軸検定\n　　　　　　　　　　　　　 \nPress 'Space' Key";
+                    //this.textTitle.x = this.nDispSizeX / 4;
+                    this.textTitle.y = this.nDispSizeY / 12;
+
+                    this.textVersion = new PIXI.Text;
+                    this.textVersion.style = {font:'メイリオ', fontSize: 20, fill:'white',
+                                            stroke: 'white', strokeThickness: 1, align: "center"};
+                    this.textVersion.text = "Ver. 0.9.0";
+                    this.textVersion.x = this.nDispSizeX - this.nDispSizeX / 5;
+                    this.textVersion.y = this.nDispSizeY - this.nDispSizeY / 12;
+
+                    this.app.stage.addChild(this.textTitle);
+                    this.app.stage.addChild(this.textVersion);
+                }
+                else if(this.state == "End") {
+                    this.app.stage.removeChildren();
+                    this.textEnd = new PIXI.Text;
+                    this.textEnd.style = {font:'メイリオ', fontSize: 32, fill:'white',
+                                            stroke: 'white', strokeThickness: 1, align: "center"};
+                    this.textEnd.text = "結果\n\n"
+                    if(this.nPoint >= this.nCertNum * 0.8) {
+                        this.textEnd.text += "合格"
+                        this.bClear = true;
+                    }
+                    else {
+                        this.textEnd.text += "不合格"
+                        this.bClear = false;
+                    }
+                    this.textEnd.text += "\n\n" + this.nPoint + " / " + this.nCertNum
+                    this.textEnd.text += "\n\n「Enter」でツイートする";
+                    this.textEnd.text += "\n\n　　　　　　　　　　　　　　 ";
+                    //this.textTitle.x = this.nDispSizeX / 4;
+                    this.textEnd.y = this.nDispSizeY / 10;
+                    this.app.stage.addChild(this.textEnd);
+                }
+                else {
+                    if(b_all_reset != null && b_all_reset) {
+                        if(this.textPoint != null) {
+                            this.app.stage.removeChild(this.textPoint);
+                        }
+                        this.nPoint = 0;
+                        this.nCertCount = 1;
+                        this.nCertNum = 10;
+                        this.nLimitTime = 9900;
+                        if(this.bPracticeMode) {
+                            this.nLimitTime = -1;
+                        }
+                        this.nStartTime = Date.now();
+                        this.textPoint = new PIXI.Text;
+                        this.textPoint.style = {font:'メイリオ', fontSize: 28, fill:'white',
+                                                stroke: 'white', strokeThickness: 1};
+                        this.textPoint.text = this.nPoint + " / " + this.nCertNum;
+                        this.textPoint.x = this.nDispSizeX / 8;
+                        this.textPoint.y = 2;
+
+                        this.textCount = new PIXI.Text;
+                        this.textCount.style = {font:'メイリオ', fontSize: 28, fill:'white',
+                                                stroke: 'white', strokeThickness: 1};
+                        this.textCount.text = "第" + this.nCertCount + "問";
+                        this.textCount.x = this.nDispSizeX - this.nDispSizeX / 4 - 10;
+                        this.textCount.y = 2;
+                        this.nStartTime = Date.now();
+                        this.textTime = new PIXI.Text;
+                        this.textTime.style = {font:'メイリオ', fontSize: 28, fill:'white',
+                                                stroke: 'white', strokeThickness: 1, align: "center"};
+                        this.textTime.y = this.nDispSizeY - this.nDispSizeY / 9.5;
+
+                        this.app.stage.addChild(this.textPoint);
+                        this.app.stage.addChild(this.textCount);
+                        this.app.stage.addChild(this.textTime);
+                    }
+                }
+            }
+
+            if(this.textFPS != null) {
+                this.app.stage.removeChild(this.textFPS);
+            }
+            var word = "";
+            var style = {font:'Arial', fontSize: 14, fill:'white'};
+            this.textFPS = new PIXI.Text(word, style);
+            this.app.stage.addChild(this.textFPS);
         }
 
-        makeImgMap() {
-            let grpMap = new PIXI.Graphics();
-            let offset_x = this.nCellSize;
-            let offset_y = this.nCellSize;
+        initMap(type) {
+            let floor_div_width = 4;
+            let floor_div_height = 3;
+            let floor_height = 34;    // 34
+            let floor_width = 56;     // 56
+            let room_num = 6;
+            let middle_aisle_num = 4;
+            let connect_rate = 8;
+            if(type == "DIAGONAL_CERT") {
+                floor_div_width = 4;
+                floor_div_height = 3;
+                floor_height = 34;    // 34
+                floor_width = 56;     // 56
+                room_num = 6;
+                middle_aisle_num = 4;
+                connect_rate = 8;
+            }
+
+            AutoMap2D.init();
+            if(type == "DIAGONAL_CERT") {
+                AutoMap2D.initFloor(floor_width, floor_height, this.nCellSize);
+            }
+            else {
+                AutoMap2D.generate(floor_width, floor_height, this.nCellSize, floor_div_width, floor_div_height, room_num, middle_aisle_num, connect_rate);
+            }
+
+            this.mapInfo = AutoMap2D.getMap();
+            //this.virtualMapInfo = AutoMap2D.getVirtualMap();
+            this.sizeInfo = AutoMap2D.getSizeInfo();
+            this.nDispSizeX = this.sizeInfo.nMapRealWidth + this.sizeInfo.nCellWidth * 2;
+            this.nDispSizeY = this.sizeInfo.nMapRealHeight + this.sizeInfo.nCellHeight * 2 + this.nMarginTop + this.nMarginBottom;
+            this.app.renderer.autoDensity = true;
+            this.app.renderer.resize(this.nDispSizeX,this.nDispSizeY);
+
+            if(this.grpMap != null) {
+                this.app.stage.removeChild(this.grpMap);
+            }
+            this.grpMap = this.makeImgMap();
+            this.app.stage.addChild(this.grpMap);
+        }
+
+        initCharactor(type) {
+            if(this.charaInfo != null) {
+                for(let i = 0; i < this.nCharaNum; i++) {
+                    this.app.stage.removeChild(this.charaInfo[i].grpChara);
+                }
+            }
+            let exist_player = false;
+            this.charaInfo = [];
+            this.charaInfoWithName = {};
+            this.nCharaNum = 40;
+            if(type == "DIAGONAL_CERT") {
+                this.nCharaNum = 2;
+                let min_dist = 5;
+                let room_width = 3;
+                let room_height = 3;
+                if(this.nDiffcult == 1) {
+                    min_dist = 4;
+                    room_width = 3;
+                    room_height = 3;
+                }
+                else if(this.nDiffcult == 2) {
+                    min_dist = 8;
+                    room_width = 5;
+                    room_height = 5;
+                }
+                else if(this.nDiffcult == 3) {
+                    min_dist = 14;
+                    room_width = 7;
+                    room_height = 7;
+                }
+                else if(this.nDiffcult == 4) {
+                    min_dist = 24;
+                    room_width = 9;
+                    room_height = 7;
+                }
+                let room_ty = 0;
+                let room_tx = 0;  
+                let i_ty = 0;
+                let i_tx = 0;
+                while(true) {
+                    i_ty = getRandomInt(0, this.sizeInfo.nMapHeight);
+                    i_tx = getRandomInt(0, this.sizeInfo.nMapWidth);
+                    let r_x = i_tx + min_dist;
+                    let d_y = i_ty + min_dist;
+                    let l_x = i_tx - min_dist;
+                    let u_y = i_ty - min_dist;
+                    let dir = [{x: r_x, y: d_y},
+                        {x: l_x, y: d_y},
+                        {x: r_x, y: u_y},
+                        {x: l_x, y: u_y}]
+                    shuffle(dir);
+                    let b_find = false;
+                    for(let i = 0; i < dir.length; i++) {
+                        if(checkRange(dir[i].x, dir[i].y, this.sizeInfo.nMapWidth, this.sizeInfo.nMapHeight)) {
+                            room_tx = dir[i].x;
+                            room_ty = dir[i].y;
+                            b_find = true;
+                            break;
+                        }
+                    }
+                    if(b_find) {
+                        break;
+                    }
+                }
+
+                let i_info = this.makeCharacterInfo(0, i_tx, i_ty);
+                let i_ch = new Item(i_info);
+                i_ch.makeGraph(0x0000FF);
+                this.charaInfo.push(i_ch);
+                this.mapInfo[i_ty][i_tx].charactor = i_ch;
+                this.charaInfoWithName["Item"] = i_ch;
+
+                let offset_x = -getRandomInt(0, room_width);
+                let offset_y = -getRandomInt(0, room_height);
+                let player_dir = getRandomInt(0, room_height * room_width);
+                let p_tx = 0;
+                let p_ty = 0;
+                for(let y = 0; y < room_height; y++) {
+                    for(let x = 0; x < room_width; x++) {
+                        let dy = room_ty + y + offset_y;
+                        let dx = room_tx + x + offset_x;
+                        if(dy < 0) {
+                            dy = room_ty + -(dy + 1) + room_height + offset_y;
+                        }
+                        else if(dy >= this.sizeInfo.nMapHeight) {
+                            dy = room_ty + -(dy - this.sizeInfo.nMapHeight + 1) + offset_y;
+                        }
+                        if(dx < 0) {
+                            dx = room_tx + -(dx + 1) + room_width + offset_x;
+                        }
+                        else if(dx >= this.sizeInfo.nMapWidth) {
+                            dx = room_tx + -(dx - this.sizeInfo.nMapWidth + 1) + offset_x;
+                        }
+                        this.mapInfo[dy][dx].type = ObjType.FLAT;
+                        if(y * room_width + x == player_dir) {
+                            p_ty = dy;
+                            p_tx = dx;
+                        }
+                    }
+                }
+
+                let p_info = this.makeCharacterInfo(1, p_tx, p_ty);
+                let p_ch = new Player(p_info);
+                p_ch.makeGraph(0xFF0000);
+                this.charaInfo.push(p_ch);
+                this.mapInfo[p_ty][p_tx].charactor = p_ch;
+                this.charaInfoWithName["Player"] = p_ch;
+
+                if(this.grpMap != null) {
+                    this.app.stage.removeChild(this.grpMap);
+                }
+                this.grpMap = this.makeImgMap();
+                this.app.stage.addChild(this.grpMap);
+                this.app.stage.addChild(i_ch.grpChara);
+                this.app.stage.addChild(p_ch.grpChara);
+                if(this.textResult != null) {
+                    this.app.stage.removeChild(this.textResult);
+                }
+                this.textResult = new PIXI.Text;
+                this.textResult.visible = false;
+                this.app.stage.addChild(this.textResult);
+            }
+            else {
+                for(let i = 0; i < this.nCharaNum; i++) {
+                    while(true) {
+                        let y = getRandomInt(0, this.sizeInfo.nMapHeight);
+                        let x = getRandomInt(0, this.sizeInfo.nMapWidth);
+                        let cell = this.mapInfo[y][x];
+                        if(this.mapInfo[y][x].charactor == null && cell.room_id >= 0) {
+                            let info = this.makeCharacterInfo(i, x, y);
+                            let ch = null;
+                            if(exist_player && i == 0) {
+                                ch = new Player(info);
+                                ch.makeGraph(0xFF0000);
+                                this.player = ch;
+                            }
+                            else {
+                                ch = new Enemy(info);
+                                ch.makeGraph(0x888888);
+                            }
+                            this.charaInfo.push(ch);
+                            this.mapInfo[y][x].charactor = ch;
+                            this.app.stage.addChild(ch.grpChara);
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        Ready() {
+            if(!this.downKeys[32]) {
+                return;
+            }
+            this.app.stage.removeChildren();
+            this.state = "Play";
+            this.nDiffcult = 1;
+            this.bPracticeMode = false;
+            let elem = document.getElementById("diagonal_cert_diffcult");
+            if(elem != null) {
+                this.nDiffcult = parseInt(elem.value);
+                elem.disabled = true;
+            }
+            elem = document.getElementById("diagonal_cert_practice");
+            if(elem != null) {
+                this.bPracticeMode = elem.checked;
+                elem.disabled = true;
+            }
+            this.init('DIAGONAL_CERT', true);
+        }
+
+        Play() {
+            let can_next = true;
+            for(let i = 0; i < this.nCharaNum; i++) {
+                let ch = this.charaInfo[i];
+                if(ch.move(this) == true) {
+                    can_next = false;
+                }
+            }
+
+            if(can_next) {
+                for(let i = 0; i < this.nCharaNum; i++) {
+                    let ch = this.charaInfo[i];
+                    let bef_pos = {x: ch.x, y: ch.y};
+                    let is_think = ch.think(this);//this.thinkCharactor(ch);
+
+                    if(!is_think) {
+                        continue;
+                    }
+
+                    if(ch.x == bef_pos.x && ch.y == bef_pos.y) {
+                        ch.no_move_count++;
+                    }
+                    else {
+                        ch.no_move_count = 0;
+                    }
+                    let pos_info = this.mapInfo[ch.y][ch.x];
+                    let bef_info = this.mapInfo[bef_pos.y][bef_pos.x];
+                    ch.bef_x = bef_pos.x;
+                    ch.bef_y = bef_pos.y;
+                    [bef_info.charactor, pos_info.charactor] = [pos_info.charactor, bef_info.charactor];
+                }
+                this.judge = this.judgeClear();
+                if(this.judge != "") {
+                    if(this.judge == "Clear") {
+                        this.textResult.text = "○";
+                        this.textResult.style = {font:'メイリオ', fontSize: 48, fill:'white',
+                                                stroke: 'white', strokeThickness: 2};
+                        this.textResult.y = -14;
+                        this.nPoint++;
+                    }
+                    else {
+                        this.textResult.text = "×";
+                        this.textResult.style = {font:'メイリオ', fontSize: 48, fill:'white',
+                                                stroke: 'white', strokeThickness: 1};
+                        this.textResult.y = -10;
+                    }
+                    this.textResult.x = this.nDispSizeX / 2 - 12;
+                    this.textResult.visible = true;
+                    this.textPoint.text = this.nPoint + " / " + this.nCertNum;
+                    this.state = "Result";
+                }
+            }
+            if(this.downKeys[27]) {
+                this.End(true);
+            }
+            if(this.nLimitTime > 0) {
+                let n_left_time = this.nLimitTime - (Date.now() - this.nStartTime);
+                if(n_left_time < 0) {
+                    n_left_time = 0;
+                }
+                this.textTime.text = "残り " + (n_left_time / 1000).toFixed(1) + " 秒";
+                this.textTime.text += "\n　　　　　　　　　　　　　　　　 ";
+            }
+        }
+
+        Result() {
+            if(this.downKeys[27]) {
+                this.End(true);
+                return;
+            }
+            if(!this.downKeys[32]) {
+                return;
+            }
+            this.nCertCount++;
+            this.textCount.text = "第" + this.nCertCount + "問";
+            if(this.nCertCount <= this.nCertNum) {
+                this.state = "Play";
+            }
+            else {
+                this.state = "End";
+            }
+            this.nStartTime = Date.now();
+            this.init('DIAGONAL_CERT');
+        }
+
+        End(bForceEnd) {
+            if(bForceEnd == null) {
+                if(this.downKeys[13]) {
+                    let url = "https://twitter.com/intent/tweet?text=";
+                    url += (this.bPracticeMode) ? "練習" : "本番";
+                    url += "で";
+                    let level = ["初級", "中級", "上級", "超上級"];
+                    url += level[this.nDiffcult - 1];
+                    if(this.bClear) {
+                        url += "に合格しました。";
+                    }
+                    else {
+                        url += "に合格できませんでした。";
+                    }
+                    url += "%0D%0A[結果] " + this.nPoint + " / " + this.nCertNum;
+                    url += "%0D%0Ahttps://koyubistrong.github.io/index.html?id=section_diagonal_cert";
+                    window.open(url);
+                    return;
+                }
+                if(!this.downKeys[27]) {
+                    return;
+                }
+            }
+            let elem = document.getElementById("diagonal_cert_diffcult");
+            if(elem != null) {
+                elem.disabled = false;
+            }
+            elem = document.getElementById("diagonal_cert_practice");
+            if(elem != null) {
+                elem.disabled = false;
+            }
+            this.state = "Ready";
+            this.init('DIAGONAL_CERT');
+        }
+
+        judgeClear() {
+            if(this.strGameType  == "DIAGONAL_CERT") {
+                let b_time_over = false;
+                if(this.nLimitTime >= 0) {
+                    let n_left_time = this.nLimitTime - (Date.now() - this.nStartTime);
+                    b_time_over = (n_left_time < 0);
+                }
+                if(!b_time_over && !this.downKeys[32]) {
+                    return "";
+                }
+                let player = this.charaInfoWithName["Player"];
+                let item = this.charaInfoWithName["Item"];
+                if(player == null || item == null) {
+                    return "";
+                }
+                let diff_x = item.x - player.x;
+                let diff_y = item.y - player.y;
+                let sign_x = Math.sign(diff_x);
+                let sign_y = Math.sign(diff_y);
+                
+                let y = player.y;
+                let x = player.x;
+                while(true) {
+                    this.mapInfo[y][x].type = ObjType.FLAT2
+                    y += sign_y;
+                    x += sign_x;
+                    if(checkRange(x, y, this.sizeInfo.nMapWidth, this.sizeInfo.nMapHeight) == false) {
+                        break;
+                    }
+                }
+                this.makeImgMap(this.grpMap);
+                if(Math.abs(diff_x) == Math.abs(diff_y)) {
+                    return "Clear";
+                }
+                return "Failed";
+            }
+            return "";
+        }
+
+        makeImgMap(grpMap) {
+            if(grpMap == null) {
+                grpMap = new PIXI.Graphics();
+            }
+            grpMap.clear();
+            let offset_x = this.nDrawOffsetX;
+            let offset_y = this.nDrawOffsetY;
             let colors = [0x0000FF, 0x00FF00, 0xFF0000, 0xFFFF00, 0xFF00FF, 0x00FFFF, 0x880000, 0x008800, 0x000088, 0x8888800, 0x880088, 0x008888];
             for(var y = 0; y < this.sizeInfo.nMapHeight; y++) {
                 for(var x = 0; x < this.sizeInfo.nMapWidth; x++) {
@@ -543,12 +936,32 @@ var RogueGame = (function() {
                             grpMap.beginFill(0xFFFFFF);
                         }
                     }
-                    else grpMap.beginFill(0x000000);
+                    else if(this.mapInfo[y][x].type == ObjType.FLAT2) {
+                        grpMap.beginFill(0x00EE00);
+                    }
+                    else {
+                        grpMap.beginFill(0x777777);
+                    }
                     grpMap.drawRect(offset_x + rx, offset_y + ry, this.sizeInfo.nCellWidth, this.sizeInfo.nCellHeight);
                 }
             }
             grpMap.endFill();
             return grpMap;
+        }
+
+        makeCharacterInfo(id, x, y) {
+            let grpChara = new PIXI.Graphics();
+            let info = {id: id, grpChara: grpChara, x: x, y: y, bef_x: x, bef_y: y,
+                rx: this.sizeInfo.nCellWidth * x * this.nUnit,
+                ry: this.sizeInfo.nCellHeight * y * this.nUnit,
+                direction: 6, tx: x, ty: y,
+                speed_x: 0, speed_y: 0, no_move_count: 999999,
+                actioned: false, cell_size: this.nCellSize,
+                n_draw_offset_X: this.nDrawOffsetX,
+                n_draw_offset_Y: this.nDrawOffsetY,
+                nUnit: this.nUnit, hp: 20, bef_target_find: false
+            };
+            return info;
         }
     }
    

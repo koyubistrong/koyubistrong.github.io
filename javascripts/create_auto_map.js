@@ -1,6 +1,7 @@
 const ObjType = {
     WALL: 0,
-    FLAT: 1
+    FLAT: 1,
+    FLAT2: 2
 }
 var AutoMap2D = (function() {
     class AutoMap2D {
@@ -90,7 +91,10 @@ var AutoMap2D = (function() {
             AutoMap2D.draw();
         }
 
-        static initFloor (width, height, cell_size) {
+        static initFloor (width, height, cell_size, obj_type) {
+            if(obj_type == null) {
+                obj_type = ObjType.WALL;
+            }
             AutoMap2D.nCellHeight = AutoMap2D.nCellWidth = cell_size;
             AutoMap2D.nMapWidth = width;
             AutoMap2D.nMapHeight = height;
@@ -117,7 +121,7 @@ var AutoMap2D = (function() {
                     AutoMap2D.mapInfo[y][x] = {
                         color: color,
                         room_id: -1,
-                        type: ObjType.WALL,
+                        type: obj_type,
                         middle_aisle: false,
                     };
                 }
@@ -266,6 +270,8 @@ var AutoMap2D = (function() {
             }
             shuffle(arrUseRoom)
 
+            var minCell = 5;
+            var margin = 1;
             for(var y = 0; y < height; y++) {
                 for(var x = 0; x < width; x++) {
                     var curInfo = AutoMap2D.mapVirtualInfo[y][x];
@@ -285,15 +291,15 @@ var AutoMap2D = (function() {
                             rh += dirInfo.height;
                         }
                     }
-                    var rrx = getRandomInt(rx, rx + curInfo.width - 3 - 1);
-                    var rry = getRandomInt(ry, ry + curInfo.height - 3 - 1);
+                    var rrx = getRandomInt(rx, rx + curInfo.width - minCell - 1);
+                    var rry = getRandomInt(ry, ry + curInfo.height - minCell - 1);
                     var dfx = rrx - rx;
                     var dfy = rry - ry;
-                    var rrw = getRandomInt(3, rw - dfx + ((x < width - 1) ? 0 : 1));
-                    var rrh = getRandomInt(3, rh - dfy + ((y < height - 1) ? 0 : 1));
+                    var rrw = getRandomInt(minCell, rw - dfx + ((x < width - 1) ? 0 : 1) - margin);
+                    var rrh = getRandomInt(minCell, rh - dfy + ((y < height - 1) ? 0 : 1) - margin);
                     var middle_aisle = false;
-                    if(curInfo.width != rw) rrw = getRandomInt(curInfo.width - dfx + 1, rw - dfx);
-                    if(curInfo.height != rh) rrh = getRandomInt(curInfo.height - dfy + 1, rh - dfy);
+                    if(curInfo.width != rw) rrw = getRandomInt(curInfo.width - dfx + 1, rw - dfx - margin);
+                    if(curInfo.height != rh) rrh = getRandomInt(curInfo.height - dfy + 1, rh - dfy - margin);
                     if(curInfo.use_aisle) {
                         rry = curInfo.y + Math.floor(curInfo.height / 2) + getRandomInt(0, 2);
                         rrx = curInfo.x + Math.floor(curInfo.width / 2) + getRandomInt(0, 2);

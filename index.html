@@ -29,7 +29,8 @@
 		<a href="index.html?id=section_create_auto_map">ローグライクのマップ自動生成</a><br>
 		<a href="index.html?id=section_roguelike_game">動きテスト</a><br>
 		<a href="index.html?id=section_shiren5">シレン5&nbsp;&nbsp;ダメージ計算</a><br>
-		<a href="index.html?id=section_shiren2">シレン2&nbsp;&nbsp;ダメージ計算</a>
+		<a href="index.html?id=section_shiren2">シレン2&nbsp;&nbsp;ダメージ計算</a><br>
+		<a href="index.html?id=section_diagonal_cert">斜め軸検定</a>
         <br><br>
 		<p class="view">
 			<a target="_blank" rel="noopener noreferrer" href="https://github.com/koyubistrong">View My GitHub Profile</a><br>
@@ -543,6 +544,40 @@
 		</table>
 		<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
 	  </section>
+	  <section id="section_diagonal_cert" style="display: none">
+		<h2>斜め軸検定</h2>
+		<h3>説明</h3>
+		<ul>
+			<li>プレイヤー(赤)の向きを8方向で表した時、左上・右上・左下・右下のいずれかの延長線上に目標(青)を合わせるようにプレイヤー(赤)の位置を調節するゲームです。</li>
+			<li>全部で10問あり、8問正解すれば合格です。制限時間は1問10秒です。</li>
+			<li>練習モードの場合は、制限時間がありません。</li>
+		</ul>
+		<h3>操作方法</h3>
+		<ul>
+			<li>「矢印キー上、下、左、右」プレイヤー(赤)を動かす。</li>
+			<li>「スペース」プレイヤー(赤)の位置の確定/次の問題に進む</li>
+			<li>「Esc」タイトルに戻る</li>
+			<li>「Enter」結果をツイート ※結果画面のみ</li>
+		</ul>
+		難易度
+		<select id="diagonal_cert_diffcult">
+			<option value="1" selected>初級</option>
+			<option value="2">中級</option>
+			<option value="3">上級</option>
+			<option value="4">超上級</option>
+		</select>
+		<input type="checkbox" id="diagonal_cert_practice">練習モード
+		<br><br>
+		<main id="diagonal_cert">
+		</main>
+		<br>
+		<h3>バージョン履歴</h3>
+		<h4>2023/09/10　Ver. 0.9.0</h4>
+		<ul>
+			<li>「斜め軸検定」公開</li>
+		</ul>
+		<br><br><br><br><br><br><br><br>
+	  </section>
       <footer>
         <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
       </footer>
@@ -590,6 +625,9 @@
 			}
 			else if(id == "section_shiren2") {
 				Shiren2Calc.init();
+			}
+			else if(id == "section_diagonal_cert") {
+				rg.init('DIAGONAL_CERT');
 			}
 		}
 	</script>
