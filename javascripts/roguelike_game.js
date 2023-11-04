@@ -896,6 +896,10 @@ var RogueGame = (function() {
             if(elem != null) {
                 elem.disabled = false;
             }
+            elem = document.getElementById("diagonal_cert_trans_wall");
+            if(elem != null) {
+                elem.disabled = false;
+            }
             this.state = "Ready";
             this.init('DIAGONAL_CERT');
         }
