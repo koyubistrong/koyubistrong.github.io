@@ -30,7 +30,8 @@
 		<a href="index.html?id=section_roguelike_game">動きテスト</a><br>
 		<a href="index.html?id=section_shiren5">シレン5&nbsp;&nbsp;ダメージ計算</a><br>
 		<a href="index.html?id=section_shiren2">シレン2&nbsp;&nbsp;ダメージ計算</a><br>
-		<a href="index.html?id=section_diagonal_cert">斜め軸検定</a>
+		<a href="index.html?id=section_diagonal_cert">斜め軸検定</a><br>
+		<i><a href="index.html?id=section_license">ライセンス</a></i>
         <br><br>
 		<p class="view">
 			<a target="_blank" rel="noopener noreferrer" href="https://github.com/koyubistrong">View My GitHub Profile</a><br>
@@ -567,6 +568,8 @@
 			<option value="4">超上級</option>
 		</select>
 		<input type="checkbox" id="diagonal_cert_practice">練習モード
+		<input type="checkbox" id="diagonal_cert_trans_wall">透明壁モード
+		<input type="checkbox" id="diagonal_mute" onchange="rg.inputMute();">ミュート
 		<br><br>
 		<main id="diagonal_cert">
 		</main>
@@ -635,10 +638,27 @@
 			</tr>
 		</table>
 		<br>
+		※音が鳴ります。<br>
 		※正常に読み込まれない場合は、キャッシュを削除してください。
 		<br>
 		<br>
+		<h3>効果音</h3>
+		<ul>
+			<li>効果音ラボ 様
+				<ul>
+					<li>
+					<a herf="https://dova-s.jp/se/play540.html">https://dova-s.jp/se/play540.html</a>
+					</li>
+				</ul>
+			</li>
+		</ul>
+		<br>
 		<h3>バージョン履歴</h3>
+		<h4>2023/11/05　Ver. 1.0.0</h4>
+		<ul>
+			<li>透明壁モード追加</li>
+			<li>効果音追加</li>
+		</ul>
 		<h4>2023/09/11　Ver. 0.9.1</h4>
 		<ul>
 			<li>スマホからの操作に対応</li>
@@ -649,13 +669,63 @@
 		</ul>
 		<br><br><br><br><br><br><br><br>
 	  </section>
+	  <section id="section_license" style="display: none">
+		<h2>ライセンス</h2>
+		<p style="background-color:#f9f9f9; border: 1px solid; padding: 12px;">
+			The MIT License<br>
+			<br>
+			Copyright (c) 2013-2023 Mathew Groves, Chad Engler<br>
+			<br>
+			Permission is hereby granted, free of charge, to any person obtaining a copy
+			of this software and associated documentation files (the "Software"), to deal
+			in the Software without restriction, including without limitation the rights
+			to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+			copies of the Software, and to permit persons to whom the Software is
+			furnished to do so, subject to the following conditions:<br>
+			<br>
+			The above copyright notice and this permission notice shall be included in
+			all copies or substantial portions of the Software.<br>
+			<br>
+			THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+			IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+			FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+			AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+			LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+			OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+			THE SOFTWARE.<br>
+		</p>
+		<p style="background-color:#f9f9f9; border: 1px solid; padding: 12px;">
+			MIT License<br>
+			<br>
+			Copyright (c) 2017 Matt Karl, LLC<br>
+			<br>
+			Permission is hereby granted, free of charge, to any person obtaining a copy
+			of this software and associated documentation files (the "Software"), to deal
+			in the Software without restriction, including without limitation the rights
+			to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+			copies of the Software, and to permit persons to whom the Software is
+			furnished to do so, subject to the following conditions:<br>
+			<br>
+			The above copyright notice and this permission notice shall be included in all
+			copies or substantial portions of the Software.<br>
+			<br>
+			THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+			IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+			FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+			AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+			LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+			OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+			SOFTWARE.<br>
+		</p>
+	  </section>
       <footer>
         <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
       </footer>
     </div>
 	<script src="javascripts/library/global.js"></script>
 	<script src="javascripts/library/union_find.js"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/5.1.3/pixi.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/7.3.2/pixi.min.js"></script>
+	<script src="javascripts/library/pixi-sound.js"></script>
     <script src="javascripts/scale.fix.js"></script>
     <script src="javascripts/poke_calc.js"></script>
 	<script src="javascripts/create_auto_map.js"></script>

@@ -102,7 +102,7 @@ var AutoMap2D = (function() {
             AutoMap2D.nMapRealHeight = AutoMap2D.nCellHeight * AutoMap2D.nMapHeight;
             AutoMap2D.mapInfo = [];
             if(!AutoMap2D.bNoElemInit) {
-                AutoMap2D.app.renderer.autoDensity = true;
+                //AutoMap2D.app.renderer.autoDensity = true;
                 AutoMap2D.app.renderer.resize(AutoMap2D.nMapRealWidth + AutoMap2D.nCellWidth * 2, AutoMap2D.nMapRealHeight + AutoMap2D.nCellHeight * 2);
                 if(AutoMap2D.mapDrawing != null) {
                     AutoMap2D.app.stage.removeChild(AutoMap2D.mapDrawing);

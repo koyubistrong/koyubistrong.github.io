@@ -388,6 +388,16 @@ var RogueGame = (function() {
                     }
                     this.pressedKeys[e.keyCode] = false;
                 },false);
+                this.sound = {};
+                // 効果音ラボ
+                // https://soundeffect-lab.info/
+                this.sound["seikai"] = PIXI.sound.Sound.from("https://koyubistrong.github.io/diagonal_cert/seikai.mp3");
+                this.sound["huseikai"] = PIXI.sound.Sound.from("https://koyubistrong.github.io/diagonal_cert/huseikai.mp3");
+                this.sound["gokaku"] = PIXI.sound.Sound.from("https://koyubistrong.github.io/diagonal_cert/gokaku.mp3");
+                this.sound["hugokaku"] = PIXI.sound.Sound.from("https://koyubistrong.github.io/diagonal_cert/hugokaku.mp3");
+                for (let key in this.sound) {
+                    this.sound[key].volume = 0.15;
+                }
             }
             this.strGameType = type;
             this.dire_for_search = [];
@@ -469,7 +479,7 @@ var RogueGame = (function() {
                     this.textVersion = new PIXI.Text;
                     this.textVersion.style = {font:'メイリオ', fontSize: 20, fill:'white',
                                             stroke: 'white', strokeThickness: 1, align: "center"};
-                    this.textVersion.text = "Ver. 0.9.1";
+                    this.textVersion.text = "Ver. 1.0.0";
                     this.textVersion.x = this.nDispSizeX - this.nDispSizeX / 5;
                     this.textVersion.y = this.nDispSizeY - this.nDispSizeY / 12;
 
@@ -485,10 +495,12 @@ var RogueGame = (function() {
                     if(this.nPoint >= this.nCertNum * 0.8) {
                         this.textEnd.text += "合格"
                         this.bClear = true;
+                        this.sound["gokaku"].play();
                     }
                     else {
                         this.textEnd.text += "不合格"
                         this.bClear = false;
+                        this.sound["hugokaku"].play();
                     }
                     this.textEnd.text += "\n\n" + this.nPoint + " / " + this.nCertNum
                     this.textEnd.text += "\n\n「Enter」でツイートする";
@@ -576,7 +588,7 @@ var RogueGame = (function() {
             this.sizeInfo = AutoMap2D.getSizeInfo();
             this.nDispSizeX = this.sizeInfo.nMapRealWidth + this.sizeInfo.nCellWidth * 2;
             this.nDispSizeY = this.sizeInfo.nMapRealHeight + this.sizeInfo.nCellHeight * 2 + this.nMarginTop + this.nMarginBottom;
-            this.app.renderer.autoDensity = true;
+            //this.app.renderer.autoDensity = true;
             this.app.renderer.resize(this.nDispSizeX,this.nDispSizeY);
 
             if(this.grpMap != null) {
@@ -744,6 +756,7 @@ var RogueGame = (function() {
             this.state = "Play";
             this.nDiffcult = 1;
             this.bPracticeMode = false;
+            this.bTransMode = false;
             let elem = document.getElementById("diagonal_cert_diffcult");
             if(elem != null) {
                 this.nDiffcult = parseInt(elem.value);
@@ -752,6 +765,11 @@ var RogueGame = (function() {
             elem = document.getElementById("diagonal_cert_practice");
             if(elem != null) {
                 this.bPracticeMode = elem.checked;
+                elem.disabled = true;
+            }
+            elem = document.getElementById("diagonal_cert_trans_wall");
+            if(elem != null) {
+                this.bTransMode = elem.checked;
                 elem.disabled = true;
             }
             this.init('DIAGONAL_CERT', true);
@@ -796,12 +814,14 @@ var RogueGame = (function() {
                                                 stroke: 'white', strokeThickness: 2};
                         this.textResult.y = -14;
                         this.nPoint++;
+                        this.sound["seikai"].play();
                     }
                     else {
                         this.textResult.text = "×";
                         this.textResult.style = {font:'メイリオ', fontSize: 48, fill:'white',
                                                 stroke: 'white', strokeThickness: 1};
                         this.textResult.y = -10;
+                        this.sound["huseikai"].play();
                     }
                     this.textResult.x = this.nDispSizeX / 2 - 12;
                     this.textResult.visible = true;
@@ -851,6 +871,7 @@ var RogueGame = (function() {
                     url += "で";
                     let level = ["初級", "中級", "上級", "超上級"];
                     url += level[this.nDiffcult - 1];
+                    url += (this.bTransMode) ? "(透明壁)" : "";
                     if(this.bClear) {
                         url += "に合格しました。";
                     }
@@ -860,7 +881,7 @@ var RogueGame = (function() {
                     url += "%0D%0A[結果] " + this.nPoint + " / " + this.nCertNum;
                     url += "%0D%0Ahttps://koyubistrong.github.io/index.html?id=section_diagonal_cert";
                     url += "%0D%0A%23斜め軸検定";
-                    window.open(url);
+                    window.open(url, "_blank");
                     return;
                 }
                 if(!this.downKeys[27]) {
@@ -942,7 +963,12 @@ var RogueGame = (function() {
                         grpMap.beginFill(0x00EE00);
                     }
                     else {
-                        grpMap.beginFill(0x777777);
+                        if(this.bTransMode) {
+                            grpMap.beginFill(0xFFFFFF);
+                        }
+                        else {
+                            grpMap.beginFill(0x777777);
+                        }
                     }
                     grpMap.drawRect(offset_x + rx, offset_y + ry, this.sizeInfo.nCellWidth, this.sizeInfo.nCellHeight);
                 }
@@ -973,6 +999,13 @@ var RogueGame = (function() {
 
         inputKeyup(code) {
             this.pressedKeys[code] = false;
+        }
+
+        inputMute() {
+            let elem = document.getElementById("diagonal_mute");
+            for (let key in this.sound) {
+                this.sound[key].volume = (elem.checked) ? 0.0 : 0.15;
+            }
         }
     }
    
