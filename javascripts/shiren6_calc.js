@@ -9,7 +9,7 @@ var Shiren6Calc = (function() {
             Shiren6Calc.assMaxMonster = {};
             Shiren6Calc.dpMonster = [];
             Shiren6Calc.dpMonsterTable = {};
-            Shiren6Calc.DB_INIT_NUM = 1;
+            Shiren6Calc.DB_INIT_NUM = 2;
             Shiren6Calc.bDBInitNum = 0;
             Shiren6Calc.bInitMaxMonster = false;
             getCSV(Shiren6Calc.readDataBase, "https://koyubistrong.github.io/shiren6/monster.html", "\t", "\n");
