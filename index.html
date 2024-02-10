@@ -28,8 +28,9 @@
 		<a href="index.html?id=section_poke_calc">ポケモンけいけんアメ必要数計算</a><br>
 		<a href="index.html?id=section_create_auto_map">ローグライクのマップ自動生成</a><br>
 		<a href="index.html?id=section_roguelike_game">動きテスト</a><br>
-		<a href="index.html?id=section_shiren5">シレン5&nbsp;&nbsp;ダメージ計算</a><br>
 		<a href="index.html?id=section_shiren2">シレン2&nbsp;&nbsp;ダメージ計算</a><br>
+		<a href="index.html?id=section_shiren5">シレン5&nbsp;&nbsp;ダメージ計算</a><br>
+		<a href="index.html?id=section_shiren6">【暫定】シレン6&nbsp;&nbsp;ダメージ計算</a><br>
 		<a href="index.html?id=section_diagonal_cert">斜め軸検定</a><br>
 		<i><a href="index.html?id=section_license">ライセンス</a></i>
         <br><br>
@@ -179,6 +180,10 @@
 			<tr>
 				<td>力</td>
 				<td><input type="number" id="shiren5_power" min="1" max="56" value="8" onchange="limitFormCheck(this)" onInput="Shiren5Calc.calc()"></td>
+			</tr>
+			<tr>
+				<td>HP</td>
+				<td><input type="number" id="shiren5_hp" min="15" max="600" value="15" onchange="limitFormCheck(this)" onInput="Shiren5Calc.calc()"></td>
 			</tr>
 			<tr>
 				<td>武器束ねの腕輪</td>
@@ -664,6 +669,304 @@
 		</ul>
 		<br><br><br><br><br><br><br><br>
 	  </section>
+	  <section id="section_shiren6" style="display: none">
+		<h2>【暫定】シレン6&nbsp;&nbsp;ダメージ計算</h2>
+		ある程度は正確かもしれないですが、暫定版なので注意です。<br>
+		バグがあったらTwitter(<a target="_blank" rel="noopener noreferrer" href="https://twitter.com/hp_prolog">@hp_prolog</a>)に報告していただけると助かります。
+		<br><br>
+		<h3>説明</h3>
+		<ul>
+			<li>「受ダメ」は敵から通常攻撃を受けた時の最小ダメージと最大ダメージ。</li>
+			<li>「与ダメ」は敵に通常攻撃した時の最小ダメージと最大ダメージ。</li>
+			<li>「HP」は敵のHP。</li>
+			<li>「倒確率」は「[n] m%」とした時、敵HP満タンから通常攻撃でnターン目に概ねm%の確率で倒せることを意味する。
+				<br>n+1ターン目は確実に倒せる。
+				<br>6ターン目以上は測定不能。
+			</li>
+			<li>計算結果の保証はできませんので悪しからず。</li>
+		</ul>
+		<h3>参照</h3>
+		<ul>
+			<li>
+				feketerigo | note
+				<ul>
+					<li><a target="_blank" rel="noopener noreferrer" href="https://note.com/feketerigo6/n/n44e373fda515">風来のシレン6～ダメージ計算について～</a></li>
+				</ul>
+			</li>
+			<li>
+				風来のシレン6 とぐろ島探検録 Wiki
+				<ul>
+					<li><a target="_blank" rel="noopener noreferrer" href="https://shiren6.game-info.wiki/d/%a4%e2%a4%ce%a4%ce%a4%b1%bc%ea%c4%a2">もののけ手帳</a></li>
+					<li><a target="_blank" rel="noopener noreferrer" href="https://shiren6.game-info.wiki/d/%a4%c8%a4%b0%a4%ed%c5%e7%a4%ce%bf%c0%bf%f1">とぐろ島の神髄</a></li>
+				</ul>
+			</li>
+		</ul>
+		<h3>計算</h3>
+		<table>
+			<tr>
+				<th style="width: 100px"></th><th></th>
+			</tr>
+			<tr>
+				<td>レベル</td>	
+				<td><input type="number" id="shiren6_level" min="1" max="99" value="1" onchange="limitFormCheck(this)" onInput="Shiren6Calc.calc()"></td>
+			</tr>
+			<tr>
+				<td>武器</td>
+				<td>
+					<input type="number" id="shiren6_weapon" min="0" max="200" value="0" onchange="limitFormCheck(this)" onInput="Shiren6Calc.calc()">
+					<select id="shiren6_weapon_arrow" style="display: none" onInput="Shiren6Calc.calc()">
+						<option value="2" selected>木の矢</option>
+						<option value="7">鉄の矢</option>
+						<option value="3">銀の矢</option>
+						<option value="4">会心の矢</option>
+						<option value="2">毒矢</option>
+						<option value="3">吹き飛ばしの矢</option>
+						<option value="3">必中の矢</option>
+						<option value="2">生気の矢</option>
+						<option value="5">心中の矢</option>
+					</select>
+					<input style="display: none" type="checkbox" id="shiren6_weapon_arrow_mode" onchange="Shiren6Calc.changeArrowMode(); Shiren6Calc.calc()">
+					<!--矢モード-->
+				</td>
+			</tr>
+			<tr>
+				<td>力</td>
+				<td><input type="number" id="shiren6_power" min="1" max="56" value="8" onchange="limitFormCheck(this)" onInput="Shiren6Calc.calc()"></td>
+			</tr>
+			<!--
+			<tr>
+				<td>HP</td>
+				<td><input type="number" id="shiren6_hp" min="15" max="600" value="15" onchange="limitFormCheck(this)" onInput="Shiren6Calc.calc()"></td>
+			</tr>
+			-->
+			<tr>
+				<td>特攻武器印</td>
+				<td>
+					<label for="shiren6_special_water">
+					<input type="checkbox" id="shiren6_special_water" onchange="Shiren6Calc.calc()">
+					水棲
+					</label>
+					<label for="shiren6_special_beast">
+					<input type="checkbox" id="shiren6_special_beast" onchange="Shiren6Calc.calc()">
+					ケモノ
+					</label>
+					<label for="shiren6_special_dragon">
+					<input type="checkbox" id="shiren6_special_dragon" onchange="Shiren6Calc.calc()">
+					ドラゴン
+					</label>
+					<label for="shiren6_special_explosion">
+					<input type="checkbox" id="shiren6_special_explosion" onchange="Shiren6Calc.calc()">
+					爆発
+					</label>
+					<label for="shiren6_special_gost">
+					<input type="checkbox" id="shiren6_special_gost" onchange="Shiren6Calc.calc()">
+					ゴースト
+					</label>
+					<br>
+					<label for="shiren6_special_drain">
+					<input type="checkbox" id="shiren6_special_drain" onchange="Shiren6Calc.calc()">
+					ドレイン
+					</label>
+					<label for="shiren6_special_eye">
+					<input type="checkbox" id="shiren6_special_eye" onchange="Shiren6Calc.calc()">
+					一ツ目
+					</label>
+					<label for="shiren6_special_metal">
+					<input type="checkbox" id="shiren6_special_metal" onchange="Shiren6Calc.calc()">
+					金属
+					</label>
+					<label for="shiren6_special_floating">
+					<input type="checkbox" id="shiren6_special_floating" onchange="Shiren6Calc.calc()">
+					浮遊
+					</label>
+				</td>
+			</tr>
+			<tr>
+				<td>攻撃UP武器印</td>
+				<td>
+					<label for="shiren6_special_twice">
+					<input type="checkbox" id="shiren6_special_twice" onchange="Shiren6Calc.calc()">
+					連撃
+					</label>
+					<label for="shiren6_special_money">
+					<input type="checkbox" id="shiren6_special_money" onchange="Shiren6Calc.calc()">
+					金食い
+					</label>
+					<label for="shiren6_special_stomach">
+					<input type="checkbox" id="shiren6_special_stomach" onchange="Shiren6Calc.calc()">
+					腹ちから
+					</label>
+					<label for="shiren6_special_hungry">
+					<input type="checkbox" id="shiren6_special_hungry" onchange="Shiren6Calc.calc()">
+					ハングリー
+					</label>
+					<label for="shiren6_special_potential">
+					<input type="checkbox" id="shiren6_special_potential" onchange="Shiren6Calc.calc()">
+					底力
+					</label>
+					<br>
+					<label for="shiren6_blow_conscience_me">
+					<input type="checkbox" id="shiren6_blow_conscience_me" onchange="Shiren6Calc.calc()">
+					会心の一撃系
+					</label>
+				</td>
+			</tr>
+			<tr>
+				<td>その他攻撃力</td>
+				<td>
+					<label for="shiren6_dosukoi">
+					<input type="checkbox" id="shiren6_dosukoi" onchange="Shiren6Calc.calc()">
+					ドスコイ
+					</label>
+				</td>
+			</tr>
+			<tr>
+				<td>攻撃力アップ</td>
+				<td>
+					<select id="shiren6_power_up_me" onInput="Shiren6Calc.calc()">
+					<!--	<option value="-99">レベル-8</option>
+						<option value="-97">レベル-7</option>
+						<option value="-95">レベル-6</option>
+						<option value="-90">レベル-5</option>
+						<option value="-80">レベル-4</option>
+						<option value="-70">レベル-3</option>
+						<option value="-60">レベル-2</option>
+						<option value="-50">レベル-1</option> -->
+						<option value="0" selected>レベル0</option>
+						<option value="200">レベル1</option>
+						<option value="300">レベル2</option>
+						<option value="400">レベル3</option>
+						<option value="500">レベル4</option>
+					</select>
+				</td>
+			</tr>
+			<tr style="display:none;">
+				<td>敵防御力アップ</td>
+				<td>
+					<select id="shiren6_defence_up_enemy" onInput="Shiren6Calc.calc()">
+						<option value="400">レベル-8</option>
+						<option value="350">レベル-7</option>
+						<option value="300">レベル-6</option>
+						<option value="250">レベル-5</option>
+						<option value="200">レベル-4</option>
+						<option value="150">レベル-3</option>
+						<option value="100">レベル-2</option>
+						<option value="50">レベル-1</option>
+						<option value="0" selected>レベル0</option>
+						<option value="-20">レベル1</option>
+						<option value="-30">レベル2</option>
+						<option value="-40">レベル3</option>
+						<option value="-50">レベル4</option>
+						<option value="-60">レベル5</option>
+						<option value="-70">レベル6</option>
+						<option value="-80">レベル7</option>
+						<option value="-90">レベル8</option>
+					</select>
+				</td>
+			</tr>
+			<tr>
+				<td>盾</td>
+				<td><input type="number" id="shiren6_shield" min="0" max="150" value="0" onchange="limitFormCheck(this)" onInput="Shiren6Calc.calc()"></td>
+			</tr>
+			<tr>
+				<td>軽減盾印</td>
+				<td>
+					<label for="shiren6_rate_stomach">
+					<input type="checkbox" id="shiren6_rate_stomach" onchange="Shiren6Calc.calc()">
+					腹ちから
+					</label>
+					<label for="shiren6_rate_money">
+					<input type="checkbox" id="shiren6_rate_money" onchange="Shiren6Calc.calc()">
+					金食い
+					</label>
+					<label for="shiren6_rate_hungry">
+					<input type="checkbox" id="shiren6_rate_hungry" onchange="Shiren6Calc.calc()">
+					ハングリー
+					</label>
+					<label for="shiren6_rate_number">
+					<input type="checkbox" id="shiren6_rate_number" onchange="Shiren6Calc.calc()">
+					〇の守り系
+					</label>
+					<br>
+					<label for="shiren6_rate_max">
+					<input type="checkbox" id="shiren6_rate_max" onchange="Shiren6Calc.calc()">
+					満タン防御
+					</label>
+					<label for="shiren6_rate_tukon">
+					<input type="checkbox" id="shiren6_rate_tukon" onchange="Shiren6Calc.calc()">
+					痛恨耐性
+					</label>
+				</td>
+			</tr>
+			<tr style="display:none;">
+				<td>自防御力アップ</td>
+				<td>
+					<select id="shiren6_defence_up_me" onInput="Shiren6Calc.calc()">
+						<option value="-400">レベル-8</option>
+						<option value="-350">レベル-7</option>
+						<option value="-300">レベル-6</option>
+						<option value="-250">レベル-5</option>
+						<option value="-200">レベル-4</option>
+						<option value="-150">レベル-3</option>
+						<option value="-100">レベル-2</option>
+						<option value="-50">レベル-1</option>
+						<option value="0" selected>レベル0</option>
+						<option value="20">レベル1</option>
+						<option value="30">レベル2</option>
+						<option value="40">レベル3</option>
+						<option value="50">レベル4</option>
+						<option value="60">レベル5</option>
+						<option value="70">レベル6</option>
+						<option value="80">レベル7</option>
+						<option value="90">レベル8</option>
+					</select>
+				</td>
+			</tr>
+			<tr>
+				<td>お香</td>
+				<td>
+					<label for="shiren6_incense_none">
+					<input type="radio" name="shiren6_incense" id="shiren6_incense_none" onchange="Shiren6Calc.calc()" checked>
+					なし
+					</label>
+					<label for="shiren6_incense_seme">
+					<input type="radio" name="shiren6_incense" id="shiren6_incense_seme" onchange="Shiren6Calc.calc()">
+					攻めのお香
+					</label>
+					<label for="shiren6_incense_mamo">
+					<input type="radio" name="shiren6_incense" id="shiren6_incense_mamo" onchange="Shiren6Calc.calc()">
+					守りのお香
+					</label>
+				</td>
+			</tr>
+		</table>
+		<h3>絞り込み条件</h3>
+		<table>
+			<tr>
+				<th style="width: 100px"></th><th></th>
+			</tr>
+			<tr>
+				<td>階層</td>
+				<td>
+					<select id="shiren6_dungeon" onInput="Shiren6Calc.calc()">
+						<option value="All" selected>指定なし</option>
+						<option value="Shinzui">とぐろ島の神髄(※未完成注意)</option>
+					</select>
+					<input type="number" id="shiren6_floor" min="1" max="99" value="1" onchange="limitFormCheck(this)" onInput="Shiren6Calc.calc()">
+				</td>
+			</tr>
+			<tr>
+				<td>名前(部分一致)</td>
+				<td>
+					<input type="text" id="shiren6_name" value="" onInput="Shiren6Calc.calc()">
+				</td>
+			</tr>
+		</table>
+		<table id="shiren6_monster_table">
+
+		</table>
+		<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+	  </section>
 	  <section id="section_license" style="display: none">
 		<h2>ライセンス</h2>
 		<p style="background-color:#f9f9f9; border: 1px solid; padding: 12px;">
@@ -727,6 +1030,7 @@
 	<script src="javascripts/roguelike_game.js"></script>
 	<script src="javascripts/shiren5_calc.js"></script>
 	<script src="javascripts/shiren2_calc.js"></script>
+	<script src="javascripts/shiren6_calc.js"></script>
 	   <script>
 	    var queries = GetQueryString();
 		var id = queries["id"];
@@ -761,6 +1065,9 @@
 			}
 			else if(id == "section_shiren2") {
 				Shiren2Calc.init();
+			}
+			else if(id == "section_shiren6") {
+				Shiren6Calc.init();
 			}
 			else if(id == "section_diagonal_cert") {
 				rg.init('DIAGONAL_CERT');
