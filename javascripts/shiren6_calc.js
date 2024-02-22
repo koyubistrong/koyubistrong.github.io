@@ -192,13 +192,13 @@ var Shiren6Calc = (function() {
                 var range_attack = MAX_RAND - MIN_RAND + 1;
                 var all_attack = new Array(range_attack).fill(0);
                 for(var att = MIN_RAND, ct = 0; att <= MAX_RAND; att++, ct++) {
-                    var rand_attack = attack * (att + 0.0) / 100 - monster_defence + 1;
+                    var rand_attack = (attack - monster_defence + 1) * (att + 0.5) / 100;
                     for(var j = 0; j < all_attack_type.length; j++) {
                         if(all_attack_rate[all_attack_type[j]] == null) continue;
                         rand_attack = rand_attack * all_attack_rate[all_attack_type[j]] / 100;
                     }
                     if(rand_attack < 1) rand_attack = 1;
-                    all_attack[ct] = Math.floor(rand_attack);
+                    all_attack[ct] = Math.round(rand_attack);
                 }
 
                     // 表示用に最小値と最大値取得
@@ -223,7 +223,7 @@ var Shiren6Calc = (function() {
                 var monster_attack = monster.attack;
                 var all_monster_attack = new Array(range_attack).fill(0);
                 for(var att = MIN_RAND, ct = 0; att <= MAX_RAND; att++, ct++) {
-                    var rand_attack = monster_attack * (att + 0.0) / 100 - defence + 1;
+                    var rand_attack = (monster_attack - defence + 1) * (att + 0.5) / 100;
                     for(var j = 0; j < all_defence_type.length; j++) {
                         if(rate_shield[all_defence_type[j]] == null) continue;
                         rand_attack = rand_attack * rate_shield[all_defence_type[j]] / 100;
