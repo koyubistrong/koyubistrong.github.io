@@ -10,6 +10,7 @@
 
 	  gtag('config', 'UA-162147615-1');
 	</script>
+	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
     <title>KOYUBI</title>
@@ -673,7 +674,13 @@
 		<h2>【暫定】シレン6&nbsp;&nbsp;ダメージ計算</h2>
 		ある程度は正確かもしれないですが、暫定版なので注意です。<br>
 		バグがあったらTwitter(<a target="_blank" rel="noopener noreferrer" href="https://twitter.com/hp_prolog">@hp_prolog</a>)に報告していただけると助かります。
-		<br><br>
+		<br>
+		<br>
+		2024/02/24&nbsp;&nbsp;計算式修正<br>
+		(変更前) [攻撃力×乱数ー守備力+1]<br>
+		(変更後) [(攻撃力ー守備力+1)×乱数]<br>
+		※自分で検証してこの結果になった<br>
+		<br>
 		<h3>説明</h3>
 		<ul>
 			<li>「受ダメ」は敵から通常攻撃を受けた時の最小ダメージと最大ダメージ。</li>
@@ -940,19 +947,64 @@
 				</td>
 			</tr>
 		</table>
-		<h3>絞り込み条件</h3>
-		<table>
+		<h3 id="shiren6_display_setting_text" onclick="Shiren6Calc.clickDisplayText()">+&nbsp;表示設定</h3>
+		<table id="shiren6_display_setting_table">
 			<tr>
 				<th style="width: 100px"></th><th></th>
+			</tr>
+			<tr>
+				<td>表示タイプ</td>
+				<td>
+					<label for="shiren6_display_type_table">
+					<input type="radio" name="shiren6_display_type" id="shiren6_display_type_table" onchange="Shiren6Calc.changeDisplayType()" checked>
+					テーブル
+					</label>
+					<label for="shiren6_display_type_graph">
+					<input type="radio" name="shiren6_display_type" id="shiren6_display_type_graph" onchange="Shiren6Calc.changeDisplayType()">
+					倒確率分布
+					</label>
+				</td>
+			</tr>
+			<tr>
+				<td>ソート</td>
+				<td>
+					<select id="shiren6_table_sort_type" onInput="Shiren6Calc.calc()">
+						<option value="" selected>なし</option>
+						<option value="name">名前</option>
+						<option value="min_defence">受ダメ</option>
+						<option value="min_attack">与ダメ</option>
+						<option value="hp">HP</option>
+						<option value="die_rate_tonum">倒確率</option>
+					</select>
+					<label for="shiren6_table_sort_by_asc">
+					<input type="radio" name="shiren6_table_sort_by" id="shiren6_table_sort_by_asc" onchange="Shiren6Calc.calc()" checked>
+					昇順
+					</label>
+					<label for="shiren6_table_sort_by_desc">
+					<input type="radio" name="shiren6_table_sort_by" id="shiren6_table_sort_by_desc" onchange="Shiren6Calc.calc()">
+					降順
+					</label>
+				</td>
+			</tr>
+			<tr>
+				<td>1階層のみ</td>
+				<td>
+					<label for="shiren6_floor_only_one">
+					<input type="checkbox" id="shiren6_floor_only_one" onchange="Shiren6Calc.changeOneFloorStatus(); Shiren6Calc.calc()" checked>
+					有効にする
+					</label>
+				</td>
 			</tr>
 			<tr>
 				<td>階層</td>
 				<td>
 					<select id="shiren6_dungeon" onInput="Shiren6Calc.calc()">
 						<option value="All" selected>指定なし</option>
-						<option value="Shinzui">とぐろ島の神髄(※未完成注意)</option>
+						<option value="Shinzui">とぐろ島の神髄(※未完成)</option>
 					</select>
-					<input type="number" id="shiren6_floor" min="1" max="99" value="1" onchange="limitFormCheck(this)" onInput="Shiren6Calc.calc()">
+					<input type="number" id="shiren6_floor_under" min="1" max="99" value="1" style="width:30px;" onchange="limitFormCheck(this)" onInput="Shiren6Calc.adjustFloor(); Shiren6Calc.calc()">
+					～
+					<input type="number" id="shiren6_floor_upper" min="1" max="99" value="1" style="width:30px;" onchange="limitFormCheck(this)" onInput="Shiren6Calc.adjustFloor(); Shiren6Calc.calc()" disabled>
 				</td>
 			</tr>
 			<tr>
@@ -962,6 +1014,7 @@
 				</td>
 			</tr>
 		</table>
+		<canvas id="shiren6_monster_graph" style="display: none"></canvas>
 		<table id="shiren6_monster_table">
 
 		</table>
@@ -1014,6 +1067,26 @@
 			LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 			OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 			SOFTWARE.<br>
+		</p>
+		<p style="background-color:#f9f9f9; border: 1px solid; padding: 12px;">
+		The MIT License (MIT)<br>
+		<br>
+		Copyright (c) 2014-2022 Chart.js Contributors<br>
+		<br>
+		Permission is hereby granted, free of charge, to any person obtaining a copy of this software and 
+		associated documentation files (the "Software"), to deal in the Software without restriction, 
+		including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, 
+		and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, 
+		subject to the following conditions:<br>
+		<br>
+		The above copyright notice and this permission notice shall be included in all copies or substantial 
+		portions of the Software.<br>
+		<br>
+		THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT 
+		LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+		 IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, 
+		 WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE 
+		 OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.<br>
 		</p>
 	  </section>
       <footer>

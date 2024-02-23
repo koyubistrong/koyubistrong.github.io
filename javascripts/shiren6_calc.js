@@ -12,6 +12,7 @@ var Shiren6Calc = (function() {
             Shiren6Calc.DB_INIT_NUM = 2;
             Shiren6Calc.bDBInitNum = 0;
             Shiren6Calc.bInitMaxMonster = false;
+            Shiren6Calc.graphMonster = null;
             getCSV(Shiren6Calc.readDataBase, "https://koyubistrong.github.io/shiren6/monster.html", "\t", "\n");
             //getCSV(Shiren6Calc.readMaxMonster, "https://koyubistrong.github.io/shiren5/max_level_monster.html", "\t", "\n");
             getCSV(Shiren6Calc.readMonsterTable.bind(null, "Shinzui"), "https://koyubistrong.github.io/shiren6/shinzui_monster_table.html", "\t", "\n");
@@ -107,7 +108,6 @@ var Shiren6Calc = (function() {
 
             // モンスター一覧
             var dungeon = document.getElementById("shiren6_dungeon").value;
-            var floor = parseInt(document.getElementById("shiren6_floor").value);
             var name = document.getElementById("shiren6_name").value;
             var monster_table = [];
                 // 階層絞り込み
@@ -115,15 +115,29 @@ var Shiren6Calc = (function() {
                 monster_table = Shiren6Calc.dpMonster;
             }
             else {
-                if(Shiren6Calc.dpMonsterTable[dungeon][floor - 1] != null) {
-                    var monster = Shiren6Calc.dpMonsterTable[dungeon][floor - 1].monster;
-                    for(var i = 0; i < monster.length; i++) {
-                        if(Shiren6Calc.assMonster[monster[i]] == null) {
-                            console.log("No Data " + monster[i]);
-                            continue;
+                var under = parseInt(document.getElementById("shiren6_floor_under").value);
+                var upper = parseInt(document.getElementById("shiren6_floor_upper").value);
+                if(under > upper) {
+                    upper = under;
+                }
+                var floor = under;
+                var unique = {};
+                while(floor <= upper) {
+                    if(Shiren6Calc.dpMonsterTable[dungeon][floor - 1] != null) {
+                        var monster = Shiren6Calc.dpMonsterTable[dungeon][floor - 1].monster;
+                        for(var i = 0; i < monster.length; i++) {
+                            if(Shiren6Calc.assMonster[monster[i]] == null) {
+                                console.log("No Data " + monster[i]);
+                                continue;
+                            }
+                            if(unique[monster[i]] != null) {
+                                continue;
+                            }
+                            monster_table.push(Shiren6Calc.assMonster[monster[i]]);
+                            unique[monster[i]] = true;
                         }
-                        monster_table.push(Shiren6Calc.assMonster[monster[i]]);
                     }
+                    floor++;
                 }
             }
                 // 名前絞り込み
@@ -147,14 +161,19 @@ var Shiren6Calc = (function() {
                 monster_table = cond_monster_table;
             }
             if(monster_table.length == 0) {
+                Shiren6Calc.viewAttackMonsterGraph([], 5);
                 document.getElementById("shiren6_monster_table").innerHTML = "一致する条件が見つかりませんでした。";
+                Shiren6Calc.changeDisplayType();
                 return;
             }
             //Shiren6Calc.makeAttackMonsterTable(Shiren6Calc.dpMonster, attack, special);
             var hp = 100, is_arrow_mode = false;
-            var table = Shiren6Calc.calcAttackMonsterTable(monster_table, attack, special, all_attack_rate, defence, rate_shield, hp, is_arrow_mode, 5);
-            Shiren6Calc.viewAttackMonsterTable(table, 5);
+            var die_rate_num = 5;
+            var table = Shiren6Calc.calcAttackMonsterTable(monster_table, attack, special, all_attack_rate, defence, rate_shield, hp, is_arrow_mode, die_rate_num);
+            Shiren6Calc.viewAttackMonsterTable(table, die_rate_num);
             //Shiren6Calc.viewSuppressionTable(table, Shiren6Calc.dpMonsterTable["Genshi"], 9);
+            Shiren6Calc.viewAttackMonsterGraph(table, die_rate_num);
+            Shiren6Calc.changeDisplayType();
         }
 
         static calcAttackMonsterTable(monster_table, attack, special, all_attack_rate, defence, rate_shield, hp, is_arrow_mode, die_rate_num) {
@@ -280,7 +299,25 @@ var Shiren6Calc = (function() {
                 info.hp = monster.hp;
                 info.die_rates = die_rates;
                 info.me_die_rates = me_die_rates;
+                var j = 0;
+                for(var j = 0; j < die_rate_num; j++) {
+                    if(info.die_rates[j] > 0.0) {
+                        info.die_rate_tonum = (j + 1) * 100 - info.die_rates[j];
+                        break;
+                    }
+                }
+                if(j >= die_rate_num) {
+                    info.die_rate_tonum = j * 100;
+                }
                 result[i] = info;
+            }
+
+            var sort_val = document.getElementById("shiren6_table_sort_type").value;
+            if(sort_val != "") {
+                result.sort(function(a, b) {
+                    var sign = (document.getElementById("shiren6_table_sort_by_asc").checked) ? 1 : -1;
+                    return (a[sort_val] > b[sort_val]) ? (1 * sign) : (-1 * sign);
+                });
             }
 
             return result;
@@ -377,7 +414,8 @@ var Shiren6Calc = (function() {
                 td.style = "text-align: left;"
                 tr.appendChild(td);
                 td = document.createElement("td");
-                for(var j = 0; j < die_rate_num; j++) {
+                var j = 0;
+                for(; j < die_rate_num; j++) {
                     if(table[i].die_rates[j] > 0.0) {
                         var die_rate = Math.floor(table[i].die_rates[j]);
                         if(die_rate <= 0.0) {
@@ -470,6 +508,73 @@ var Shiren6Calc = (function() {
                 fragment.appendChild(tr);
             }
             elem_table.appendChild(fragment);
+        }
+
+        static viewAttackMonsterGraph(table, die_rate_num) {
+            var totals = new Array(die_rate_num * 2 + 1).fill(0);
+            for(var i = 0; i < table.length; i++) {
+                var die_num = 6;
+                var die_rate = 0.0;
+                for(var j = 0; j < die_rate_num; j++) {
+                    if(table[i].die_rates[j] > 0.0) {
+                        die_rate = Math.floor(table[i].die_rates[j]);
+                        die_num = j + 1;
+                        break;
+                    }
+                }
+                var index = (die_num - 1) * 2;
+                if(j < die_rate_num && die_rate <= 50) {
+                    index++;
+                }
+                totals[index]++;
+            }
+            var labels = new Array(die_rate_num * 2 + 1).fill("");
+            for(var i = 0; i < labels.length - 1; i++) {
+                var str = "[" + (Math.floor(i / 2) + 1) + "]";
+                labels[i] = str + ["-100%", "-50%"][i % 2];
+            }
+            labels[labels.length - 1] = "[" + (die_rate_num + 1) + "↑]";
+
+            if(Shiren6Calc.graphMonster != null) {
+                Shiren6Calc.graphMonster.destroy();
+            } 
+
+            var ctx = document.getElementById("shiren6_monster_graph");
+            Shiren6Calc.graphMonster = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                  labels: labels,
+                  datasets: [
+                    {
+                      label: '倒確率',
+                      data: totals,
+                      backgroundColor: "rgba(219,39,91,0.5)"
+                    }
+                    ]
+                },
+                options: {
+                  plugins: {
+                    title: {
+                      display: true,
+                      fontSize: 20, 
+                      text: '倒確率分布'
+                    }
+                  },
+                  scales: {
+                    y: {
+                      ticks: {
+                        suggestedMax: 300,
+                        suggestedMin: 0,
+                        stepSize: 10,
+                        callback: function(value, index, values){
+                          return  value +  '匹';
+                        }
+                      }
+                    }
+                  },
+                  animation: false,
+                }
+              });
         }
 
         static calcAttack(level, weapon, power, is_arrow_mode) {
@@ -607,6 +712,54 @@ var Shiren6Calc = (function() {
             else {
                 document.getElementById("shiren6_weapon").style.display = "inline";
                 document.getElementById("shiren6_weapon_arrow").style.display = "none";
+            }
+        }
+
+        static adjustFloor() {
+            var under_name = "shiren6_floor_under";
+            var upper_name = "shiren6_floor_upper";
+            var under = parseInt(document.getElementById(under_name).value);
+            var upper = parseInt(document.getElementById(upper_name).value);
+            if(document.getElementById("shiren6_floor_only_one").checked) {
+                document.getElementById(upper_name).value = document.getElementById(under_name).value;
+            }
+            else {
+                if(under > upper) {
+                    document.getElementById(upper_name).value = document.getElementById(under_name).value;
+                }
+            }
+        }
+
+        static changeOneFloorStatus() {
+            var under_name = "shiren6_floor_under";
+            var upper_name = "shiren6_floor_upper";
+            if(document.getElementById("shiren6_floor_only_one").checked) {
+                document.getElementById(upper_name).value = document.getElementById(under_name).value;
+                document.getElementById(upper_name).disabled = true;
+            }
+            else {
+                document.getElementById(upper_name).disabled = false;
+            }
+        }
+
+        static clickDisplayText() {
+            if(document.getElementById("shiren6_display_setting_table").style.display == "none") {
+                document.getElementById("shiren6_display_setting_table").style.display = "block";
+                document.getElementById("shiren6_display_setting_text").innerText = "+ 表示設定";
+            }
+            else {
+                document.getElementById("shiren6_display_setting_table").style.display = "none";
+                document.getElementById("shiren6_display_setting_text").innerText = "- 表示設定";
+            }
+        }
+        static changeDisplayType() {
+            if(document.getElementById("shiren6_display_type_table").checked) {
+                document.getElementById("shiren6_monster_table").style.display = "";
+                document.getElementById("shiren6_monster_graph").style.display = "none";
+            }
+            if(document.getElementById("shiren6_display_type_graph").checked) {
+                document.getElementById("shiren6_monster_table").style.display = "none";
+                document.getElementById("shiren6_monster_graph").style.display = "";
             }
         }
     }
