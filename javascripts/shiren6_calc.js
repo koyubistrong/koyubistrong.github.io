@@ -41,10 +41,7 @@ var Shiren6Calc = (function() {
                 weapon = parseInt(document.getElementById("shiren6_weapon_arrow").value);
             }
             var attack = Shiren6Calc.calcAttack(level, weapon, power, is_arrow_mode);
-            var defence = shield;
-            if(shield >= 21) {
-                defence = 20 + (shield - 20) * 0.6
-            }
+            var defence = Shiren6Calc.calcDefence(shield);
             //var hp = parseInt(document.getElementById("shiren6_hp").value);
 
             // 特攻武器印系
@@ -546,7 +543,7 @@ var Shiren6Calc = (function() {
                   labels: labels,
                   datasets: [
                     {
-                      label: '倒確率',
+                      label: '敵の数',
                       data: totals,
                       backgroundColor: "rgba(219,39,91,0.5)"
                     }
@@ -600,6 +597,14 @@ var Shiren6Calc = (function() {
             }
             var power_attack = power;
             return level_attack + weapon_attack + power_attack;
+        }
+
+        static calcDefence(shield) {
+            var defence = shield;
+            if(shield >= 21) {
+                defence = 20 + (shield - 20) * 0.6
+            }
+            return defence;
         }
 
         static initMaxMonster() {
