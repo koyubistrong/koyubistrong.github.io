@@ -17,6 +17,7 @@
 
     <link rel="stylesheet" href="stylesheets/styles.css">
     <link rel="stylesheet" href="stylesheets/github-light.css">
+    <script src="javascripts/theme.js" defer></script>
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
 	<!--[if lt IE 9]>
     <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
@@ -39,6 +40,14 @@
 			<a target="_blank" rel="noopener noreferrer" href="https://github.com/koyubistrong">View My GitHub Profile</a><br>
 			<a target="_blank" rel="noopener noreferrer" href="https://twitter.com/hp_prolog">Twitter @hp_prolog</a>
 		</p>
+		<div class="theme-control">
+			<button type="button" id="theme_toggle" class="theme-toggle" aria-label="ライト/ダーク切替" aria-pressed="false">
+				<span class="theme-toggle__track">
+					<span class="theme-toggle__thumb"></span>
+					<span class="theme-toggle__text">Light</span>
+				</span>
+			</button>
+		</div>
       </header>
       <section id="section_index" style="display: none">
         <h3>
@@ -181,10 +190,6 @@
 			<tr>
 				<td>力</td>
 				<td><input type="number" id="shiren5_power" min="1" max="56" value="8" onchange="limitFormCheck(this)" onInput="Shiren5Calc.calc()"></td>
-			</tr>
-			<tr>
-				<td>HP</td>
-				<td><input type="number" id="shiren5_hp" min="15" max="600" value="15" onchange="limitFormCheck(this)" onInput="Shiren5Calc.calc()"></td>
 			</tr>
 			<tr>
 				<td>武器束ねの腕輪</td>
@@ -495,7 +500,7 @@
 					<option value="龍">龍神剣</option>
 					<option value="ち">ちからの草</option>
 					</select>
-					&nbsp;&nbsp;<button type="button" onclick="Shiren2Calc.addMark('shiren2_weapon_mark');Shiren2Calc.calc();">追加</button>
+					&nbsp;&nbsp;<button type="button" onclick="Shiren2Calc.addMark('shiren2_weapon_mark');Shiren2Calc.calc();">追加</button>&nbsp;&nbsp;※追加印クリックで削除
 					<br>
 					<div id="shiren2_weapon_mark">(空)</div>
 				</td>
@@ -518,7 +523,7 @@
 					<option value="" selected><印選択></option>
 					<option value="命">命の草</option>
 					</select>
-					&nbsp;&nbsp;<button type="button" onclick="Shiren2Calc.addMark('shiren2_shield_mark')">追加</button>
+					&nbsp;&nbsp;<button type="button" onclick="Shiren2Calc.addMark('shiren2_shield_mark')">追加</button>&nbsp;&nbsp;※追加印クリックで削除
 					<br>
 					<div id="shiren2_shield_mark">(空)</div>
 				</td>
@@ -704,6 +709,7 @@
 				<ul>
 					<li><a target="_blank" rel="noopener noreferrer" href="https://shiren6.game-info.wiki/d/%a4%e2%a4%ce%a4%ce%a4%b1%bc%ea%c4%a2">もののけ手帳</a></li>
 					<li><a target="_blank" rel="noopener noreferrer" href="https://shiren6.game-info.wiki/d/%a4%c8%a4%b0%a4%ed%c5%e7%a4%ce%bf%c0%bf%f1">とぐろ島の神髄</a></li>
+					<li><a target="_blank" rel="noopener noreferrer" href="https://shiren6.game-info.wiki/d/%c4%b6%a1%a6%bf%c0%bf%f1">超・神髄</a></li>
 				</ul>
 			</li>
 		</ul>
@@ -1000,10 +1006,11 @@
 					<select id="shiren6_dungeon" onInput="Shiren6Calc.calc()">
 						<option value="All" selected>指定なし</option>
 						<option value="Shinzui">とぐろ島の神髄</option>
+						<option value="SinSinzui">超・神髄</option>
 					</select>
-					<input type="number" id="shiren6_floor_under" min="1" max="99" value="1" style="width:30px;" onchange="limitFormCheck(this)" onInput="Shiren6Calc.adjustFloor(); Shiren6Calc.calc()">
+					<input type="number" id="shiren6_floor_under" min="1" max="99" value="1" style="width:60px;" onchange="limitFormCheck(this)" onInput="Shiren6Calc.adjustFloor(); Shiren6Calc.calc()">
 					～
-					<input type="number" id="shiren6_floor_upper" min="1" max="99" value="1" style="width:30px;" onchange="limitFormCheck(this)" onInput="Shiren6Calc.adjustFloor(); Shiren6Calc.calc()" disabled>
+					<input type="number" id="shiren6_floor_upper" min="1" max="99" value="1" style="width:60px;" onchange="limitFormCheck(this)" onInput="Shiren6Calc.adjustFloor(); Shiren6Calc.calc()" disabled>
 				</td>
 			</tr>
 			<tr>
@@ -1047,7 +1054,7 @@
 		<p style="background-color:#f9f9f9; border: 1px solid; padding: 12px;">
 			MIT License<br>
 			<br>
-			Copyright (c) 2017 Matt Karl, LLC<br>
+			Copyright 2023, Matt Karl @bigtimebuddy, All Rights Reserved<br>
 			<br>
 			Permission is hereby granted, free of charge, to any person obtaining a copy
 			of this software and associated documentation files (the "Software"), to deal
@@ -1070,7 +1077,7 @@
 		<p style="background-color:#f9f9f9; border: 1px solid; padding: 12px;">
 		The MIT License (MIT)<br>
 		<br>
-		Copyright (c) 2014-2022 Chart.js Contributors<br>
+		Copyright (c) 2014-2024 Chart.js Contributors<br>
 		<br>
 		Permission is hereby granted, free of charge, to any person obtaining a copy of this software and 
 		associated documentation files (the "Software"), to deal in the Software without restriction, 
@@ -1086,6 +1093,28 @@
 		 IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, 
 		 WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE 
 		 OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.<br>
+		</p>
+		<p style="background-color:#f9f9f9; border: 1px solid; padding: 12px;">
+			github-light.css<br>
+			<br>
+			Copyright 2014 GitHub Inc.<br>
+			<br>
+			Licensed under the Apache License, Version 2.0.<br>
+			<a href="LICENSE-APACHE-2.0.txt">Apache License 2.0 full text</a><br>
+		</p>
+		<p style="background-color:#f9f9f9; border: 1px solid; padding: 12px;">
+			Minimal Theme<br>
+			<br>
+			Theme by orderedlist. This site's layout/CSS was modified from orderedlist/minimal.<br>
+			<br>
+			This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 Unported License.<br>
+			https://creativecommons.org/licenses/by-sa/3.0/<br>
+		</p>
+		<p style="background-color:#f9f9f9; border: 1px solid; padding: 12px;">
+			HTML5 Shiv<br>
+			<br>
+			Dual licensed under the MIT or GPL Version 2 licenses.<br>
+			https://github.com/aFarkas/html5shiv<br>
 		</p>
 	  </section>
       <footer>

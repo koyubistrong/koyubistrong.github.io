@@ -9,13 +9,14 @@ var Shiren6Calc = (function() {
             Shiren6Calc.assMaxMonster = {};
             Shiren6Calc.dpMonster = [];
             Shiren6Calc.dpMonsterTable = {};
-            Shiren6Calc.DB_INIT_NUM = 2;
+            Shiren6Calc.DB_INIT_NUM = 3;
             Shiren6Calc.bDBInitNum = 0;
             Shiren6Calc.bInitMaxMonster = false;
             Shiren6Calc.graphMonster = null;
             getCSV(Shiren6Calc.readDataBase, "https://koyubistrong.github.io/shiren6/monster.html", "\t", "\n");
             //getCSV(Shiren6Calc.readMaxMonster, "https://koyubistrong.github.io/shiren5/max_level_monster.html", "\t", "\n");
             getCSV(Shiren6Calc.readMonsterTable.bind(null, "Shinzui"), "https://koyubistrong.github.io/shiren6/shinzui_monster_table.html", "\t", "\n");
+            getCSV(Shiren6Calc.readMonsterTable.bind(null, "SinSinzui"), "https://koyubistrong.github.io/shiren6/sin_sinzui_monster_table.html", "\t", "\n");
         }
 
         static isInit() {

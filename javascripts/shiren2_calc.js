@@ -151,6 +151,10 @@ var Shiren2Calc = (function() {
             th.innerHTML = "与ダメ";
             th.style = "text-align: center;"
             tr.appendChild(th);
+            th = document.createElement("th");
+            th.innerHTML = "HP";
+            th.style = "text-align: center;"
+            tr.appendChild(th);
             for(var i = 0; i < DIE_RATE_NUM; i++) {
                 th = document.createElement("th");
                 th.innerHTML = "倒確率" + (i + 1).toString();
@@ -275,6 +279,10 @@ var Shiren2Calc = (function() {
                 tr.appendChild(td);
                 td = document.createElement("td");
                 td.innerHTML = min_attack + "-" + max_attack;
+                td.style = "text-align: center;"
+                tr.appendChild(td);
+                td = document.createElement("td");
+                td.innerHTML = monster.hp;
                 td.style = "text-align: center;"
                 tr.appendChild(td);
 
