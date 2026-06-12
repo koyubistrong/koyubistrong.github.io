@@ -189,24 +189,57 @@ header i {
   align-items: center;
   justify-content: center;
   color: var(--text);
-  font-size: 11px;
+  font-size: 0;
   font-weight: 700;
   line-height: 1;
   pointer-events: none;
 }
 
-.theme-toggle[aria-pressed="true"] .theme-toggle__track {
+.theme-toggle__text::before {
+  content: "Light";
+  font-size: 11px;
+}
+
+.theme-toggle[aria-pressed="true"] .theme-toggle__track,
+:root[data-theme="dark"] .theme-toggle__track {
   border-color: var(--accent);
   background: var(--accent-soft);
 }
 
-.theme-toggle[aria-pressed="true"] .theme-toggle__thumb {
+.theme-toggle[aria-pressed="true"] .theme-toggle__thumb,
+:root[data-theme="dark"] .theme-toggle__thumb {
   transform: translateX(48px);
   background: var(--accent);
 }
 
-.theme-toggle[aria-pressed="true"] .theme-toggle__text {
+.theme-toggle[aria-pressed="true"] .theme-toggle__text,
+:root[data-theme="dark"] .theme-toggle__text {
   inset: 0 25px 0 8px;
+}
+
+.theme-toggle[aria-pressed="true"] .theme-toggle__text::before,
+:root[data-theme="dark"] .theme-toggle__text::before {
+  content: "Dark";
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) .theme-toggle__track {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+  }
+
+  :root:not([data-theme]) .theme-toggle__thumb {
+    transform: translateX(48px);
+    background: var(--accent);
+  }
+
+  :root:not([data-theme]) .theme-toggle__text {
+    inset: 0 25px 0 8px;
+  }
+
+  :root:not([data-theme]) .theme-toggle__text::before {
+    content: "Dark";
+  }
 }
 
 p.view {

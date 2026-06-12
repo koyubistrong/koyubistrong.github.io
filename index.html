@@ -15,6 +15,17 @@
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
     <title>KOYUBI</title>
 
+	<script>
+		try {
+			var initialTheme = localStorage.getItem("koyubi-theme");
+			if(initialTheme == "light" || initialTheme == "dark") {
+				document.documentElement.setAttribute("data-theme", initialTheme);
+			}
+		}
+		catch(error) {
+			// Use the system theme when localStorage is unavailable.
+		}
+	</script>
     <link rel="stylesheet" href="stylesheets/styles.css">
     <link rel="stylesheet" href="stylesheets/github-light.css">
     <script src="javascripts/theme.js" defer></script>
