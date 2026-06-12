@@ -13,6 +13,16 @@ var Shiren6Calc = (function() {
             Shiren6Calc.bDBInitNum = 0;
             Shiren6Calc.bInitMaxMonster = false;
             Shiren6Calc.graphMonster = null;
+            Shiren6Calc.currentSettingIndex = 0;
+            Shiren6Calc.settingValues = [{}, {}];
+            Shiren6Calc.defaultSettingValues = {};
+            Shiren6Calc.isLoadingSetting = false;
+            Shiren6Calc.STORAGE_KEY = "shiren6_calc_state_v1";
+            Shiren6Calc.STORAGE_VERSION = 2;
+            Shiren6Calc.storedState = Shiren6Calc.loadStoredState();
+            Shiren6Calc.initSettingTabs();
+            Shiren6Calc.restoreDisplaySettings();
+            Shiren6Calc.changeOneFloorStatus();
             getCSV(Shiren6Calc.readDataBase, "https://koyubistrong.github.io/shiren6/monster.html", "\t", "\n");
             //getCSV(Shiren6Calc.readMaxMonster, "https://koyubistrong.github.io/shiren5/max_level_monster.html", "\t", "\n");
             getCSV(Shiren6Calc.readMonsterTable.bind(null, "Shinzui"), "https://koyubistrong.github.io/shiren6/shinzui_monster_table.html", "\t", "\n");
@@ -24,6 +34,8 @@ var Shiren6Calc = (function() {
         }
       
         static calc() {
+            Shiren6Calc.saveCurrentSetting();
+            Shiren6Calc.saveStoredState();
             if(Shiren6Calc.isInit() == false) {
                 return;
             }
@@ -31,78 +43,6 @@ var Shiren6Calc = (function() {
                 //Shiren6Calc.initMaxMonster();
                 Shiren6Calc.bInitMaxMonster = true;
             }
-            var is_arrow_mode = document.getElementById("shiren6_weapon_arrow_mode").checked;
-
-            // 攻撃と防御の基本値計算
-            var level = parseInt(document.getElementById("shiren6_level").value);
-            var weapon = parseInt(document.getElementById("shiren6_weapon").value);
-            var power = parseInt(document.getElementById("shiren6_power").value);
-            var shield = parseInt(document.getElementById("shiren6_shield").value);
-            if(is_arrow_mode) {
-                weapon = parseInt(document.getElementById("shiren6_weapon_arrow").value);
-            }
-            var attack = Shiren6Calc.calcAttack(level, weapon, power, is_arrow_mode);
-            var defence = Shiren6Calc.calcDefence(shield);
-            //var hp = parseInt(document.getElementById("shiren6_hp").value);
-
-            // 特攻武器印系
-            var special = {};
-			special["ケモノ"] = (document.getElementById("shiren6_special_beast").checked) ? 50 : 0;
-			special["ゴースト"] = (document.getElementById("shiren6_special_gost").checked) ? 50 : 0;
-			special["ドラゴン"] = (document.getElementById("shiren6_special_dragon").checked) ? 50 : 0;
-			special["ドレイン"] = (document.getElementById("shiren6_special_drain").checked) ? 50 : 0;
-			special["一ツ目"] = (document.getElementById("shiren6_special_eye").checked) ? 50 : 0;
-			special["浮遊"] = (document.getElementById("shiren6_special_floating").checked) ? 50 : 0;
-            special["水棲"] = (document.getElementById("shiren6_special_water").checked) ? 50 : 0;
-			special["爆発"] = (document.getElementById("shiren6_special_explosion").checked) ? 50 : 0;
-			special["金属"] = (document.getElementById("shiren6_special_metal").checked) ? 50 : 0;
-
-            // 攻撃UP武器印系
-            var all_attack_rate = {};
-            var all_attack = 100;
-            all_attack += (document.getElementById("shiren6_special_twice").checked) ? 50 : 0;
-            all_attack += (document.getElementById("shiren6_special_money").checked) ? 50 : 0;
-            all_attack += (document.getElementById("shiren6_special_stomach").checked) ? 50 : 0;
-            all_attack += (document.getElementById("shiren6_special_hungry").checked) ? 100 : 0;
-            all_attack += (document.getElementById("shiren6_special_potential").checked) ? 50 : 0;
-            all_attack += (document.getElementById("shiren6_blow_conscience_me").checked) ? 50 : 0;
-            all_attack_rate["全"] = all_attack;
-
-            // 攻撃力アップ系
-            all_attack_rate["ドス"] = (document.getElementById("shiren6_dosukoi").checked) ? 150 : 100;
-            var power_up_me = parseInt(document.getElementById("shiren6_power_up_me").value);
-            var defence_up_enemy = parseInt(document.getElementById("shiren6_defence_up_enemy").value);
-            if(power_up_me >= 0) {
-                all_attack_rate["自攻U"] = 100 + power_up_me;
-                all_attack_rate["自攻D"] = 100;
-            }
-            else {
-                all_attack_rate["自攻U"] = 100;
-                all_attack_rate["自攻D"] = 100 + power_up_me;
-            }
-            if(defence_up_enemy >= 0) {
-                all_attack_rate["敵防D"] = 100 + defence_up_enemy;
-                all_attack_rate["敵防U"] = 100;
-            }
-            else {
-                all_attack_rate["敵防D"] = 100;
-                all_attack_rate["敵防U"] = 100 + defence_up_enemy;
-            }
-
-            // 割合軽減
-            var rate_shield = {}
-            rate_shield["腹力"] = (document.getElementById("shiren6_rate_stomach").checked) ? 70 : 100;
-            rate_shield["金食"] = (document.getElementById("shiren6_rate_money").checked) ? 70 : 100;
-            rate_shield["ハン"] = (document.getElementById("shiren6_rate_hungry").checked) ? 70 : 100;
-            rate_shield["守り"] = (document.getElementById("shiren6_rate_number").checked) ? 70 : 100;
-            rate_shield["満タン"] = (document.getElementById("shiren6_rate_max").checked) ? 50 : 100;
-            rate_shield["痛恨"] = (document.getElementById("shiren6_rate_tukon").checked) ? 45 : 100;
-
-            // お香系
-            all_attack_rate["守り"] = (document.getElementById("shiren6_incense_mamo").checked) ? 50 : 100;
-            all_attack_rate["攻め"] = (document.getElementById("shiren6_incense_seme").checked) ? 200 : 100;
-            rate_shield["守り"] = (document.getElementById("shiren6_incense_mamo").checked) ? 50 : 100;
-            rate_shield["攻め"] = (document.getElementById("shiren6_incense_seme").checked) ? 200 : 100;
 
             // モンスター一覧
             var dungeon = document.getElementById("shiren6_dungeon").value;
@@ -165,13 +105,469 @@ var Shiren6Calc = (function() {
                 return;
             }
             //Shiren6Calc.makeAttackMonsterTable(Shiren6Calc.dpMonster, attack, special);
-            var hp = 100, is_arrow_mode = false;
+            var hp = 100;
             var die_rate_num = 5;
-            var table = Shiren6Calc.calcAttackMonsterTable(monster_table, attack, special, all_attack_rate, defence, rate_shield, hp, is_arrow_mode, die_rate_num);
+            var setting = Shiren6Calc.getActiveSetting();
+            var compare_setting = Shiren6Calc.getCompareSetting();
+            var table = Shiren6Calc.calcAttackMonsterTableForSetting(monster_table, setting, hp, die_rate_num);
+            var compare_table = Shiren6Calc.calcAttackMonsterTableForSetting(monster_table, compare_setting, hp, die_rate_num);
+            Shiren6Calc.addCompareDamage(table, compare_table);
+            Shiren6Calc.sortResultTable(table);
             Shiren6Calc.viewAttackMonsterTable(table, die_rate_num);
             //Shiren6Calc.viewSuppressionTable(table, Shiren6Calc.dpMonsterTable["Genshi"], 9);
             Shiren6Calc.viewAttackMonsterGraph(table, die_rate_num);
             Shiren6Calc.changeDisplayType();
+        }
+
+        static calcAttackMonsterTableForSetting(monster_table, setting, hp, die_rate_num) {
+            var is_arrow_mode = Shiren6Calc.getSettingChecked(setting, "shiren6_weapon_arrow_mode");
+            var player = Shiren6Calc.getPlayer(setting);
+
+            // 攻撃と防御の基本値計算
+            var level = parseInt(Shiren6Calc.getSettingValue(setting, "shiren6_level"));
+            var weapon = parseInt(Shiren6Calc.getSettingValue(setting, "shiren6_weapon"));
+            var power = parseInt(Shiren6Calc.getSettingValue(setting, "shiren6_power"));
+            var shield = parseInt(Shiren6Calc.getSettingValue(setting, "shiren6_shield"));
+            if(is_arrow_mode) {
+                weapon = parseInt(Shiren6Calc.getSettingValue(setting, "shiren6_weapon_arrow"));
+            }
+            var attack = Shiren6Calc.calcAttack(level, weapon, power, is_arrow_mode, player);
+            var defence = Shiren6Calc.calcDefence(shield, player);
+
+            // 特攻武器印系
+            var special = {};
+			special["ケモノ"] = Shiren6Calc.getSettingChecked(setting, "shiren6_special_beast") ? 50 : 0;
+			special["ゴースト"] = Shiren6Calc.getSettingChecked(setting, "shiren6_special_gost") ? 50 : 0;
+			special["ドラゴン"] = Shiren6Calc.getSettingChecked(setting, "shiren6_special_dragon") ? 50 : 0;
+			special["ドレイン"] = Shiren6Calc.getSettingChecked(setting, "shiren6_special_drain") ? 50 : 0;
+			special["一ツ目"] = Shiren6Calc.getSettingChecked(setting, "shiren6_special_eye") ? 50 : 0;
+			special["浮遊"] = Shiren6Calc.getSettingChecked(setting, "shiren6_special_floating") ? 50 : 0;
+            special["水棲"] = Shiren6Calc.getSettingChecked(setting, "shiren6_special_water") ? 50 : 0;
+			special["爆発"] = Shiren6Calc.getSettingChecked(setting, "shiren6_special_explosion") ? 50 : 0;
+			special["金属"] = Shiren6Calc.getSettingChecked(setting, "shiren6_special_metal") ? 50 : 0;
+
+            // 攻撃UP武器印系
+            var all_attack_rate = {};
+            var all_attack = 100;
+            all_attack += Shiren6Calc.getSettingChecked(setting, "shiren6_special_twice") ? 50 : 0;
+            all_attack += Shiren6Calc.getSettingChecked(setting, "shiren6_special_money") ? 50 : 0;
+            all_attack += Shiren6Calc.getSettingChecked(setting, "shiren6_special_stomach") ? 50 : 0;
+            all_attack += Shiren6Calc.getSettingChecked(setting, "shiren6_special_hungry") ? 100 : 0;
+            all_attack += Shiren6Calc.getSettingChecked(setting, "shiren6_special_potential") ? 50 : 0;
+            all_attack += Shiren6Calc.getSettingChecked(setting, "shiren6_blow_conscience_me") ? Shiren6Calc.getCriticalAttackBonus(player) : 0;
+            all_attack_rate["全"] = all_attack;
+
+            // 攻撃力アップ系
+            all_attack_rate["ドス"] = Shiren6Calc.getSettingChecked(setting, "shiren6_dosukoi") ? 150 : 100;
+            var power_up_me = parseInt(Shiren6Calc.getSettingValue(setting, "shiren6_power_up_me"));
+            var defence_up_enemy = parseInt(Shiren6Calc.getSettingValue(setting, "shiren6_defence_up_enemy"));
+            if(power_up_me >= 0) {
+                all_attack_rate["自攻U"] = 100 + power_up_me;
+                all_attack_rate["自攻D"] = 100;
+            }
+            else {
+                all_attack_rate["自攻U"] = 100;
+                all_attack_rate["自攻D"] = 100 + power_up_me;
+            }
+            if(defence_up_enemy >= 0) {
+                all_attack_rate["敵防D"] = 100 + defence_up_enemy;
+                all_attack_rate["敵防U"] = 100;
+            }
+            else {
+                all_attack_rate["敵防D"] = 100;
+                all_attack_rate["敵防U"] = 100 + defence_up_enemy;
+            }
+
+            // 割合軽減
+            var rate_shield = {};
+            rate_shield["腹力"] = Shiren6Calc.getSettingChecked(setting, "shiren6_rate_stomach") ? 70 : 100;
+            rate_shield["金食"] = Shiren6Calc.getSettingChecked(setting, "shiren6_rate_money") ? 70 : 100;
+            rate_shield["ハン"] = Shiren6Calc.getSettingChecked(setting, "shiren6_rate_hungry") ? 70 : 100;
+            rate_shield["数字守り"] = Shiren6Calc.getSettingChecked(setting, "shiren6_rate_number") ? 70 : 100;
+            rate_shield["満タン"] = Shiren6Calc.getSettingChecked(setting, "shiren6_rate_max") ? 50 : 100;
+            rate_shield["痛恨"] = Shiren6Calc.getSettingChecked(setting, "shiren6_rate_tukon") ? 45 : 100;
+
+            // お香系
+            all_attack_rate["守り"] = Shiren6Calc.getSettingChecked(setting, "shiren6_incense_mamo") ? 50 : 100;
+            all_attack_rate["攻め"] = Shiren6Calc.getSettingChecked(setting, "shiren6_incense_seme") ? 200 : 100;
+            rate_shield["守り"] = Shiren6Calc.getSettingChecked(setting, "shiren6_incense_mamo") ? 50 : 100;
+            rate_shield["攻め"] = Shiren6Calc.getSettingChecked(setting, "shiren6_incense_seme") ? 200 : 100;
+
+            return Shiren6Calc.calcAttackMonsterTable(monster_table, attack, special, all_attack_rate, defence, rate_shield, hp, is_arrow_mode, die_rate_num);
+        }
+
+        static initSettingTabs() {
+            var setting = Shiren6Calc.collectSettingValues();
+            Shiren6Calc.defaultSettingValues = Object.assign({}, setting);
+            Shiren6Calc.settingValues[0] = Object.assign({}, setting);
+            Shiren6Calc.settingValues[1] = Object.assign({}, setting);
+            if(Shiren6Calc.storedState != null && Array.isArray(Shiren6Calc.storedState.settingValues)) {
+                for(var i = 0; i < 2; i++) {
+                    if(Shiren6Calc.storedState.settingValues[i] != null) {
+                        Shiren6Calc.settingValues[i] = Object.assign({}, setting, Shiren6Calc.storedState.settingValues[i]);
+                    }
+                }
+            }
+            if(Shiren6Calc.storedState != null && (Shiren6Calc.storedState.currentSettingIndex == 0 || Shiren6Calc.storedState.currentSettingIndex == 1)) {
+                Shiren6Calc.currentSettingIndex = Shiren6Calc.storedState.currentSettingIndex;
+            }
+            Shiren6Calc.loadSetting(Shiren6Calc.currentSettingIndex);
+            Shiren6Calc.updateSettingTabs();
+        }
+
+        static collectSettingValues() {
+            return Shiren6Calc.collectElementValues("shiren6_calc_setting_table");
+        }
+
+        static collectDisplayValues() {
+            return Shiren6Calc.collectElementValues("shiren6_display_setting_table");
+        }
+
+        static collectElementValues(parent_id) {
+            var result = {};
+            var parent = document.getElementById(parent_id);
+            if(parent == null) {
+                return result;
+            }
+            var inputs = parent.querySelectorAll("input, select");
+            for(var i = 0; i < inputs.length; i++) {
+                var elem = inputs[i];
+                if(elem.id == null || elem.id == "") {
+                    continue;
+                }
+                if(elem.type == "checkbox" || elem.type == "radio") {
+                    result[elem.id] = elem.checked;
+                }
+                else {
+                    result[elem.id] = elem.value;
+                }
+            }
+            return result;
+        }
+
+        static restoreDisplaySettings() {
+            if(Shiren6Calc.storedState == null || Shiren6Calc.storedState.displayValues == null) {
+                return;
+            }
+            Shiren6Calc.applyElementValues("shiren6_display_setting_table", Shiren6Calc.storedState.displayValues);
+        }
+
+        static applyElementValues(parent_id, values) {
+            var parent = document.getElementById(parent_id);
+            if(parent == null || values == null) {
+                return;
+            }
+            var inputs = parent.querySelectorAll("input, select");
+            for(var i = 0; i < inputs.length; i++) {
+                var elem = inputs[i];
+                if(elem.id == null || elem.id == "" || values[elem.id] == null) {
+                    continue;
+                }
+                if(elem.type == "checkbox" || elem.type == "radio") {
+                    elem.checked = values[elem.id];
+                }
+                else {
+                    elem.value = values[elem.id];
+                }
+            }
+        }
+
+        static loadStoredState() {
+            try {
+                var json = localStorage.getItem(Shiren6Calc.STORAGE_KEY);
+                if(json == null || json == "") {
+                    return null;
+                }
+                var state = JSON.parse(json);
+                if(state.version !== Shiren6Calc.STORAGE_VERSION) {
+                    if(state.displayValues != null) {
+                        delete state.displayValues.shiren6_show_damage_diff;
+                    }
+                    state.version = Shiren6Calc.STORAGE_VERSION;
+                }
+                return state;
+            }
+            catch(e) {
+                console.log("shiren6 localStorage load error", e);
+                return null;
+            }
+        }
+
+        static saveStoredState() {
+            try {
+                var state = {
+                    version: Shiren6Calc.STORAGE_VERSION,
+                    settingValues: Shiren6Calc.settingValues,
+                    currentSettingIndex: Shiren6Calc.currentSettingIndex,
+                    displayValues: Shiren6Calc.collectDisplayValues()
+                };
+                localStorage.setItem(Shiren6Calc.STORAGE_KEY, JSON.stringify(state));
+            }
+            catch(e) {
+                console.log("shiren6 localStorage save error", e);
+            }
+        }
+
+        static saveCurrentSetting() {
+            if(Shiren6Calc.isLoadingSetting) {
+                return;
+            }
+            if(Shiren6Calc.settingValues == null) {
+                return;
+            }
+            Shiren6Calc.settingValues[Shiren6Calc.currentSettingIndex] = Shiren6Calc.collectSettingValues();
+        }
+
+        static loadSetting(index) {
+            var setting = Shiren6Calc.settingValues[index];
+            if(setting == null) {
+                return;
+            }
+            var table = document.getElementById("shiren6_calc_setting_table");
+            if(table == null) {
+                return;
+            }
+            var inputs = table.querySelectorAll("input, select");
+            Shiren6Calc.isLoadingSetting = true;
+            for(var i = 0; i < inputs.length; i++) {
+                var elem = inputs[i];
+                if(elem.id == null || elem.id == "" || setting[elem.id] == null) {
+                    continue;
+                }
+                if(elem.type == "checkbox" || elem.type == "radio") {
+                    elem.checked = setting[elem.id];
+                }
+                else {
+                    elem.value = setting[elem.id];
+                }
+            }
+            Shiren6Calc.isLoadingSetting = false;
+            Shiren6Calc.changeArrowMode();
+        }
+
+        static switchSetting(index) {
+            if(index == Shiren6Calc.currentSettingIndex) {
+                return;
+            }
+            Shiren6Calc.saveCurrentSetting();
+            Shiren6Calc.currentSettingIndex = index;
+            Shiren6Calc.loadSetting(index);
+            Shiren6Calc.updateSettingTabs();
+            Shiren6Calc.calc();
+        }
+
+        static resetCurrentSetting() {
+            if(Shiren6Calc.settingValues == null || Shiren6Calc.defaultSettingValues == null) {
+                return;
+            }
+            var setting_name = Shiren6Calc.getCurrentSettingName();
+            if(confirm(setting_name + "をデフォルトに戻します。よろしいですか？") == false) {
+                return;
+            }
+            Shiren6Calc.settingValues[Shiren6Calc.currentSettingIndex] = Object.assign({}, Shiren6Calc.defaultSettingValues);
+            Shiren6Calc.loadSetting(Shiren6Calc.currentSettingIndex);
+            Shiren6Calc.saveStoredState();
+            Shiren6Calc.calc();
+        }
+
+        static copyCompareSettingToCurrent() {
+            if(Shiren6Calc.settingValues == null) {
+                return;
+            }
+            var source_index = 1 - Shiren6Calc.currentSettingIndex;
+            var source_name = Shiren6Calc.getSettingName(source_index);
+            var current_name = Shiren6Calc.getCurrentSettingName();
+            if(confirm(source_name + "を" + current_name + "へコピーします。" + current_name + "の現在の内容は上書きされます。よろしいですか？") == false) {
+                return;
+            }
+            Shiren6Calc.settingValues[Shiren6Calc.currentSettingIndex] = Object.assign({}, Shiren6Calc.settingValues[source_index]);
+            Shiren6Calc.loadSetting(Shiren6Calc.currentSettingIndex);
+            Shiren6Calc.saveStoredState();
+            Shiren6Calc.calc();
+        }
+
+        static getCurrentSettingName() {
+            return Shiren6Calc.getSettingName(Shiren6Calc.currentSettingIndex);
+        }
+
+        static getSettingName(index) {
+            return index == 0 ? "設定A" : "設定B";
+        }
+
+        static updateSettingTabs() {
+            for(var i = 0; i < 2; i++) {
+                var tab = document.getElementById("shiren6_setting_tab_" + (i + 1));
+                if(tab == null) {
+                    continue;
+                }
+                var active = i == Shiren6Calc.currentSettingIndex;
+                tab.classList.toggle("is-active", active);
+                tab.setAttribute("aria-selected", active ? "true" : "false");
+            }
+        }
+
+        static getActiveSetting() {
+            if(Shiren6Calc.settingValues == null) {
+                return Shiren6Calc.collectSettingValues();
+            }
+            return Shiren6Calc.settingValues[Shiren6Calc.currentSettingIndex];
+        }
+
+        static getCompareSetting() {
+            if(Shiren6Calc.settingValues == null) {
+                return Shiren6Calc.collectSettingValues();
+            }
+            return Shiren6Calc.settingValues[1 - Shiren6Calc.currentSettingIndex];
+        }
+
+        static getSettingValue(setting, id) {
+            if(setting != null && setting[id] != null) {
+                return setting[id];
+            }
+            var elem = document.getElementById(id);
+            if(elem == null) {
+                return "";
+            }
+            return elem.value;
+        }
+
+        static getSettingChecked(setting, id) {
+            if(setting != null && setting[id] != null) {
+                return setting[id] == true;
+            }
+            var elem = document.getElementById(id);
+            return elem != null && elem.checked;
+        }
+
+        static getPlayer(setting) {
+            return Shiren6Calc.getSettingChecked(setting, "shiren6_player_asuka") ? "asuka" : "shiren";
+        }
+
+        static getCriticalAttackBonus(player) {
+            return player == "asuka" ? 200 : 50;
+        }
+
+        static addCompareDamage(table, compare_table) {
+            var compare = {};
+            for(var i = 0; i < compare_table.length; i++) {
+                compare[compare_table[i].name] = compare_table[i];
+            }
+            for(var i = 0; i < table.length; i++) {
+                var base = compare[table[i].name];
+                if(base == null) {
+                    table[i].min_defence_diff = 0;
+                    table[i].max_defence_diff = 0;
+                    table[i].min_attack_diff = 0;
+                    table[i].max_attack_diff = 0;
+                    table[i].defence_median_diff = 0;
+                    table[i].attack_median_diff = 0;
+                    table[i].compare_die_rate_text = "";
+                    table[i].compare_die_rate_class = "shiren6-diff-even";
+                    continue;
+                }
+                table[i].min_defence_diff = table[i].min_defence - base.min_defence;
+                table[i].max_defence_diff = table[i].max_defence - base.max_defence;
+                table[i].min_attack_diff = table[i].min_attack - base.min_attack;
+                table[i].max_attack_diff = table[i].max_attack - base.max_attack;
+                table[i].defence_median_diff = (table[i].min_defence + table[i].max_defence) / 2 - (base.min_defence + base.max_defence) / 2;
+                table[i].attack_median_diff = (table[i].min_attack + table[i].max_attack) / 2 - (base.min_attack + base.max_attack) / 2;
+                table[i].compare_die_rate_text = Shiren6Calc.formatDieRate(base, table[i].die_rates.length);
+                table[i].compare_die_rate_class = "shiren6-diff-even";
+            }
+        }
+
+        static formatSigned(value) {
+            value = Math.round(value * 10) / 10;
+            if(Math.abs(value) < 0.05) {
+                value = 0;
+            }
+            var text = Number.isInteger(value) ? value.toString() : value.toFixed(1);
+            if(value > 0) {
+                return "+" + text;
+            }
+            if(value < 0) {
+                return text;
+            }
+            return "±0";
+        }
+
+        static formatDamageWithDiff(min, max, diff, lower_is_better) {
+            var damage_text = min + "-" + max;
+            if(document.getElementById("shiren6_show_damage_diff").checked == false) {
+                return damage_text;
+            }
+            var diff_class = lower_is_better ? Shiren6Calc.getReverseDiffClass(diff) : Shiren6Calc.getDiffClass(diff);
+            return Shiren6Calc.formatCompareCell(damage_text, Shiren6Calc.formatSigned(diff), diff_class);
+        }
+
+        static formatDieRate(info, die_rate_num) {
+            var die_rate_info = Shiren6Calc.getDieRateInfo(info, die_rate_num);
+            if(die_rate_info.rate == null) {
+                return "[" + die_rate_info.turn + "↑] -";
+            }
+            return "[" + die_rate_info.turn + "] " + die_rate_info.rate + "%";
+        }
+
+        static getDieRateInfo(info, die_rate_num) {
+            var j = 0;
+            for(; j < die_rate_num; j++) {
+                if(info.die_rates[j] > 0.0) {
+                    var die_rate = Math.floor(info.die_rates[j]);
+                    if(die_rate <= 0.0) {
+                        die_rate = 1;
+                    }
+                    return {
+                        turn: j + 1,
+                        rate: die_rate
+                    };
+                }
+            }
+            return {
+                turn: j + 1,
+                rate: null
+            };
+        }
+
+        static formatDieRateWithCompare(info, die_rate_num) {
+            var die_rate_text = Shiren6Calc.formatDieRate(info, die_rate_num);
+            if(document.getElementById("shiren6_show_damage_diff").checked == false || info.compare_die_rate_text == "") {
+                return die_rate_text;
+            }
+            return Shiren6Calc.formatCompareCell(die_rate_text, info.compare_die_rate_text, info.compare_die_rate_class);
+        }
+
+        static formatCompareCell(main_text, compare_text, compare_class) {
+            return '<span class="shiren6-compare-cell"><span>' + main_text + '</span><span class="' + compare_class + '">' + compare_text + "</span></span>";
+        }
+
+        static getDiffClass(value) {
+            if(value > 0) {
+                return "shiren6-diff-plus";
+            }
+            if(value < 0) {
+                return "shiren6-diff-minus";
+            }
+            return "shiren6-diff-even";
+        }
+
+        static getReverseDiffClass(value) {
+            if(value < 0) {
+                return "shiren6-diff-plus";
+            }
+            if(value > 0) {
+                return "shiren6-diff-minus";
+            }
+            return "shiren6-diff-even";
+        }
+
+        static sortResultTable(result) {
+            var sort_val = document.getElementById("shiren6_table_sort_type").value;
+            if(sort_val != "") {
+                result.sort(function(a, b) {
+                    var sign = (document.getElementById("shiren6_table_sort_by_asc").checked) ? 1 : -1;
+                    return (a[sort_val] > b[sort_val]) ? (1 * sign) : (-1 * sign);
+                });
+            }
         }
 
         static calcAttackMonsterTable(monster_table, attack, special, all_attack_rate, defence, rate_shield, hp, is_arrow_mode, die_rate_num) {
@@ -185,7 +581,7 @@ var Shiren6Calc = (function() {
             multi_attack["バシャーガ"] = 4;
             
             var all_attack_type = ["全", "ドス", "パワ", "攻め", "守り", "自攻U", "敵防U", "敵防D", "自攻D"];
-            var all_defence_type = ["腹力", "金食", "ハン", "攻め", "守り", "満タン", "痛恨"];
+            var all_defence_type = ["腹力", "金食", "ハン", "数字守り", "攻め", "守り", "満タン", "痛恨"];
             var all_attack_offset = all_attack_rate["全"];
             var result = new Array(monster_table.length);
             for(var i = 0; i < monster_table.length; i++) {
@@ -224,13 +620,6 @@ var Shiren6Calc = (function() {
                 min_attack = all_attack[0];
                 max_attack = all_attack[range_attack - 1];
   
-                if(min_defence < 1) min_defence = 1;
-                if(max_defence < 1) max_defence = 1;
-                if(multi_attack[monster.name] != null) {
-                    min_defence *= multi_attack[monster.name];
-                    max_defence *= multi_attack[monster.name];
-                }
-
                     // 正確な倒確率計算
                 var die_rates = Shiren6Calc.calcDieRate(monster.hp, all_attack, die_rate_num);
 
@@ -248,9 +637,16 @@ var Shiren6Calc = (function() {
                     if(rand_attack < 1) rand_attack = 1;
                     all_monster_attack[ct] = Math.round(rand_attack);
                 }
-
+                
                 var min_defence = all_monster_attack[0];
-                var max_defence = all_monster_attack[range_attack - 1];
+                var max_defence = all_monster_attack[all_monster_attack.length - 1];
+                if(multi_attack[monster.name] != null) {
+                    for(var j = 0; j < all_monster_attack.length; j++) {
+                        all_monster_attack[j] *= multi_attack[monster.name];
+                    }
+                    min_defence *= multi_attack[monster.name];
+                    max_defence *= multi_attack[monster.name];
+                }
 
                     // 正確な倒確率計算
                 var me_die_rates = Shiren6Calc.calcDieRate(hp, all_monster_attack, die_rate_num);
@@ -308,14 +704,6 @@ var Shiren6Calc = (function() {
                     info.die_rate_tonum = j * 100;
                 }
                 result[i] = info;
-            }
-
-            var sort_val = document.getElementById("shiren6_table_sort_type").value;
-            if(sort_val != "") {
-                result.sort(function(a, b) {
-                    var sign = (document.getElementById("shiren6_table_sort_by_asc").checked) ? 1 : -1;
-                    return (a[sort_val] > b[sort_val]) ? (1 * sign) : (-1 * sign);
-                });
             }
 
             return result;
@@ -400,32 +788,19 @@ var Shiren6Calc = (function() {
                 td.innerHTML = table[i].name;
                 tr.appendChild(td);
                 td = document.createElement("td");
-                td.innerHTML = table[i].min_defence + "-" + table[i].max_defence;
+                td.innerHTML = Shiren6Calc.formatDamageWithDiff(table[i].min_defence, table[i].max_defence, table[i].defence_median_diff, true);
                 td.style = "text-align: center;"
                 tr.appendChild(td);
                 td = document.createElement("td");
-                td.innerHTML = table[i].min_attack + "-" + table[i].max_attack;
+                td.innerHTML = Shiren6Calc.formatDamageWithDiff(table[i].min_attack, table[i].max_attack, table[i].attack_median_diff, false);
                 td.style = "text-align: center;"
                 tr.appendChild(td);
                 td = document.createElement("td");
-                td.innerHTML = table[i].hp;
-                td.style = "text-align: left;"
+                td.innerHTML = '<span class="shiren6-hp-value">' + table[i].hp + '</span>';
+                td.style = "text-align: center;"
                 tr.appendChild(td);
                 td = document.createElement("td");
-                var j = 0;
-                for(; j < die_rate_num; j++) {
-                    if(table[i].die_rates[j] > 0.0) {
-                        var die_rate = Math.floor(table[i].die_rates[j]);
-                        if(die_rate <= 0.0) {
-                            die_rate = 1;
-                        }
-                        td.innerHTML = "[" + (j + 1) + "] " + die_rate + "%";
-                        break;
-                    }
-                }
-                if(j >= die_rate_num) {
-                    td.innerHTML = "[" + (j + 1) + "↑] -";
-                }
+                td.innerHTML = Shiren6Calc.formatDieRateWithCompare(table[i], die_rate_num);
                 td.style = "text-align: left;"
                 tr.appendChild(td);
                 /*
@@ -575,10 +950,11 @@ var Shiren6Calc = (function() {
               });
         }
 
-        static calcAttack(level, weapon, power, is_arrow_mode) {
+        static calcAttack(level, weapon, power, is_arrow_mode, player) {
             // 攻撃力＝ちから攻撃力＋武器攻撃力＋レベル攻撃力
             // 　　　　ちから攻撃力＝ちからの値
-            // 　　　　武器攻撃力＝武器の強さ×(0.75+ちからの値/32)
+            // 　　　　武器攻撃力＝武器の強さ×(0.75+ちからの値/32)     （シレン）
+            // 　　　　　　　　　　武器の強さ×0.9769+武器の強さ×0.04061×ちから （アスカ）
             // 　　　　レベル攻撃力＝1+(レベル-1)×1.5        （レベル≦5）
             // 　　　　　　　　　　　7.5+ (レベル-5)×1       （6≦レベル≦13）
             // 　　　　　　　　　　　15.5+(レベル-13)×0.5 （14≦レベル）【暫定】
@@ -593,14 +969,20 @@ var Shiren6Calc = (function() {
                 level_attack = 15.5 + (level - 13) * 0.5;
             }
             var weapon_attack = weapon * (0.75 + power / 32.0);
-            if(is_arrow_mode) {
-                weapon_attack = weapon * (0.75 + power / 32.0);
+            if(player == "asuka") {
+                weapon_attack = weapon * 0.9769 + weapon * 0.04061 * power;
             }
             var power_attack = power;
             return level_attack + weapon_attack + power_attack;
         }
 
-        static calcDefence(shield) {
+        static calcDefence(shield, player) {
+            if(player == "asuka") {
+                if(shield <= 40) {
+                    return shield * 0.5;
+                }
+                return 20 + (shield - 40) * 0.3;
+            }
             var defence = shield;
             if(shield >= 21) {
                 defence = 20 + (shield - 20) * 0.6
@@ -751,11 +1133,11 @@ var Shiren6Calc = (function() {
         static clickDisplayText() {
             if(document.getElementById("shiren6_display_setting_table").style.display == "none") {
                 document.getElementById("shiren6_display_setting_table").style.display = "block";
-                document.getElementById("shiren6_display_setting_text").innerText = "+ 表示設定";
+                document.getElementById("shiren6_display_setting_text").innerText = "- 表示設定";
             }
             else {
                 document.getElementById("shiren6_display_setting_table").style.display = "none";
-                document.getElementById("shiren6_display_setting_text").innerText = "- 表示設定";
+                document.getElementById("shiren6_display_setting_text").innerText = "+ 表示設定";
             }
         }
         static changeDisplayType() {
@@ -767,6 +1149,7 @@ var Shiren6Calc = (function() {
                 document.getElementById("shiren6_monster_table").style.display = "none";
                 document.getElementById("shiren6_monster_graph").style.display = "";
             }
+            Shiren6Calc.saveStoredState();
         }
     }
    

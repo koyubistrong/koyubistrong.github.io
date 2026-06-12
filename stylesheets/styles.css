@@ -423,12 +423,13 @@ label {
 
 button,
 .btn {
-  min-height: 32px;
-  padding: 5px 12px;
+  min-height: 28px;
+  padding: 3px 10px;
   border: 1px solid var(--accent);
   border-radius: 6px;
   background: var(--accent);
   color: #ffffff;
+  font-size: 13px;
   font-weight: 700;
   cursor: pointer;
   transition: background-color 120ms ease, border-color 120ms ease, transform 120ms ease;
@@ -466,6 +467,80 @@ button:active,
   overflow-x: auto;
 }
 
+.shiren-setting-tabs {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  margin: 8px 0 0;
+  border-bottom: 1px solid var(--border-strong);
+}
+
+.shiren-setting-tab {
+  min-width: 72px;
+  margin: 0 0 -1px;
+  padding: 7px 14px 6px;
+  border: 1px solid var(--border-strong);
+  border-bottom-color: var(--border-strong);
+  border-radius: 7px 7px 0 0;
+  background: var(--surface-soft);
+  color: var(--text);
+  box-shadow: none;
+}
+
+.shiren-setting-tab:hover {
+  border-color: var(--border-strong);
+  background: var(--accent-soft);
+  color: var(--text);
+}
+
+.shiren-setting-tab.is-active {
+  position: relative;
+  border-color: var(--border-strong);
+  border-bottom-color: var(--surface);
+  background: var(--surface);
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.shiren-setting-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  margin: 0 0 3px auto;
+}
+
+.shiren-setting-actions button {
+  border-color: var(--border-strong);
+  background: var(--surface-soft);
+  color: var(--text);
+}
+
+.shiren-setting-actions button:hover {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--text);
+}
+
+.shiren6-hp-value {
+  display: inline-block;
+  min-width: 4ch;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#shiren5_calc_setting_table tr:first-child,
+#shiren6_calc_setting_table tr:first-child {
+  display: none;
+}
+
+#shiren5_calc_setting_table,
+#shiren6_calc_setting_table {
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+
 #shiren5_monster_table,
 #shiren2_monster_table,
 #shiren6_monster_table {
@@ -473,11 +548,40 @@ button:active,
   font-size: 13px;
 }
 
+.shiren6-compare-cell {
+  display: inline-grid;
+  grid-template-columns: minmax(58px, max-content) max-content;
+  column-gap: 6px;
+  align-items: baseline;
+}
+
+.shiren6-diff-plus {
+  display: inline-block;
+  font-size: 12px;
+  color: #16a34a;
+  font-weight: 700;
+}
+
+.shiren6-diff-minus {
+  display: inline-block;
+  font-size: 12px;
+  color: #dc2626;
+  font-weight: 700;
+}
+
+.shiren6-diff-even {
+  display: inline-block;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+#shiren5_display_setting_text,
 #shiren6_display_setting_text {
   cursor: pointer;
   color: var(--accent);
 }
 
+#shiren5_display_setting_text:hover,
 #shiren6_display_setting_text:hover {
   color: var(--accent-hover);
 }

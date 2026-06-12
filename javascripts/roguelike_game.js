@@ -14,9 +14,29 @@ var RogueGame = (function() {
         makeGraph(color) {
             let rad = this.cell_size / 2;
             let grpChara = this.grpChara;
+            grpChara.clear();
+            if(color == 0xFF0000) {
+                grpChara.beginFill(0xff3b30);
+                grpChara.lineStyle(0);
+                grpChara.drawRect(0, 0, this.cell_size, this.cell_size);
+                grpChara.endFill();
+                grpChara.x = this.divUnit(this.rx) + this.n_draw_offset_X;
+                grpChara.y = this.divUnit(this.ry) + this.n_draw_offset_Y;
+                return;
+            }
+            if(color == 0x0000FF) {
+                grpChara.beginFill(0x60a5fa);
+                grpChara.lineStyle(0);
+                grpChara.drawRect(0, 0, this.cell_size, this.cell_size);
+                grpChara.endFill();
+                grpChara.x = this.divUnit(this.rx) + this.n_draw_offset_X;
+                grpChara.y = this.divUnit(this.ry) + this.n_draw_offset_Y;
+                return;
+            }
             grpChara.beginFill(color);
             grpChara.lineStyle(0);
             grpChara.drawCircle(rad, rad, rad);
+            grpChara.endFill();
             grpChara.x = this.divUnit(this.rx) + this.n_draw_offset_X;
             grpChara.y = this.divUnit(this.ry) + this.n_draw_offset_Y;
         }
@@ -153,6 +173,36 @@ var RogueGame = (function() {
                 return null;
             }
             return {charactor: info.mapInfo[dy][dx].charactor, x: dx, y: dy};
+        }
+
+        selectMoveToward(info, x, y, tx, ty, base_direction) {
+            let best = null;
+            let cur_dist = Math.max(Math.abs(tx - x), Math.abs(ty - y));
+            for(let i = 0; i < direction8.length; i++) {
+                let direction = direction8[i];
+                let pos = this.canMove(info, x, y, direction);
+                if(pos == null) {
+                    continue;
+                }
+                let remain_x = tx - pos.x;
+                let remain_y = ty - pos.y;
+                let dist = Math.max(Math.abs(remain_x), Math.abs(remain_y));
+                if(dist > cur_dist) {
+                    continue;
+                }
+                let score = dist * 10000;
+                score += (remain_x * remain_x + remain_y * remain_y) * 100;
+                if(direction.diagonal) {
+                    score -= 10;
+                }
+                if(base_direction != null && direction.x == base_direction.x && direction.y == base_direction.y) {
+                    score -= 5;
+                }
+                if(best == null || score < best.score) {
+                    best = {x: direction.x, y: direction.y, score: score};
+                }
+            }
+            return best;
         }
     }
 
@@ -301,30 +351,33 @@ var RogueGame = (function() {
 
             let diff_x = Math.sign(ch.tx - ch.x);
             let diff_y = Math.sign(ch.ty - ch.y);
-            let target_trace = super.searchObject(info, {POS: {x: ch.tx, y: ch.ty}}, {x: ch.x, y: ch.y}, true, true, false);
-            if(target_trace.length == 0) {
-                target_trace = super.searchObject(info, {POS: {x: ch.tx, y: ch.ty}}, {x: ch.x, y: ch.y}, false, true, true);
+            let target_adjacent = target_find &&
+                Math.max(Math.abs(ch.tx - ch.x), Math.abs(ch.ty - ch.y)) <= 1 &&
+                info.mapInfo[ch.ty][ch.tx].charactor == info.player;
+            let pos = super.canMove(info, ch.x, ch.y, {x: diff_x, y: diff_y});
+            if(!target_adjacent && pos == null) {
+                let target_trace = super.searchObject(info, {POS: {x: ch.tx, y: ch.ty}}, {x: ch.x, y: ch.y}, true, true, false);
+                if(target_trace.length == 0) {
+                    target_trace = super.searchObject(info, {POS: {x: ch.tx, y: ch.ty}}, {x: ch.x, y: ch.y}, false, true, true);
+                }
+                if(target_trace.length > 0 && target_trace[0].trace.length > 0) {
+                    diff_x = Math.sign(target_trace[0].trace[target_trace[0].trace.length - 1].x - ch.x);
+                    diff_y = Math.sign(target_trace[0].trace[target_trace[0].trace.length - 1].y - ch.y);
+                }
             }
-            if(target_trace.length > 0 && target_trace[0].trace.length > 0) {
-                diff_x = Math.sign(target_trace[0].trace[target_trace[0].trace.length - 1].x - ch.x);
-                diff_y = Math.sign(target_trace[0].trace[target_trace[0].trace.length - 1].y - ch.y);
+            if(!target_adjacent) {
+                let best_move = super.selectMoveToward(info, ch.x, ch.y, ch.tx, ch.ty, direction);
+                if(best_move != null) {
+                    diff_x = best_move.x;
+                    diff_y = best_move.y;
+                }
             }
 
-            if(target_find && info.mapInfo[ch.y + diff_y][ch.x + diff_x].charactor == info.player) {
+            if(target_adjacent) {
                 // 目標(プレイヤー)と隣接していた場合の処理
             }
             else {
-                if(info.mapInfo[ch.y][ch.x + diff_x].charactor != null) {
-                    diff_x = 0;
-                }
-                if(info.mapInfo[ch.y + diff_y][ch.x].charactor != null) {
-                    diff_y = 0;
-                }
-                if(info.mapInfo[ch.y + diff_y][ch.x + diff_x].type == ObjType.WALL) {
-                    diff_x = 0;
-                    diff_y = 0;
-                }
-                if(info.mapInfo[ch.y + diff_y][ch.x + diff_x].charactor != null) {
+                if(super.canMove(info, ch.x, ch.y, {x: diff_x, y: diff_y}) == null) {
                     diff_x = 0;
                     diff_y = 0;
                 }
@@ -403,10 +456,10 @@ var RogueGame = (function() {
             this.dire_for_search = [];
             for(let i = 0; i < 2; i++) {
                 for(let j = 0; j < direction8.length; j++) {
-                    if(i == 0 && !direction8[j].diagonal) {
+                    if(i == 0 && direction8[j].diagonal) {
                         this.dire_for_search.push(direction8[j]);
                     }
-                    if(i == 1 && direction8[j].diagonal) {
+                    if(i == 1 && !direction8[j].diagonal) {
                         this.dire_for_search.push(direction8[j]);
                     }
                 }
@@ -479,7 +532,7 @@ var RogueGame = (function() {
                     this.textVersion = new PIXI.Text;
                     this.textVersion.style = {font:'メイリオ', fontSize: 20, fill:'white',
                                             stroke: 'white', strokeThickness: 1, align: "center"};
-                    this.textVersion.text = "Ver. 1.0.0";
+                    this.textVersion.text = "Ver. 1.0.1";
                     this.textVersion.x = this.nDispSizeX - this.nDispSizeX / 5;
                     this.textVersion.y = this.nDispSizeY - this.nDispSizeY / 12;
 
@@ -862,6 +915,36 @@ var RogueGame = (function() {
             this.init('DIAGONAL_CERT');
         }
 
+        getTweetUrl() {
+            let text = "斜め軸検定";
+            text += (this.bPracticeMode) ? "練習" : "本番";
+            text += "で";
+            let level = ["初級", "中級", "上級", "超上級"];
+            text += level[this.nDiffcult - 1];
+            text += (this.bTransMode) ? "(透明壁)" : "";
+            if(this.bClear) {
+                text += "に合格しました。";
+            }
+            else {
+                text += "に合格できませんでした。";
+            }
+            text += "\n[結果] " + this.nPoint + " / " + this.nCertNum;
+            text += "\nhttps://koyubistrong.github.io/index.html?id=section_diagonal_cert";
+            text += "\n#斜め軸検定";
+            return "https://twitter.com/intent/tweet?text=" + encodeURIComponent(text);
+        }
+
+        openTweet() {
+            let url = this.getTweetUrl();
+            let win = window.open(url, "_blank");
+            if(win != null) {
+                win.opener = null;
+            }
+            else {
+                window.location.href = url;
+            }
+        }
+
         End(bForceEnd) {
             if(bForceEnd == null) {
                 if(this.downKeys[13]) {
@@ -881,7 +964,7 @@ var RogueGame = (function() {
                     url += "%0D%0A[結果] " + this.nPoint + " / " + this.nCertNum;
                     url += "%0D%0Ahttps://koyubistrong.github.io/index.html?id=section_diagonal_cert";
                     url += "%0D%0A%23斜め軸検定";
-                    window.open(url, "_blank");
+                    this.openTweet();
                     return;
                 }
                 if(!this.downKeys[27]) {
@@ -950,6 +1033,55 @@ var RogueGame = (function() {
             grpMap.clear();
             let offset_x = this.nDrawOffsetX;
             let offset_y = this.nDrawOffsetY;
+            if(this.strGameType == "DIAGONAL_CERT") {
+                let board_x = offset_x;
+                let board_y = offset_y;
+                let board_w = this.sizeInfo.nMapRealWidth;
+                let board_h = this.sizeInfo.nMapRealHeight;
+                grpMap.beginFill(0xf8fafc);
+                grpMap.lineStyle(0);
+                grpMap.drawRect(board_x - 4, board_y - 4, board_w + 8, board_h + 8);
+                grpMap.endFill();
+                grpMap.lineStyle(1, 0xcbd5e1, 0.9);
+                grpMap.drawRect(board_x - 1, board_y - 1, board_w + 2, board_h + 2);
+
+                for(var y = 0; y < this.sizeInfo.nMapHeight; y++) {
+                    for(var x = 0; x < this.sizeInfo.nMapWidth; x++) {
+                        var ry = y * this.nCellSize;
+                        var rx = x * this.nCellSize;
+                        var draw_x = offset_x + rx;
+                        var draw_y = offset_y + ry;
+                        var cell_w = this.sizeInfo.nCellWidth;
+                        var cell_h = this.sizeInfo.nCellHeight;
+                        var cell_type = this.mapInfo[y][x].type;
+                        if(cell_type == ObjType.FLAT2) {
+                            grpMap.beginFill(0x2dd4bf, 0.72);
+                            grpMap.lineStyle(0);
+                            grpMap.drawRect(draw_x, draw_y, cell_w, cell_h);
+                            grpMap.endFill();
+                        }
+                        else if(cell_type == ObjType.FLAT) {
+                            grpMap.beginFill(0xf8fafc);
+                            grpMap.lineStyle(0);
+                            grpMap.drawRect(draw_x, draw_y, cell_w, cell_h);
+                            grpMap.endFill();
+                        }
+                        else {
+                            if(this.bTransMode) {
+                                grpMap.beginFill(0xf8fafc);
+                                grpMap.lineStyle(0);
+                            }
+                            else {
+                                grpMap.beginFill(0xdbe3ee);
+                                grpMap.lineStyle(0);
+                            }
+                            grpMap.drawRect(draw_x, draw_y, cell_w, cell_h);
+                            grpMap.endFill();
+                        }
+                    }
+                }
+                return grpMap;
+            }
             let colors = [0x0000FF, 0x00FF00, 0xFF0000, 0xFFFF00, 0xFF00FF, 0x00FFFF, 0x880000, 0x008800, 0x000088, 0x8888800, 0x880088, 0x008888];
             for(var y = 0; y < this.sizeInfo.nMapHeight; y++) {
                 for(var x = 0; x < this.sizeInfo.nMapWidth; x++) {
@@ -999,6 +1131,10 @@ var RogueGame = (function() {
         inputKeydown(code) {
             this.pressedKeys[code] = true;
             this.downKeys[code] = true;
+            if(this.strGameType == "DIAGONAL_CERT" && this.state == "End" && code == 13) {
+                this.openTweet();
+                this.downKeys[code] = false;
+            }
         }
 
         inputKeyup(code) {
